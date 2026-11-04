@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagbalatik mockup</title>
+<style>
+/* Palette and chart styles carried over from FEMT PC (src/renderer/styles.css). */
+:root {
+  --bg: #05070F; --bg-2: #0A0F1E; --panel: #121A33; --panel-2: #0E1529;
+  --border: #2A3550; --border-strong: #3A4A7A;
+  --text: #E8EEFF; --text-soft: #C9D4FF; --text-muted: #9FB0D8; --text-faint: #7A86A8;
+  --accent: #E8B84A; --accent-soft: #F2D27A; --accent-wash: rgba(232,184,74,.12); --on-accent: #05070F;
+  --ok: #7FCB97; --danger: #E07A6A;
+  --el-fire: #E2614A; --el-earth: #C4894B; --el-air: #7FB6E0; --el-water: #4FB58A;
+  --asp-trine: #4C7BE0; --asp-sextile: #3FA779; --asp-square: #D9573F; --asp-opposition: #E07A3C;
+  --f-ui: "Segoe UI", system-ui, sans-serif;
+  --f-text: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --f-mono: "Cascadia Mono", Consolas, monospace;
+  --f-sym: "Segoe UI Symbol", "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+body[data-theme="vellum"] {
+  --bg: #E5D9BF; --bg-2: #EFE6D2; --panel: #E2D5B8; --panel-2: #E9DFC8;
+  --border: #CDBF9F; --border-strong: #B9AA87;
+  --text: #2A2216; --text-soft: #3B3020; --text-muted: #5B4D36; --text-faint: #7A6B50;
+  --accent: #8E2A1C; --accent-soft: #8E2A1C; --accent-wash: rgba(142,42,28,.08); --on-accent: #F4ECDA;
+  --ok: #3E7A4F; --danger: #A3321F;
+  --el-fire: #B8402C; --el-earth: #8A5A22; --el-air: #2F6FA3; --el-water: #24805A;
+  --asp-trine: #2C55B0; --asp-sextile: #237A52; --asp-square: #B23A24; --asp-opposition: #B85A1C;
+  color-scheme: light;
+}
+body[data-theme="daylight"] {
+  --bg: #EEF1F6; --bg-2: #FAFBFD; --panel: #E6EAF2; --panel-2: #F1F4F9;
+  --border: #D2D9E5; --border-strong: #AAB4C8;
+  --text: #121826; --text-soft: #1F2839; --text-muted: #46526A; --text-faint: #646F86;
+  --accent: #2A4FBF; --accent-soft: #2344A6; --accent-wash: rgba(42,79,191,.09); --on-accent: #FFFFFF;
+  --ok: #2B7445; --danger: #B0362A;
+  --el-fire: #B8402C; --el-earth: #8A5A22; --el-air: #2F6FA3; --el-water: #24805A;
+  --asp-trine: #2C55B0; --asp-sextile: #237A52; --asp-square: #B23A24; --asp-opposition: #B85A1C;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: #1b1d22; color: var(--text); font: 14px/1.45 var(--f-ui); display: flex; flex-direction: column; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select { font: inherit; }
+
+/* ---------- mockup chrome (not part of the app) ---------- */
+.mock-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 16px; background: #0d0e11; color: #c8ccd6; border-bottom: 1px solid #2a2d35; font-size: 13px; }
+.mock-bar b { color: #fff; font-weight: 600; letter-spacing: .02em; }
+.mock-bar .grp { display: flex; gap: 4px; flex-wrap: wrap; }
+.mock-bar button { padding: 4px 11px; border: 1px solid #343843; border-radius: 999px; color: #aab0bd; }
+.mock-bar button.on { border-color: #E8B84A; color: #F2D27A; background: rgba(232,184,74,.1); }
+.mock-bar .sep { color: #555b68; }
+.mock-note { margin-left: auto; color: #7d8492; font-size: 12px; }
+.stage { flex: 1; min-height: 0; padding: 18px; display: flex; justify-content: center; overflow: auto; }
+
+/* ---------- app window ---------- */
+.win { width: min(1340px, 100%); min-height: 760px; height: 100%; max-height: 900px; background: var(--bg); border: 1px solid #000; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+.titlebar { flex: none; height: 38px; display: flex; align-items: center; gap: 10px; padding-left: 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-muted); user-select: none; }
+.titlebar .logo { width: 20px; height: 20px; color: var(--accent); }
+.titlebar .name { color: var(--text); font-weight: 600; }
+.titlebar .who { display: flex; align-items: center; gap: 6px; margin-left: 14px; padding: 3px 10px; border: 1px solid var(--border); border-radius: 6px; color: var(--text-soft); }
+.titlebar .who svg { opacity: .6; }
+.titlebar .caps { margin-left: auto; display: flex; height: 100%; }
+.titlebar .caps span { width: 46px; display: grid; place-items: center; color: var(--text-faint); font-size: 12px; }
+.body { flex: 1; min-height: 0; display: flex; }
+.rail { flex: none; width: 56px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-block: 10px; gap: 6px; }
+.rail-btn { width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; color: var(--text-faint); font-size: 18px; }
+.rail-btn:hover { color: var(--text); }
+.rail-btn.on { background: var(--panel); color: var(--accent); }
+.rail-gap { margin-top: auto; }
+main { flex: 1; min-width: 0; min-height: 0; display: flex; background: var(--bg-2); }
+
+.label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+.muted { color: var(--text-faint); }
+.small { font-size: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.chip.on { border-color: var(--accent); color: var(--accent-soft); background: var(--accent-wash); }
+button.chip:hover { border-color: var(--border-strong); color: var(--text); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--panel); color: var(--text-soft); border-radius: 6px; padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+.btn:hover { color: var(--text); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); color: var(--on-accent); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.seg button { padding: 5px 14px; font-size: 13px; color: var(--text-muted); }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--panel); color: var(--accent-soft); }
+.draft { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); border: 1px dashed var(--accent); border-radius: 3px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
+
+/* ---------- chart view (as FEMT) ---------- */
+.chart-view { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) clamp(290px, 27vw, 350px); }
+.chart-stage { min-width: 0; min-height: 0; overflow: hidden; padding: 6px 10px 10px; display: flex; flex-direction: column; gap: 4px; }
+.stage-head { display: flex; align-items: baseline; gap: 12px; padding: 10px 8px 0; }
+.stage-head h1 { margin: 0; font: 600 20px var(--f-text); }
+.wheel { flex: 1 1 0; min-height: 0; width: 100%; height: 100%; }
+.wheel .ring { fill: none; stroke: var(--border-strong); stroke-width: 1.2; }
+.wheel .ring.faint { stroke: var(--border); stroke-dasharray: 3 4; }
+.wheel .sign-line { stroke: var(--border-strong); stroke-width: 1; }
+.wheel .deg-tick { stroke: var(--border); stroke-width: 1; }
+.wheel .cusp { stroke: var(--border-strong); stroke-width: 1; }
+.wheel .cusp.angle { stroke: var(--text-muted); stroke-width: 1.6; }
+.wheel text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-sym); }
+.wheel .sign { font-size: 24px; }
+.wheel .house-num { font-size: 15px; fill: var(--text-faint); font-style: italic; font-family: var(--f-text); }
+.wheel .angle-label { font-size: 15px; fill: var(--text-soft); font-family: var(--f-ui); }
+.wheel .glyph { font-size: 25px; }
+.wheel .outer .glyph { font-size: 21px; }
+.wheel .deg { font-size: 12px; fill: var(--text-faint); font-family: var(--f-ui); }
+.wheel .tick-body { stroke: var(--text-muted); stroke-width: 1.4; }
+.wheel .outer .tick-body { stroke: var(--accent); }
+.wheel .asp { stroke-width: 1.6; }
+.el-fire { fill: var(--el-fire); color: var(--el-fire); } .el-earth { fill: var(--el-earth); color: var(--el-earth); }
+.el-air { fill: var(--el-air); color: var(--el-air); } .el-water { fill: var(--el-water); color: var(--el-water); }
+.asp-trine { stroke: var(--asp-trine); color: var(--asp-trine); } .asp-sextile { stroke: var(--asp-sextile); color: var(--asp-sextile); }
+.asp-square { stroke: var(--asp-square); color: var(--asp-square); } .asp-opposition { stroke: var(--asp-opposition); color: var(--asp-opposition); stroke-dasharray: 6 4; }
+.asp-conjunction { color: var(--accent); }
+.sun { fill: #E8B84A; color: #E8B84A; } .moon { fill: #D8D4C4; color: #D8D4C4; }
+.mercury { fill: #6FC3B2; color: #6FC3B2; } .venus { fill: #E58FB4; color: #E58FB4; }
+.mars { fill: #E2614A; color: #E2614A; } .jupiter { fill: #8C8CF0; color: #8C8CF0; }
+.saturn { fill: #C9B37A; color: #C9B37A; } .uranus { fill: #5CC9E0; color: #5CC9E0; }
+.neptune { fill: #5B9BE8; color: #5B9BE8; } .pluto { fill: #B47FD6; color: #B47FD6; }
+.node, .snode { fill: var(--text-muted); color: var(--text-muted); }
+body:not([data-theme="night"]) .sun { fill: #A8740E; color: #A8740E; } body:not([data-theme="night"]) .moon { fill: #6E6A5C; color: #6E6A5C; }
+body:not([data-theme="night"]) .mercury { fill: #2E8A78; color: #2E8A78; } body:not([data-theme="night"]) .uranus { fill: #237F94; color: #237F94; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 12px; color: var(--text-faint); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; margin-right: 6px; vertical-align: 3px; }
+.legend i.asp-opposition { border-top-style: dashed; }
+.chart-side { border-left: 1px solid var(--border); background: var(--panel-2); overflow: auto; padding: 16px 18px 30px; display: flex; flex-direction: column; gap: 16px; }
+.chart-side > * { flex: none; }
+.chart-side .label { display: block; margin-bottom: 6px; }
+.report-cta { display: flex; gap: 8px; }
+.report-cta .btn { flex: 1; }
+.moment { display: flex; flex-direction: column; gap: 8px; }
+.moment input, .opts select, .field input, .field select { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; color: var(--text); font-size: 13px; min-width: 0; }
+.moment .when { display: flex; gap: 8px; align-items: center; }
+.moment .when input { flex: 1; font-size: 14px; }
+.moment .steps { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 4px; }
+.moment .steps .chip { justify-content: center; padding: 3px 0; font-family: var(--f-mono); font-size: 11px; }
+.moment .latlon { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.moment label, .opts label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-faint); }
+.moment label input { flex: 1; width: 100%; }
+.opts { display: flex; gap: 12px; flex-wrap: wrap; }
+table.positions, table.aspects { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+table.positions td, table.aspects td { padding: 3px 4px; border-bottom: 1px solid var(--border); color: var(--text-soft); }
+table.positions td.g, table.aspects td.g { font-family: var(--f-sym); font-size: 16px; width: 22px; text-align: center; }
+table.positions td.num, table.aspects td.num { text-align: right; color: var(--text); white-space: nowrap; }
+table.aspects td:nth-child(4) { font-size: 12px; color: var(--text-muted); }
+
+/* ---------- library ---------- */
+.lib { flex: 1; overflow: auto; padding: 26px 32px; }
+.lib-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.lib-head h1 { margin: 0; font: 600 22px var(--f-text); }
+.lib-head .search { margin-left: auto; width: 260px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); }
+.lib-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.lib-table th { text-align: left; font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); padding: 8px 10px; border-bottom: 1px solid var(--border-strong); }
+.lib-table td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--text-soft); vertical-align: middle; }
+.lib-table tr:hover td { background: var(--panel-2); }
+.lib-table tr.sel td { background: var(--accent-wash); }
+.lib-table .nm { color: var(--text); font-weight: 600; }
+.lib-table .big3 { font-family: var(--f-sym); font-size: 15px; letter-spacing: .25em; }
+.lib-table .acts { text-align: right; white-space: nowrap; }
+.lib-table .acts .btn { padding: 3px 10px; font-size: 12px; }
+.tag { font-size: 11px; padding: 1px 7px; border-radius: 4px; background: var(--panel); color: var(--text-muted); margin-right: 4px; }
+.lib-foot { margin-top: 18px; display: flex; gap: 8px; align-items: center; }
+
+/* ---------- reports ---------- */
+.rep { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 300px minmax(0,1fr); }
+.rep-col { min-height: 0; overflow: auto; padding: 18px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+.rep-col h2 { margin: 0 0 2px; font: 600 17px var(--f-text); }
+.rtype { text-align: left; border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; background: var(--panel-2); display: grid; grid-template-columns: 30px 1fr; gap: 2px 10px; }
+.rtype:hover { border-color: var(--border-strong); }
+.rtype.on { border-color: var(--accent); background: var(--accent-wash); }
+.rtype .ic { grid-row: span 3; font-family: var(--f-sym); font-size: 22px; color: var(--accent); line-height: 1.2; }
+.rtype b { color: var(--text); font-weight: 600; font-size: 14px; }
+.rtype span { font-size: 12px; color: var(--text-muted); }
+.rtype em { font-style: normal; font-size: 11px; color: var(--text-faint); }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field > span { font-size: 12px; color: var(--text-faint); }
+.field .row { display: flex; gap: 8px; }
+.field .row > * { flex: 1; }
+.checks { display: flex; flex-direction: column; gap: 6px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text-soft); }
+.checks input { accent-color: var(--accent); }
+.fmt { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fmt button { border: 1px solid var(--border); border-radius: 8px; padding: 10px 8px; text-align: center; background: var(--panel-2); }
+.fmt button.on { border-color: var(--accent); background: var(--accent-wash); }
+.fmt button b { display: block; font-size: 15px; color: var(--text); }
+.fmt button span { font-size: 11px; color: var(--text-faint); }
+.gen { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 10px; }
+.gen .btn { padding: 9px 12px; font-size: 14px; }
+.preview { min-height: 0; overflow: auto; background: var(--bg); padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.preview-head { align-self: stretch; display: flex; align-items: center; gap: 10px; }
+.toast { position: fixed; right: 30px; bottom: 30px; background: var(--panel); border: 1px solid var(--accent); color: var(--text); padding: 12px 16px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.4); font-size: 13px; max-width: 420px; transform: translateY(20px); opacity: 0; transition: .25s; pointer-events: none; }
+.toast.show { transform: none; opacity: 1; }
+.toast code { font-family: var(--f-mono); font-size: 12px; color: var(--accent-soft); }
+
+/* ---------- paper (report pages, always light) ---------- */
+.paper { --ink: #1d1a14; --ink-2: #4a4234; --ink-3: #85796200; --rule: #d6ccb6; --pa: #8E2A1C;
+  width: 595px; min-height: 842px; background: #fbf8f1; color: var(--ink); box-shadow: 0 6px 24px rgba(0,0,0,.35); padding: 48px 50px 40px; font: 11px/1.5 var(--f-text); position: relative; flex: none; }
+.paper.letter { width: 612px; min-height: 792px; }
+.paper.clean { background: #fff; --pa: #2A4FBF; --rule: #dde2ea; }
+.paper .ph { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid var(--pa); padding-bottom: 8px; margin-bottom: 14px; }
+.paper .ph h3 { margin: 0; font-size: 20px; font-weight: 600; color: var(--pa); letter-spacing: .01em; }
+.paper .ph .sub { font: 10px var(--f-ui); color: var(--ink-2); text-align: right; }
+.paper h4 { font: 600 9px var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--pa); margin: 14px 0 5px; }
+.paper h5 { font-size: 12.5px; margin: 10px 0 2px; font-weight: 600; }
+.paper p { margin: 0 0 6px; text-align: justify; hyphens: auto; }
+.paper .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.paper table { width: 100%; border-collapse: collapse; font: 10px var(--f-ui); font-variant-numeric: tabular-nums; }
+.paper td, .paper th { padding: 2.5px 4px; border-bottom: .5px solid var(--rule); text-align: left; }
+.paper th { font-weight: 600; color: var(--ink-2); font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; }
+.paper td.g { font-family: var(--f-sym); font-size: 12px; width: 16px; text-align: center; }
+.paper td.r { text-align: right; }
+.paper .pf { position: absolute; left: 50px; right: 50px; bottom: 18px; display: flex; justify-content: space-between; font: 8.5px var(--f-ui); color: #9a8f78; border-top: .5px solid var(--rule); padding-top: 5px; }
+.paper .wheel-wrap { display: flex; justify-content: center; margin: 4px 0 6px; }
+.paper .wheel-wrap svg { width: 330px; height: 330px; }
+.paper .wheel { --border: #cfc3a8; --border-strong: #a99a78; --text-muted: #6b5f48; --text-soft: #3b3020; --text-faint: #8a7d62; --accent: #8E2A1C;
+  --el-fire: #B8402C; --el-earth: #8A5A22; --el-air: #2F6FA3; --el-water: #24805A; --asp-trine: #2C55B0; --asp-sextile: #237A52; --asp-square: #B23A24; --asp-opposition: #B85A1C; }
+.paper .wheel .sun { fill: #A8740E; } .paper .wheel .moon { fill: #6E6A5C; } .paper .wheel .mercury { fill: #2E8A78; } .paper .wheel .uranus { fill: #237F94; }
+.paper td.sun { color: #A8740E; } .paper td.moon { color: #6E6A5C; } .paper td.mercury { color: #2E8A78; } .paper td.uranus { color: #237F94; }
+.paper .grid-asp { border-collapse: collapse; font-family: var(--f-sym); font-size: 10px; width: auto; }
+.paper .grid-asp td { width: 18px; height: 18px; border: .5px solid var(--rule); text-align: center; padding: 0; }
+.paper .grid-asp td.h { border: 0; font-size: 11px; }
+.paper .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 4px; }
+.paper .facts div { border: .5px solid var(--rule); border-radius: 3px; padding: 5px 7px; font: 9px var(--f-ui); color: var(--ink-2); }
+.paper .gs { font-family: var(--f-sym); font-style: normal; }
+.paper .facts b { display: block; font: 600 12px var(--f-text); color: var(--ink); }
+.paper .bar { height: 6px; border-radius: 3px; background: #eee5d2; position: relative; overflow: hidden; }
+.paper .bar i { position: absolute; top: 0; bottom: 0; background: var(--pa); opacity: .55; border-radius: 3px; }
+.paper .bar b { position: absolute; top: -1px; bottom: -1px; width: 2px; background: var(--ink); }
+.paper .cover { text-align: center; padding-top: 60px; }
+.paper .cover .t { font-size: 30px; color: var(--pa); margin: 16px 0 4px; }
+.paper .docx-ribbon { position: absolute; top: 14px; right: 14px; font: 600 9px var(--f-ui); letter-spacing: .1em; padding: 2px 6px; border-radius: 3px; background: #2B579A; color: #fff; }
+.paper .pdf-ribbon { position: absolute; top: 14px; right: 14px; font: 600 9px var(--f-ui); letter-spacing: .1em; padding: 2px 6px; border-radius: 3px; background: #B3261E; color: #fff; }
+
+/* ---------- samples / build notes ---------- */
+.samples { flex: 1; overflow: auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; align-content: flex-start; background: var(--bg); }
+.samples figure { margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.samples figcaption { color: var(--text-muted); font-size: 13px; max-width: 595px; text-align: center; }
+.samples figcaption b { color: var(--text); }
+.notes { flex: 1; overflow: auto; padding: 28px 36px; max-width: 980px; }
+.notes h1 { margin: 0 0 6px; font: 600 22px var(--f-text); }
+.notes h2 { font: 600 16px var(--f-text); color: var(--accent-soft); margin: 22px 0 8px; }
+.notes p, .notes li { color: var(--text-soft); }
+.notes code { font-family: var(--f-mono); font-size: 12.5px; color: var(--accent-soft); }
+.notes table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.notes td, .notes th { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-soft); }
+.notes th { color: var(--text-faint); font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.flow { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; margin: 6px 0; }
+.flow div { border: 1px solid var(--border-strong); background: var(--panel-2); border-radius: 7px; padding: 8px 12px; font-size: 12.5px; color: var(--text-soft); }
+.flow div b { display: block; color: var(--text); font-size: 13px; }
+.flow span { align-self: center; padding: 0 8px; color: var(--text-faint); }
+
+@media (max-width: 1000px) {
+  .rep { grid-template-columns: 1fr; overflow: auto; }
+  .rep-col { border-right: 0; border-bottom: 1px solid var(--border); overflow: visible; }
+  .chart-view { grid-template-columns: 1fr; overflow: auto; }
+  .chart-stage { min-height: 80vw; }
+}
+@media (max-width: 640px) {
+  .stage { padding: 0; }
+  .win { border-radius: 0; min-height: 100%; max-height: none; }
+  .paper { transform: scale(.55); transform-origin: top center; margin-bottom: -380px; }
+  .mock-note { display: none; }
+}
+</style>
+</head>
+<body data-theme="night">
+
+<div class="mock-bar">
+  <b>Pagbalatik · mockup</b>
+  <div class="grp" id="mk-screens">
+    <button data-s="chart" class="on">1 · Chart</button>
+    <button data-s="library">2 · Saved charts</button>
+    <button data-s="reports">3 · Report builder</button>
+    <button data-s="samples">4 · Report types</button>
+    <button data-s="notes">5 · How it's built</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="grp" id="mk-theme">
+    <button data-t="night" class="on">Night</button>
+    <button data-t="vellum">Vellum</button>
+    <button data-t="daylight">Daylight</button>
+  </div>
+  <span class="mock-note">Positions are live, from FEMT's chart engine. Sample people, not real data.</span>
+</div>
+
+<div class="stage">
+  <div class="win">
+    <div class="titlebar">
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg>
+      <span class="name">Pagbalatik</span>
+      <span class="who" id="who"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><span id="who-name"></span> ▾</span>
+      <span class="caps"><span>—</span><span>▢</span><span>✕</span></span>
+    </div>
+    <div class="body">
+      <nav class="rail">
+        <button class="rail-btn on" data-s="chart" title="Chart"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M18.7 5.3l-2.8 2.8M8.1 15.9l-2.8 2.8"/></svg></button>
+        <button class="rail-btn" data-s="library" title="Saved charts"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c3 .2 5 2.2 5 5.3"/></svg></button>
+        <button class="rail-btn" data-s="reports" title="Reports"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2.8h8.5L19 7.3V21.2H6z"/><path d="M14.5 2.8v4.5H19"/><path d="M9 12h7M9 15h7M9 18h4.5"/></svg></button>
+        <span class="rail-gap"></span>
+        <button class="rail-btn" data-s="notes" title="Settings">⚙</button>
+      </nav>
+      <main id="main"></main>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>/* chart-engine.js from FEMT PC 0.6.3, inlined */
+// FEMT chart engine: tropical positions of the Sun, Moon, planets and lunar node, the angles,
+// house cusps and aspects for a moment and place. Pure functions; scripts/test-chart.js checks them.
+//
+// Planets use the same Keplerian elements as the phone app (E. M. Standish, JPL, valid 1800–2050:
+// errors of arcminutes). The Moon uses the main periodic terms of Meeus, Astronomical Algorithms
+// ch. 47 (good to about 0.01°), since a chart shows the Moon to the degree.
+(function (root) {
+  const DEG = Math.PI / 180;
+  const J2000 = 2451545.0;
+  const PRECESSION = 1.396971; // general precession in longitude, degrees per century
+  const norm = (d) => ((d % 360) + 360) % 360;
+  const sin = (d) => Math.sin(d * DEG), cos = (d) => Math.cos(d * DEG);
+  const julianDay = (ms) => ms / 86400000 + 2440587.5;
+  const centuries = (jd) => (jd - J2000) / 36525;
+  const obliquity = (T) => 23.439291 - 0.0130042 * T;
+
+  // ---------- planets (Standish Table 1: a, e, I, L, long. perihelion, node; and rates per century)
+  const EL = {
+    earth: [[1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0.0], [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0.0]],
+    mercury: [[0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593], [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081]],
+    venus: [[0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255], [0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418]],
+    mars: [[1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891], [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343]],
+    jupiter: [[5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909], [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106]],
+    saturn: [[9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448], [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794]],
+    uranus: [[19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503], [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589]],
+    neptune: [[30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574], [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664]],
+    pluto: [[39.48211675, 0.24882730, 17.14001206, 238.92903833, 224.06891629, 110.30393684], [-0.00031596, 0.00005170, 0.00004818, 145.20780515, -0.04062942, -0.01183482]],
+  };
+
+  function helio(name, T) {
+    const [base, rate] = EL[name];
+    const v = base.map((b, i) => b + rate[i] * T);
+    const [a, e] = v;
+    const inc = v[2] * DEG, node = v[5] * DEG, peri = (v[4] - v[5]) * DEG;
+    let M = norm(v[3] - v[4]);
+    if (M > 180) M -= 360;
+    const m = M * DEG;
+    let E = m + e * Math.sin(m);
+    for (let i = 0; i < 30; i++) {
+      const d = (E - e * Math.sin(E) - m) / (1 - e * Math.cos(E));
+      E -= d;
+      if (Math.abs(d) < 1e-12) break;
+    }
+    const xp = a * (Math.cos(E) - e), yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+    const cw = Math.cos(peri), sw = Math.sin(peri), cn = Math.cos(node), sn = Math.sin(node), ci = Math.cos(inc), si = Math.sin(inc);
+    return [
+      (cw * cn - sw * sn * ci) * xp + (-sw * cn - cw * sn * ci) * yp,
+      (cw * sn + sw * cn * ci) * xp + (-sw * sn + cw * cn * ci) * yp,
+      (sw * si) * xp + (cw * si) * yp,
+    ];
+  }
+
+  /** Geocentric ecliptic longitude and latitude, equinox of date, degrees. */
+  function planetLonLat(name, T) {
+    const earth = helio('earth', T);
+    const p = name === 'sun' ? [0, 0, 0] : helio(name, T);
+    const x = p[0] - earth[0], y = p[1] - earth[1], z = p[2] - earth[2];
+    return { lon: norm(Math.atan2(y, x) / DEG + PRECESSION * T), lat: Math.atan2(z, Math.hypot(x, y)) / DEG };
+  }
+
+  // ---------- Moon (Meeus ch. 47, main terms; coefficients in degrees)
+  const MOON_LON = [
+    // D, M, M', F, coefficient
+    [0, 0, 1, 0, 6.288774], [2, 0, -1, 0, 1.274027], [2, 0, 0, 0, 0.658314], [0, 0, 2, 0, 0.213618],
+    [0, 1, 0, 0, -0.185116], [0, 0, 0, 2, -0.114332], [2, 0, -2, 0, 0.058793], [2, -1, -1, 0, 0.057066],
+    [2, 0, 1, 0, 0.053322], [2, -1, 0, 0, 0.045758], [0, 1, -1, 0, -0.040923], [1, 0, 0, 0, -0.034720],
+    [0, 1, 1, 0, -0.030383], [2, 0, 0, -2, 0.015327], [0, 0, 1, 2, -0.012528], [0, 0, 1, -2, 0.010980],
+    [4, 0, -1, 0, 0.010675], [0, 0, 3, 0, 0.010034], [4, 0, -2, 0, 0.008548], [2, 1, -1, 0, -0.007888],
+    [2, 1, 0, 0, -0.006766], [1, 0, -1, 0, -0.005163], [1, 1, 0, 0, 0.004987], [2, -1, 1, 0, 0.004036],
+    [2, 0, 2, 0, 0.003994], [4, 0, 0, 0, 0.003861], [2, 0, -3, 0, 0.003665], [0, 1, -2, 0, -0.002689],
+    [2, 0, -1, 2, -0.002602], [2, -1, -2, 0, 0.002390], [1, 0, 1, 0, -0.002348], [2, -2, 0, 0, 0.002236],
+    [0, 1, 2, 0, -0.002120], [0, 2, 0, 0, -0.002069], [2, -2, -1, 0, 0.002048], [2, 0, 1, -2, -0.001773],
+    [2, 0, 0, 2, -0.001595], [4, -1, -1, 0, 0.001215], [0, 0, 2, 2, -0.001110], [3, 0, -1, 0, -0.000892],
+    [2, 1, 1, 0, -0.000810], [4, -1, -2, 0, 0.000759], [0, 2, -1, 0, -0.000713], [2, 2, -1, 0, -0.000700],
+    [2, 1, -2, 0, 0.000691], [2, -1, 0, -2, 0.000596], [4, 0, 1, 0, 0.000549], [0, 0, 4, 0, 0.000537],
+    [4, -1, 0, 0, 0.000520], [1, 0, -2, 0, -0.000487],
+  ];
+  const MOON_LAT = [
+    [0, 0, 0, 1, 5.128122], [0, 0, 1, 1, 0.280602], [0, 0, 1, -1, 0.277693], [2, 0, 0, -1, 0.173237],
+    [2, 0, -1, 1, 0.055413], [2, 0, -1, -1, 0.046271], [2, 0, 0, 1, 0.032573], [0, 0, 2, 1, 0.017198],
+    [2, 0, 1, -1, 0.009266], [0, 0, 2, -1, 0.008822], [2, -1, 0, -1, 0.008216], [2, 0, -2, -1, 0.004324],
+    [2, 0, 1, 1, 0.004200], [2, 1, 0, -1, -0.003359], [2, -1, -1, 1, 0.002463], [2, -1, 0, 1, 0.002211],
+    [2, -1, -1, -1, 0.002065], [0, 1, -1, -1, -0.001870], [4, 0, -1, -1, 0.001828], [0, 1, 0, 1, -0.001794],
+  ];
+
+  function moonArgs(T) {
+    return {
+      L: norm(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T),
+      D: norm(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T),
+      M: norm(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T),
+      Mp: norm(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T),
+      F: norm(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T),
+      E: 1 - 0.002516 * T - 0.0000074 * T * T,
+    };
+  }
+
+  function series(terms, a) {
+    let s = 0;
+    for (const [d, m, mp, f, c] of terms) {
+      const ecc = Math.abs(m) === 1 ? a.E : Math.abs(m) === 2 ? a.E * a.E : 1;
+      s += c * ecc * sin(d * a.D + m * a.M + mp * a.Mp + f * a.F);
+    }
+    return s;
+  }
+
+  function moonLonLat(T) {
+    const a = moonArgs(T);
+    const A1 = norm(119.75 + 131.849 * T), A2 = norm(53.09 + 479264.290 * T), A3 = norm(313.45 + 481266.484 * T);
+    const lon = a.L + series(MOON_LON, a) + 0.003958 * sin(A1) + 0.001962 * sin(a.L - a.F) + 0.000318 * sin(A2);
+    const lat = series(MOON_LAT, a) - 0.002235 * sin(a.L) + 0.000382 * sin(A3) + 0.000175 * sin(A1 - a.F)
+      + 0.000175 * sin(A1 + a.F) + 0.000127 * sin(a.L - a.Mp) - 0.000115 * sin(a.L + a.Mp);
+    return { lon: norm(lon), lat };
+  }
+
+  /** The Moon's ascending node: mean, or true (mean plus Meeus's main corrections). */
+  function nodeLon(T, kind) {
+    const mean = norm(125.0445479 - 1934.1362891 * T + 0.0020754 * T * T);
+    if (kind === 'mean') return mean;
+    const a = moonArgs(T);
+    return norm(mean - 1.4979 * sin(2 * (a.D - a.F)) - 0.1500 * sin(a.M) - 0.1226 * sin(2 * a.D)
+      + 0.1176 * sin(2 * a.F) - 0.0801 * sin(2 * (a.Mp - a.F)));
+  }
+
+  // ---------- angles and houses
+  function gmst(jd) {
+    const T = centuries(jd);
+    return norm(280.46061837 + 360.98564736629 * (jd - J2000) + 0.000387933 * T * T - (T * T * T) / 38710000);
+  }
+
+  /** Ecliptic longitude of the point on the ecliptic with right ascension ra. */
+  const raToLon = (ra, eps) => norm(Math.atan2(sin(ra), cos(ra) * cos(eps)) / DEG);
+  const lonToDec = (lon, eps) => Math.asin(sin(eps) * sin(lon)) / DEG;
+
+  function angles(ramc, lat, eps) {
+    const mc = raToLon(ramc, eps);
+    const asc = norm(Math.atan2(cos(ramc), -(sin(ramc) * cos(eps) + Math.tan(lat * DEG) * sin(eps))) / DEG);
+    return { asc, mc, dsc: norm(asc + 180), ic: norm(mc + 180) };
+  }
+
+  /**
+   * Placidus cusps by iteration: houses 11 and 12 divide the semi-diurnal arc above the horizon
+   * into thirds, houses 2 and 3 the semi-nocturnal arc below. Null above the polar circles,
+   * where some degrees never rise or set.
+   */
+  function placidus(ramc, lat, eps, ang) {
+    const tanPhi = Math.tan(lat * DEG);
+    const cusp = (f, below) => {
+      let lon = below ? norm(ang.asc + f * 60) : norm(ang.mc + f * 60);
+      for (let i = 0; i < 60; i++) {
+        const x = -tanPhi * Math.tan(lonToDec(lon, eps) * DEG);
+        if (Math.abs(x) > 1) return null;
+        const sda = Math.acos(x) / DEG;
+        const ra = below ? ramc + 180 - (1 - f) * (180 - sda) : ramc + f * sda;
+        const next = raToLon(ra, eps);
+        const diff = Math.abs(((next - lon + 540) % 360) - 180);
+        lon = next;
+        if (diff < 1e-9) break;
+      }
+      return lon;
+    };
+    const c11 = cusp(1 / 3, false), c12 = cusp(2 / 3, false), c2 = cusp(1 / 3, true), c3 = cusp(2 / 3, true);
+    if ([c11, c12, c2, c3].some((c) => c == null)) return null;
+    return [ang.asc, c2, c3, ang.ic, norm(c11 + 180), norm(c12 + 180), ang.dsc, norm(c2 + 180), norm(c3 + 180), ang.mc, c11, c12];
+  }
+
+  function porphyry(ang) {
+    const q1 = norm(ang.ic - ang.asc), q2 = norm(ang.dsc - ang.ic);
+    const c = [ang.asc, norm(ang.asc + q1 / 3), norm(ang.asc + 2 * q1 / 3), ang.ic, norm(ang.ic + q2 / 3), norm(ang.ic + 2 * q2 / 3)];
+    return c.concat(c.map((x) => norm(x + 180)));
+  }
+
+  function houses(system, ramc, lat, eps, ang) {
+    if (system === 'whole') { const s = Math.floor(ang.asc / 30) * 30; return { system, cusps: Array.from({ length: 12 }, (_, i) => norm(s + 30 * i)) }; }
+    if (system === 'equal') return { system, cusps: Array.from({ length: 12 }, (_, i) => norm(ang.asc + 30 * i)) };
+    if (system === 'porphyry') return { system, cusps: porphyry(ang) };
+    const p = placidus(ramc, lat, eps, ang);
+    return p ? { system: 'placidus', cusps: p } : { system: 'porphyry', cusps: porphyry(ang), fallback: 'Placidus is undefined this close to the pole; Porphyry is used instead.' };
+  }
+
+  /** Which house (1–12) a longitude falls in. */
+  function houseOf(lon, cusps) {
+    for (let i = 0; i < 12; i++) {
+      const a = cusps[i], b = cusps[(i + 1) % 12];
+      const span = norm(b - a), off = norm(lon - a);
+      if (off < span) return i + 1;
+    }
+    return 1;
+  }
+
+  // ---------- bodies, aspects, chart
+  const BODIES = [
+    { id: 'sun', name: 'Sun', glyph: '☉' }, { id: 'moon', name: 'Moon', glyph: '☽' },
+    { id: 'mercury', name: 'Mercury', glyph: '☿' }, { id: 'venus', name: 'Venus', glyph: '♀' },
+    { id: 'mars', name: 'Mars', glyph: '♂' }, { id: 'jupiter', name: 'Jupiter', glyph: '♃' },
+    { id: 'saturn', name: 'Saturn', glyph: '♄' }, { id: 'uranus', name: 'Uranus', glyph: '♅' },
+    { id: 'neptune', name: 'Neptune', glyph: '♆' }, { id: 'pluto', name: 'Pluto', glyph: '♇' },
+    { id: 'node', name: 'North Node', glyph: '☊' }, { id: 'snode', name: 'South Node', glyph: '☋' },
+  ];
+
+  const SIGNS = [
+    ['Aries', '♈', 'fire'], ['Taurus', '♉', 'earth'], ['Gemini', '♊', 'air'], ['Cancer', '♋', 'water'],
+    ['Leo', '♌', 'fire'], ['Virgo', '♍', 'earth'], ['Libra', '♎', 'air'], ['Scorpio', '♏', 'water'],
+    ['Sagittarius', '♐', 'fire'], ['Capricorn', '♑', 'earth'], ['Aquarius', '♒', 'air'], ['Pisces', '♓', 'water'],
+  ].map(([name, glyph, element], i) => ({ name, glyph, element, start: i * 30 }));
+
+  const ASPECTS = [
+    { id: 'conjunction', name: 'Conjunction', glyph: '☌', angle: 0, orb: 8, kind: 'neutral' },
+    { id: 'sextile', name: 'Sextile', glyph: '⚹', angle: 60, orb: 4, kind: 'soft' },
+    { id: 'square', name: 'Square', glyph: '□', angle: 90, orb: 7, kind: 'hard' },
+    { id: 'trine', name: 'Trine', glyph: '△', angle: 120, orb: 7, kind: 'soft' },
+    { id: 'opposition', name: 'Opposition', glyph: '☍', angle: 180, orb: 8, kind: 'hard' },
+  ];
+
+  function lonAt(id, T, nodeKind) {
+    if (id === 'moon') return moonLonLat(T).lon;
+    if (id === 'node') return nodeLon(T, nodeKind);
+    if (id === 'snode') return norm(nodeLon(T, nodeKind) + 180);
+    return planetLonLat(id, T).lon;
+  }
+
+  /** Signed daily motion in degrees, from a day either side. Negative means retrograde. */
+  function speed(id, jd, nodeKind) {
+    const a = lonAt(id, centuries(jd - 0.5), nodeKind), b = lonAt(id, centuries(jd + 0.5), nodeKind);
+    return ((b - a + 540) % 360) - 180;
+  }
+
+  function signOf(lon) {
+    const s = SIGNS[Math.floor(norm(lon) / 30)];
+    const within = norm(lon) - s.start;
+    const d = Math.floor(within), m = Math.floor((within - d) * 60);
+    return { sign: s, deg: d, min: m };
+  }
+
+  const separation = (a, b) => { const d = Math.abs(norm(a) - norm(b)) % 360; return d > 180 ? 360 - d : d; };
+
+  /** Aspects within orb between two lists of points ({id, lon}); same list = within one chart. */
+  function aspects(listA, listB, opts = {}) {
+    const scale = opts.orbScale ?? 1;
+    const out = [];
+    const same = listA === listB;
+    for (let i = 0; i < listA.length; i++) {
+      for (let j = same ? i + 1 : 0; j < listB.length; j++) {
+        const a = listA[i], b = listB[j];
+        if (same && ((a.id === 'node' && b.id === 'snode') || (a.id === 'snode' && b.id === 'node'))) continue;
+        const sep = separation(a.lon, b.lon);
+        for (const asp of ASPECTS) {
+          const orb = Math.abs(sep - asp.angle);
+          if (orb <= asp.orb * scale) { out.push({ a: a.id, b: b.id, aspect: asp.id, kind: asp.kind, orb }); break; }
+        }
+      }
+    }
+    return out.sort((x, y) => x.orb - y.orb);
+  }
+
+  /**
+   * The chart for a moment (UTC milliseconds) and place. opts: { houseSystem, nodeKind }.
+   * Returns bodies with longitude, sign, house and speed; the angles; house cusps; aspects.
+   */
+  function chart(ms, lat, lon, opts = {}) {
+    const jd = julianDay(ms);
+    const T = centuries(jd);
+    const eps = obliquity(T);
+    const ramc = norm(gmst(jd) + lon);
+    const ang = angles(ramc, lat, eps);
+    const hs = houses(opts.houseSystem || 'placidus', ramc, lat, eps, ang);
+    const nodeKind = opts.nodeKind || 'true';
+    const bodies = BODIES.map((b) => {
+      const l = lonAt(b.id, T, nodeKind);
+      const v = speed(b.id, jd, nodeKind);
+      return { ...b, lon: l, speed: v, retrograde: v < 0 && b.id !== 'node' && b.id !== 'snode', house: houseOf(l, hs.cusps), ...signOf(l) };
+    });
+    const points = bodies.map((b) => ({ id: b.id, lon: b.lon }));
+    return { ms, jd, lat, lon, eps, ramc, angles: ang, houses: hs, bodies, aspects: aspects(points, points, opts) };
+  }
+
+  // ---------- time zones (IANA, via the browser's own tz database)
+  /** Offset of zone `tz` from UTC at instant `ms`, in minutes (east positive). */
+  function zoneOffset(ms, tz) {
+    const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const p = Object.fromEntries(f.formatToParts(new Date(ms)).filter((x) => x.type !== 'literal').map((x) => [x.type, +x.value]));
+    const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+    return Math.round((asUtc - Math.floor(ms / 1000) * 1000) / 60000);
+  }
+
+  /** A wall-clock time in zone `tz` to UTC milliseconds. */
+  function zonedToUtc(y, mo, d, h, mi, tz) {
+    const guess = Date.UTC(y, mo - 1, d, h, mi);
+    const first = guess - zoneOffset(guess, tz) * 60000;
+    return guess - zoneOffset(first, tz) * 60000;
+  }
+
+  /** UTC milliseconds to the wall-clock parts in zone `tz`. */
+  function utcToZoned(ms, tz) {
+    const off = zoneOffset(ms, tz);
+    const t = new Date(ms + off * 60000);
+    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), h: t.getUTCHours(), mi: t.getUTCMinutes(), offset: off };
+  }
+
+  const api = { chart, aspects, signOf, separation, planetLonLat, moonLonLat, nodeLon, angles, houses, houseOf, gmst, julianDay, centuries, obliquity, zoneOffset, zonedToUtc, utcToZoned, BODIES, SIGNS, ASPECTS, norm };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.ChartEngine = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const E = window.ChartEngine;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const DEG = Math.PI / 180;
+  const fmtDeg = (b) => `${b.deg}°${pad(b.min)}′`;
+  const ELC = { fire: 'el-fire', earth: 'el-earth', air: 'el-air', water: 'el-water' };
+  const ASP = Object.fromEntries(E.ASPECTS.map((a) => [a.id, a]));
+  const BODY = Object.fromEntries(E.BODIES.map((b) => [b.id, b]));
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // ---------- sample library (made-up people) ----------
+  const mk = (name, y, mo, d, h, mi, tz, place, lat, lon, tags) => ({ name, ms: E.zonedToUtc(y, mo, d, h, mi, tz), tz, place: { name: place, lat, lon }, tags, birth: [y, mo, d, h, mi] });
+  const PEOPLE = [
+    mk('Maria Santos', 1990, 6, 15, 8, 30, 'Asia/Manila', 'Manila', 14.5995, 120.9842, ['client']),
+    mk('Diego Reyes', 1987, 11, 3, 21, 10, 'Asia/Manila', 'Cebu City', 10.3157, 123.8854, ['client']),
+    mk('Ana Lim', 2001, 2, 22, 5, 45, 'Asia/Manila', 'Davao City', 7.1907, 125.4553, ['family']),
+    mk('Tomás Ortega', 1979, 8, 9, 14, 0, 'Europe/Madrid', 'Seville', 37.3891, -5.9845, []),
+    mk('Grace Okafor', 1995, 4, 1, 23, 20, 'Europe/London', 'London', 51.5074, -0.1278, ['client']),
+  ];
+  const S = { screen: 'chart', person: 0, partner: 1, houses: 'placidus', mode: 'chart', rtype: 'sheet', fmt: 'pdf', paper: 'a4', style: 'vellum',
+    from: '2026-11-01', months: 1, sections: { wheel: true, positions: true, houses: true, aspects: true, grid: true, balance: true, readings: true } };
+
+  const compute = (p, ms) => E.chart(ms ?? p.ms, p.place.lat, p.place.lon, { houseSystem: S.houses, nodeKind: 'true' });
+  const fmtBirth = (p) => { const [y, mo, d, h, mi] = p.birth; return `${d} ${MONTHS[mo - 1]} ${y}, ${pad(h)}:${pad(mi)}`; };
+  const offsetOf = (p) => { const o = E.utcToZoned(p.ms, p.tz).offset; return `UTC${o < 0 ? '−' : '+'}${pad(Math.floor(Math.abs(o) / 60))}:${pad(Math.abs(o) % 60)}`; };
+
+  // ---------- wheel (FEMT's geometry) ----------
+  const SIZE = 820, CX = SIZE / 2, CY = SIZE / 2;
+  function wheel(main, outer) {
+    const asc = main.angles.asc;
+    const pos = (lon, r) => { const t = (180 + (lon - asc)) * DEG; return [CX + r * Math.cos(t), CY - r * Math.sin(t)]; };
+    const spread = (bodies, gap) => {
+      const it = bodies.map((b) => ({ b, at: b.lon })).sort((x, y) => x.at - y.at);
+      for (let p = 0; p < 40; p++) { let mv = false; for (let i = 0; i < it.length; i++) { const a = it[i], b = it[(i + 1) % it.length]; const g = E.norm(b.at - a.at); if (g < gap) { const push = (gap - g) / 2; a.at = E.norm(a.at - push); b.at = E.norm(b.at + push); mv = true; } } if (!mv) break; }
+      return it;
+    };
+    const ring = (ch, rG, rT, rL, cls) => spread(ch.bodies, 6.5).map(({ b, at }) => {
+      const [x1, y1] = pos(b.lon, rT), [x2, y2] = pos(b.lon, rT - 10), [gx, gy] = pos(at, rG), [lx, ly] = pos(at, rL);
+      return `<g class="${cls}"><title>${b.name} ${fmtDeg(b)} ${b.sign.name}</title><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="tick-body"/><text x="${gx}" y="${gy}" class="glyph ${b.id}">${b.glyph}</text><text x="${lx}" y="${ly}" class="deg">${b.deg}${b.retrograde ? '℞' : ''}</text></g>`;
+    }).join('');
+    const bi = !!outer;
+    const R = bi ? { z1: 400, z0: 362, oG: 337, oL: 315, h1: 298, glyph: 272, label: 250, h0: 228, asp: 202 } : { z1: 400, z0: 356, glyph: 320, label: 293, h0: 268, asp: 240 };
+    let s = `<circle cx="${CX}" cy="${CY}" r="${R.z1}" class="ring"/><circle cx="${CX}" cy="${CY}" r="${R.z0}" class="ring"/>`;
+    for (const sg of E.SIGNS) {
+      const [x1, y1] = pos(sg.start, R.z0), [x2, y2] = pos(sg.start, R.z1), [gx, gy] = pos(sg.start + 15, (R.z0 + R.z1) / 2);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="sign-line"/><text x="${gx}" y="${gy}" class="sign ${ELC[sg.element]}">${sg.glyph}</text>`;
+    }
+    for (let d = 0; d < 360; d += 1) { const len = d % 10 === 0 ? 9 : d % 5 === 0 ? 6 : 3; const [x1, y1] = pos(d, R.z0), [x2, y2] = pos(d, R.z0 + len); s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="deg-tick"/>`; }
+    s += `<circle cx="${CX}" cy="${CY}" r="${R.h0}" class="ring"/><circle cx="${CX}" cy="${CY}" r="${R.asp}" class="ring"/>${bi ? `<circle cx="${CX}" cy="${CY}" r="${R.h1}" class="ring faint"/>` : ''}`;
+    const cs = main.houses.cusps;
+    cs.forEach((c, i) => {
+      const [x1, y1] = pos(c, R.asp), [x2, y2] = pos(c, R.z0); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${i % 3 === 0 ? 'cusp angle' : 'cusp'}"/>`;
+      const [nx, ny] = pos(c + E.norm(cs[(i + 1) % 12] - c) / 2, (R.h0 + R.asp) / 2); s += `<text x="${nx}" y="${ny}" class="house-num">${i + 1}</text>`;
+    });
+    [['asc', 'As'], ['dsc', 'Ds'], ['mc', 'Mc'], ['ic', 'Ic']].forEach(([k, l]) => {
+      const [x1, y1] = pos(main.angles[k], R.z1), [x2, y2] = pos(main.angles[k], R.z1 + 12), [lx, ly] = pos(main.angles[k], R.z1 + 26);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="cusp angle"/><text x="${lx}" y="${ly}" class="angle-label">${l}</text>`;
+    });
+    for (const a of main.aspects) {
+      if (a.aspect === 'conjunction') continue;
+      const pa = main.bodies.find((b) => b.id === a.a), pb = main.bodies.find((b) => b.id === a.b);
+      const [x1, y1] = pos(pa.lon, R.asp), [x2, y2] = pos(pb.lon, R.asp);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="asp asp-${a.aspect}" style="opacity:${(1 - (a.orb / (ASP[a.aspect].orb + .5)) * .65).toFixed(2)}"/>`;
+    }
+    s += ring(main, R.glyph, R.h0 + (bi ? 76 : 106), R.label, 'inner');
+    if (bi) s += ring(outer, R.oG, R.z1, R.oL, 'outer');
+    return `<svg class="wheel" viewBox="-34 -34 ${SIZE + 68} ${SIZE + 68}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+  }
+
+  // ---------- reading text (placeholder copy, assembled from keyword tables) ----------
+  const PLANET_FN = { sun: 'purpose and vitality', moon: 'feelings, habits and what comforts you', mercury: 'thinking, speech and learning', venus: 'love, taste and what you value', mars: 'drive, courage and how you fight', jupiter: 'growth, faith and good fortune', saturn: 'duty, limits and what you build slowly', uranus: 'sudden change and independence', neptune: 'dreams, devotion and dissolving boundaries', pluto: 'power, crisis and renewal', node: 'the direction of growth', snode: 'what comes easily from the past' };
+  const SIGN_KW = { Aries: 'direct, quick to start and impatient with delay', Taurus: 'steady, sensual and slow to be moved', Gemini: 'curious, quick-witted and restless', Cancer: 'protective, tender and rooted in home', Leo: 'warm, generous and wanting to be seen', Virgo: 'careful, useful and exacting', Libra: 'fair-minded, gracious and seeking balance', Scorpio: 'intense, private and unflinching', Sagittarius: 'frank, hopeful and drawn to the far horizon', Capricorn: 'patient, ambitious and practical', Aquarius: 'principled, original and a little detached', Pisces: 'compassionate, imaginative and porous' };
+  const HOUSE_KW = ['self and body', 'money and possessions', 'siblings, speech and short journeys', 'home, family and roots', 'children, pleasure and creativity', 'work, health and service', 'partners and open enemies', 'shared resources, death and inheritance', 'faith, study and long journeys', 'career and reputation', 'friends, hopes and patrons', 'hidden things, retreat and sorrow'];
+  const reading = (b) => `Your ${PLANET_FN[b.id]} take a ${b.sign.name} colour: ${SIGN_KW[b.sign.name]}. In the ${ord(b.house)} house this shows most in matters of ${HOUSE_KW[b.house - 1]}.${b.retrograde ? ' Retrograde, it works inwardly first, and often returns to unfinished business.' : ''}`;
+  const ord = (n) => n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
+
+  // ---------- transits over a period (real search, day by day) ----------
+  function transitsFor(p, fromIso, months) {
+    const natal = compute(p);
+    const [y, m, d] = fromIso.split('-').map(Number);
+    const start = Date.UTC(y, m - 1, d, 4), days = Math.round(months * 30.5);
+    const slow = ['sun', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    const targets = natal.bodies.filter((b) => b.id !== 'snode').map((b) => ({ id: b.id, lon: b.lon })).concat([{ id: 'asc', lon: natal.angles.asc }, { id: 'mc', lon: natal.angles.mc }]);
+    const hits = {};
+    for (let i = 0; i <= days; i++) {
+      const ms = start + i * 864e5;
+      const tr = compute(p, ms).bodies.filter((b) => slow.includes(b.id)).map((b) => ({ id: b.id, lon: b.lon }));
+      for (const a of E.aspects(tr, targets, { orbScale: .25 })) {
+        const k = `${a.a}|${a.aspect}|${a.b}`;
+        const h = hits[k] ||= { ...a, first: i, last: i, best: a.orb, bestDay: i };
+        h.last = i; if (a.orb < h.best) { h.best = a.orb; h.bestDay = i; }
+      }
+    }
+    const date = (i) => { const t = new Date(start + i * 864e5); return `${t.getUTCDate()} ${MONTHS[t.getUTCMonth()]}`; };
+    return { natal, days, list: Object.values(hits).sort((x, y) => x.bestDay - y.bestDay).map((h) => ({ ...h, from: date(h.first), to: date(h.last), exact: (h.best < .6 && h.bestDay > 0 && h.bestDay < days) || h.best < .1 ? date(h.bestDay) : '—' })) };
+  }
+  const ANGLE = { asc: { glyph: 'As', name: 'Ascendant' }, mc: { glyph: 'Mc', name: 'Midheaven' } };
+  const ptName = (id) => (BODY[id] || ANGLE[id]).name, ptGlyph = (id) => (BODY[id] || ANGLE[id]).glyph;
+
+  // ---------- screens ----------
+  function screenChart() {
+    const p = PEOPLE[S.person];
+    const tr = S.mode === 'transits';
+    const natal = compute(p), now = tr ? compute(p, Date.now()) : null;
+    const zp = E.utcToZoned(p.ms, p.tz);
+    const val = `${zp.y}-${pad(zp.m)}-${pad(zp.d)}T${pad(zp.h)}:${pad(zp.mi)}`;
+    const cross = tr ? E.aspects(now.bodies.map((b) => ({ id: b.id, lon: b.lon })), natal.bodies.map((b) => ({ id: b.id, lon: b.lon })), { orbScale: .5 }) : natal.aspects;
+    const row = (b) => `<tr><td class="g ${b.id}">${b.glyph}</td><td>${b.name}</td><td class="num">${fmtDeg(b)}</td><td class="g ${ELC[b.sign.element]}">${b.sign.glyph}</td><td>${b.retrograde ? '℞' : ''}</td><td class="num">${b.house}</td></tr>`;
+    const ang = (k, n) => { const s = E.signOf(natal.angles[k]); return `<tr><td class="g">${k === 'asc' ? 'As' : 'Mc'}</td><td>${n}</td><td class="num">${s.deg}°${pad(s.min)}′</td><td class="g ${ELC[s.sign.element]}">${s.sign.glyph}</td><td></td><td></td></tr>`; };
+    return `<div class="chart-view">
+      <div class="chart-stage">
+        <div class="stage-head"><h1>${esc(p.name)}</h1><span class="muted">${fmtBirth(p)} · ${esc(p.place.name)} · ${offsetOf(p)}</span></div>
+        ${wheel(natal, now)}
+        <div class="legend"><span><i class="asp-trine"></i>Trine</span><span><i class="asp-sextile"></i>Sextile</span><span><i class="asp-square"></i>Square</span><span><i class="asp-opposition"></i>Opposition</span>${tr ? '<span>Inner: birth chart · outer ring: transits now</span>' : ''}</div>
+      </div>
+      <aside class="chart-side">
+        <div class="report-cta"><button class="btn primary" data-go="reports">Make a report…</button><button class="btn" data-act="save">Save chart</button></div>
+        <div class="seg"><button class="${tr ? '' : 'on'}" data-mode="chart">Chart</button><button class="${tr ? 'on' : ''}" data-mode="transits">Transits</button></div>
+        <section class="moment">
+          <span class="label">Birth data</span>
+          <div class="when"><input type="datetime-local" value="${val}"></div>
+          <div class="steps">${['«Y', '‹M', '‹D', '‹H', 'H›', 'D›', 'M›', 'Y»'].map((l) => `<button class="chip">${l}</button>`).join('')}</div>
+          <input type="search" placeholder="${esc(p.place.name)}">
+          <div class="latlon"><label>Lat <input type="number" value="${p.place.lat}"></label><label>Lon <input type="number" value="${p.place.lon}"></label></div>
+          <label>Time zone <input value="${esc(p.tz)}"></label>
+        </section>
+        <section class="opts">
+          <label>Houses <select data-houses>${[['placidus', 'Placidus'], ['whole', 'Whole sign'], ['equal', 'Equal'], ['porphyry', 'Porphyry']].map(([v, l]) => `<option value="${v}"${S.houses === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+          <label>Node <select><option>True</option><option>Mean</option></select></label>
+        </section>
+        <section><span class="label">Positions</span><table class="positions"><tbody>${natal.bodies.map(row).join('')}${ang('asc', 'Ascendant')}${ang('mc', 'Midheaven')}</tbody></table></section>
+        <section><span class="label">${tr ? 'Transits to the birth chart' : 'Aspects'}</span><table class="aspects"><tbody>${cross.slice(0, 14).map((a) => `<tr><td class="g ${a.a}">${BODY[a.a].glyph}</td><td class="g asp-${a.aspect}">${ASP[a.aspect].glyph}</td><td class="g ${a.b}">${BODY[a.b].glyph}</td><td>${BODY[a.a].name} ${ASP[a.aspect].name.toLowerCase()} ${BODY[a.b].name}</td><td class="num">${a.orb.toFixed(1)}°</td></tr>`).join('')}</tbody></table></section>
+      </aside>
+    </div>`;
+  }
+
+  function screenLibrary() {
+    return `<div class="lib">
+      <div class="lib-head"><h1>Saved charts</h1><span class="muted">${PEOPLE.length} people</span><input class="search" placeholder="Search by name or tag"><button class="btn primary">+ New chart</button></div>
+      <table class="lib-table"><thead><tr><th>Name</th><th>Born</th><th>Place</th><th>☉ ☽ As</th><th>Tags</th><th></th></tr></thead><tbody>
+      ${PEOPLE.map((p, i) => { const c = compute(p), sun = c.bodies[0], moon = c.bodies[1], as = E.signOf(c.angles.asc);
+        return `<tr class="${i === S.person ? 'sel' : ''}"><td class="nm">${esc(p.name)}</td><td>${fmtBirth(p)}</td><td>${esc(p.place.name)} <span class="muted small">${offsetOf(p)}</span></td>
+        <td class="big3"><span class="${ELC[sun.sign.element]}">${sun.sign.glyph}</span><span class="${ELC[moon.sign.element]}">${moon.sign.glyph}</span><span class="${ELC[as.sign.element]}">${as.sign.glyph}</span></td>
+        <td>${p.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</td>
+        <td class="acts"><button class="btn" data-open="${i}">Open</button> <button class="btn" data-report="${i}">Report…</button></td></tr>`; }).join('')}
+      </tbody></table>
+      <div class="lib-foot"><button class="btn">Import…</button><button class="btn">Export all…</button><span class="muted small">Saved in %APPDATA%\\pagbalatik\\charts.json · imports FEMT's birth chart on first run</span></div>
+    </div>`;
+  }
+
+  const RTYPES = [
+    { id: 'sheet', ic: '◎', name: 'Chart sheet', desc: 'Wheel, positions, houses, aspect grid, element balance.', pages: '1–2 pages · no interpretation' },
+    { id: 'reading', ic: '☉', name: 'Natal reading', desc: 'Chart sheet plus a written reading for each planet, angle and the main aspects.', pages: '6–10 pages · text needs writing' },
+    { id: 'forecast', ic: '☊', name: 'Transit forecast', desc: 'Transits to the birth chart over a period, each with its window and exact date.', pages: '2–5 pages per month' },
+    { id: 'synastry', ic: '⚭', name: 'Comparison', desc: 'Two people: bi-wheel, cross-aspects and house overlays.', pages: '3–4 pages' },
+  ];
+  const SECTIONS = { sheet: [['wheel', 'Chart wheel'], ['positions', 'Positions'], ['houses', 'House cusps'], ['grid', 'Aspect grid'], ['aspects', 'Aspect list'], ['balance', 'Elements & modes']],
+    reading: [['wheel', 'Chart wheel'], ['positions', 'Positions'], ['readings', 'Planet readings'], ['aspects', 'Aspect readings'], ['balance', 'Elements & modes']],
+    forecast: [['wheel', 'Bi-wheel at start'], ['aspects', 'Transit table'], ['readings', 'Notes on each transit'], ['balance', 'Monthly timeline bars']],
+    synastry: [['wheel', 'Bi-wheel'], ['aspects', 'Cross-aspects'], ['houses', 'House overlays'], ['readings', 'Notes']] };
+
+  function screenReports() {
+    const p = PEOPLE[S.person];
+    const t = RTYPES.find((r) => r.id === S.rtype);
+    const opt = (v, l, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${l}</option>`;
+    const pages = renderReport(S.rtype, { preview: true });
+    return `<div class="rep">
+      <div class="rep-col">
+        <h2>Report type</h2>
+        ${RTYPES.map((r) => `<button class="rtype${r.id === S.rtype ? ' on' : ''}" data-rtype="${r.id}"><span class="ic">${r.ic}</span><b>${r.name}${r.id === 'reading' ? '<span class="draft">draft text</span>' : ''}</b><span>${r.desc}</span><em>${r.pages}</em></button>`).join('')}
+      </div>
+      <div class="rep-col">
+        <h2>${t.name}</h2>
+        <label class="field"><span>Chart</span><select data-person>${PEOPLE.map((q, i) => opt(i, q.name, S.person)).join('')}</select></label>
+        ${S.rtype === 'synastry' ? `<label class="field"><span>Compare with</span><select data-partner>${PEOPLE.map((q, i) => opt(i, q.name, S.partner)).join('')}</select></label>` : ''}
+        ${S.rtype === 'forecast' ? `<div class="field"><span>Period</span><div class="row"><input type="date" value="${S.from}" data-from><select data-months>${opt(1, '1 month', S.months)}${opt(3, '3 months', S.months)}${opt(6, '6 months', S.months)}${opt(12, '1 year', S.months)}</select></div></div>` : ''}
+        <div class="field"><span>Include</span><div class="checks">${SECTIONS[S.rtype].map(([k, l]) => `<label><input type="checkbox" data-sec="${k}"${S.sections[k] ? ' checked' : ''}> ${l}</label>`).join('')}</div></div>
+        <div class="field"><span>Format</span><div class="fmt">
+          <button class="${S.fmt === 'pdf' ? 'on' : ''}" data-fmt="pdf"><b>PDF</b><span>to print or send</span></button>
+          <button class="${S.fmt === 'docx' ? 'on' : ''}" data-fmt="docx"><b>DOCX</b><span>to edit in Word</span></button>
+        </div><label class="checks" style="margin-top:4px"><label><input type="checkbox" data-both${S.fmt === 'both' ? ' checked' : ''}> Both at once</label></label></div>
+        <div class="field"><span>Page</span><div class="row"><select data-paper>${opt('a4', 'A4', S.paper)}${opt('letter', 'US Letter', S.paper)}</select><select data-style>${opt('vellum', 'Vellum style', S.style)}${opt('clean', 'Clean style', S.style)}</select></div></div>
+        <label class="field"><span>Title on the cover</span><input value="${esc(t.name)} — ${esc(p.name)}"></label>
+        <div class="gen">
+          <button class="btn primary" data-act="generate">Generate ${S.fmt === 'both' ? 'PDF + DOCX' : S.fmt.toUpperCase()}…</button>
+          <span class="muted small">Asks where to save, then opens the file. Nothing leaves this PC.</span>
+        </div>
+      </div>
+      <div class="preview">
+        <div class="preview-head"><span class="label">Preview</span><span class="muted small">${pages.count} page${pages.count > 1 ? 's' : ''} · first ${Math.min(2, pages.count)} shown</span></div>
+        ${pages.html}
+      </div>
+    </div>`;
+  }
+
+  function screenSamples() {
+    const keep = S.rtype;
+    const out = RTYPES.map((r) => { const pg = renderReport(r.id, { preview: true, only: 1, ribbon: r.id === 'reading' ? 'docx' : 'pdf' }); return `<figure>${pg.html}<figcaption><b>${r.name}</b> · ${r.desc} <span class="muted">(${r.pages})</span></figcaption></figure>`; }).join('');
+    S.rtype = keep;
+    return `<div class="samples">${out}</div>`;
+  }
+
+  function screenNotes() {
+    return `<div class="notes">
+      <h1>How it would be built</h1>
+      <p class="muted">The Settings button opens these notes in the mockup. In the app it holds the default city, house system, orbs, report style and save folder.</p>
+      <h2>Carried over from FEMT PC, unchanged</h2>
+      <ul>
+        <li><code>chart-engine.js</code> (positions, houses, aspects, time zones) and its test, <code>test-chart.js</code>. This mockup already runs it.</li>
+        <li>The wheel drawing and the Chart/Transits sidebar from <code>chart.js</code>, and the city list with offline time-zone lookup from <code>geo/</code>.</li>
+        <li>The Night, Vellum, Daylight and Ember themes and the fonts.</li>
+      </ul>
+      <h2>New in the standalone app</h2>
+      <ul>
+        <li><b>Saved charts:</b> many people instead of FEMT's one birth moment, with tags, import/export, and FEMT's saved birth chart imported on first run.</li>
+        <li><b>Reports:</b> one report model (JSON: people, computed chart, chosen sections) rendered to both formats.</li>
+      </ul>
+      <h2>Report pipeline</h2>
+      <div class="flow"><div><b>Report model</b>JS, from the engine</div><span>→</span><div><b>PDF</b>report HTML + SVG wheel, printed by WebView2 (<code>PrintToPdf</code>) in a hidden window</div></div>
+      <div class="flow"><div><b>Report model</b>same JSON</div><span>→</span><div><b>DOCX</b>Rust <code>docx-rs</code>; wheel SVG rasterised to PNG with <code>resvg</code></div></div>
+      <p>The PDF comes from the same HTML as the preview, so what you see is what prints. The DOCX is built natively so it opens as real Word headings, tables and paragraphs you can edit, not a picture of the page.</p>
+      <table><thead><tr><th>Choice</th><th>Why</th><th>Alternative</th></tr></thead><tbody>
+        <tr><td>Tauri 2, WebView2</td><td>FEMT already uses it; installer of about 4–6 MB</td><td>—</td></tr>
+        <tr><td>PDF from WebView2</td><td>No extra library; fonts and glyphs match the screen exactly</td><td><code>typst</code> crate, if pixel-exact pagination matters more</td></tr>
+        <tr><td>DOCX in Rust (<code>docx-rs</code>)</td><td>Small, offline, no Word needed</td><td><code>docx</code> npm package in the page (adds about 400 KB)</td></tr>
+        <tr><td>Data in <code>%APPDATA%\\pagbalatik</code></td><td>Same pattern as FEMT's notes file</td><td>—</td></tr>
+      </tbody></table>
+      <h2>Open questions</h2>
+      <ul>
+        <li>Which report types to build first, and whether the Natal reading's text should be written for the app (the mockup's wording is placeholder, put together from keyword tables).</li>
+        <li>App name: "Pagbalatik" is the folder's name, used here as a placeholder.</li>
+        <li>Should FEMT keep its own Chart panel, or link out to this app?</li>
+      </ul>
+    </div>`;
+  }
+
+  // ---------- report pages ----------
+  function renderReport(type, o = {}) {
+    const p = PEOPLE[S.person], natal = compute(p);
+    const cls = `paper${S.paper === 'letter' ? ' letter' : ''}${S.style === 'clean' ? ' clean' : ''}`;
+    const ribbon = o.ribbon || (S.fmt === 'docx' ? 'docx' : 'pdf');
+    const rb = `<span class="${ribbon}-ribbon">${ribbon.toUpperCase()}</span>`;
+    const head = (title, sub) => `<div class="ph"><h3>${title}</h3><div class="sub">${sub}</div></div>`;
+    const foot = (n, of) => `<div class="pf"><span>Pagbalatik · tropical zodiac · ${S.houses[0].toUpperCase() + S.houses.slice(1)} houses</span><span>${n} / ${of}</span></div>`;
+    const sub = `${esc(p.name)}<br>${fmtBirth(p)} ${offsetOf(p)} · ${esc(p.place.name)} ${p.place.lat.toFixed(2)}°, ${p.place.lon.toFixed(2)}°`;
+    const posRows = (ch) => ch.bodies.map((b) => `<tr><td class="g ${b.id}">${b.glyph}</td><td>${b.name}</td><td class="r">${fmtDeg(b)}</td><td class="g">${b.sign.glyph}</td><td>${b.sign.name}</td><td>${b.retrograde ? '℞' : ''}</td><td class="r">${b.house}</td></tr>`).join('');
+    const posTable = (ch) => `<table><thead><tr><th></th><th>Body</th><th class="r">Pos.</th><th></th><th>Sign</th><th></th><th class="r">H</th></tr></thead><tbody>${posRows(ch)}</tbody></table>`;
+    const houseTable = (ch) => `<table><thead><tr><th>House</th><th class="r">Cusp</th><th>Sign</th></tr></thead><tbody>${ch.houses.cusps.map((c, i) => { const s = E.signOf(c); return `<tr><td>${i + 1}${i === 0 ? ' (As)' : i === 9 ? ' (Mc)' : ''}</td><td class="r">${s.deg}°${pad(s.min)}′</td><td><i class="gs">${s.sign.glyph}</i> ${s.sign.name}</td></tr>`; }).join('')}</tbody></table>`;
+    const grid = (ch) => { const bs = ch.bodies.slice(0, 10); let h = '<table class="grid-asp"><tbody>';
+      bs.forEach((b, i) => { h += '<tr>'; for (let j = 0; j < i; j++) { const a = ch.aspects.find((x) => (x.a === bs[j].id && x.b === b.id) || (x.b === bs[j].id && x.a === b.id)); h += `<td class="${a ? 'asp-' + a.aspect : ''}">${a ? ASP[a.aspect].glyph : ''}</td>`; } h += `<td class="h ${b.id}">${b.glyph}</td></tr>`; });
+      return h + '</tbody></table>'; };
+    const balance = (ch) => { const el = { fire: 0, earth: 0, air: 0, water: 0 }, md = { Cardinal: 0, Fixed: 0, Mutable: 0 };
+      ch.bodies.slice(0, 10).forEach((b) => { el[b.sign.element]++; md[['Cardinal', 'Fixed', 'Mutable'][E.SIGNS.indexOf(b.sign) % 3]]++; });
+      return `<div class="facts">${Object.entries(el).map(([k, v]) => `<div><b>${v}</b>${k[0].toUpperCase() + k.slice(1)}</div>`).join('')}</div><div class="facts" style="grid-template-columns:repeat(3,1fr)">${Object.entries(md).map(([k, v]) => `<div><b>${v}</b>${k}</div>`).join('')}</div>`; };
+    const aspList = (ch, n) => `<table><tbody>${ch.aspects.slice(0, n).map((a) => `<tr><td class="g ${a.a}">${BODY[a.a].glyph}</td><td class="g">${ASP[a.aspect].glyph}</td><td class="g ${a.b}">${BODY[a.b].glyph}</td><td>${BODY[a.a].name} ${ASP[a.aspect].name.toLowerCase()} ${BODY[a.b].name}</td><td class="r">${a.orb.toFixed(1)}°</td></tr>`).join('')}</tbody></table>`;
+    const big3 = (ch) => { const as = E.signOf(ch.angles.asc); return `<div class="facts"><div><b><i class="gs">${ch.bodies[0].sign.glyph}</i> ${ch.bodies[0].sign.name}</b>Sun</div><div><b><i class="gs">${ch.bodies[1].sign.glyph}</i> ${ch.bodies[1].sign.name}</b>Moon</div><div><b><i class="gs">${as.sign.glyph}</i> ${as.sign.name}</b>Ascendant</div><div><b>${ch.aspects.length}</b>Aspects</div></div>`; };
+    const pages = [];
+    const sec = S.sections;
+
+    if (type === 'sheet') {
+      pages.push(`<div class="${cls}">${rb}${head('Chart sheet', sub)}${big3(natal)}${sec.wheel ? `<div class="wheel-wrap">${wheel(natal)}</div>` : ''}
+        <div class="two"><div>${sec.positions ? `<h4>Positions</h4>${posTable(natal)}` : ''}</div><div>${sec.houses ? `<h4>House cusps</h4>${houseTable(natal)}` : ''}</div></div>${foot(1, 2)}</div>`);
+      pages.push(`<div class="${cls}">${rb}${head('Chart sheet', sub)}<div class="two"><div>${sec.grid ? `<h4>Aspect grid</h4>${grid(natal)}` : ''}${sec.balance ? `<h4>Elements &amp; modes</h4>${balance(natal)}` : ''}</div><div>${sec.aspects ? `<h4>Aspects</h4>${aspList(natal, 26)}` : ''}</div></div>${foot(2, 2)}</div>`);
+    }
+    if (type === 'reading') {
+      const n = 8;
+      pages.push(`<div class="${cls}">${rb}<div class="cover"><div class="label" style="color:#8a7d62">Natal reading</div><div class="t">${esc(p.name)}</div><div style="font:11px var(--f-ui);color:#6b5f48">${fmtBirth(p)} · ${esc(p.place.name)}</div>
+        <div class="wheel-wrap" style="margin-top:26px">${wheel(natal)}</div>${big3(natal)}</div>${foot(1, n)}</div>`);
+      pages.push(`<div class="${cls}">${rb}${head('The planets', sub)}${natal.bodies.slice(0, 5).map((b) => `<h5><span class="${b.id}" style="font-family:var(--f-sym)">${b.glyph}</span> ${b.name} in ${b.sign.name}, ${ord(b.house)} house</h5><p>${reading(b)}</p><p style="color:#85796a">${b.name} at ${fmtDeg(b)} ${b.sign.name}. ${natal.aspects.filter((a) => a.a === b.id || a.b === b.id).slice(0, 3).map((a) => `${ASP[a.aspect].name} ${BODY[a.a === b.id ? a.b : a.a].name} (${a.orb.toFixed(1)}°)`).join(', ') || 'No major aspects'}.</p>`).join('')}${foot(2, n)}</div>`);
+      return { count: n, html: pages.slice(0, o.only || 2).join('') };
+    }
+    if (type === 'forecast') {
+      const T = transitsFor(p, S.from, S.months);
+      const now = compute(p, Date.UTC(...S.from.split('-').map((v, i) => i === 1 ? v - 1 : +v), 4));
+      const n = Math.max(2, Math.ceil(T.list.length / 22) + 1);
+      const bar = (h) => `<div class="bar"><i style="left:${h.first / T.days * 100}%;width:${Math.max(1.5, (h.last - h.first) / T.days * 100)}%"></i>${h.exact !== '—' ? `<b style="left:${h.bestDay / T.days * 100}%"></b>` : ''}</div>`;
+      const [fy, fm, fd] = S.from.split('-').map(Number);
+      pages.push(`<div class="${cls}">${rb}${head(`Transit forecast`, `${sub}<br>${fd} ${MONTHS[fm - 1]} ${fy} · ${S.months} month${S.months > 1 ? 's' : ''}`)}
+        <div class="facts"><div><b>${T.list.length}</b>Transits</div><div><b>${T.list.filter((h) => ['saturn', 'uranus', 'neptune', 'pluto', 'jupiter'].includes(h.a)).length}</b>Slow planets</div><div><b>${T.list.filter((h) => h.exact !== '—').length}</b>Exact in period</div><div><b>${now.bodies.filter((b) => b.retrograde && b.id !== 'node').length}</b>Retrograde at start</div></div>
+        ${sec.wheel ? `<div class="wheel-wrap">${wheel(natal, now)}</div>` : ''}
+        <h4>Transits in the period</h4><table><thead><tr><th></th><th></th><th></th><th>Transit</th><th>In orb</th><th>Exact</th>${sec.balance ? '<th style="width:110px"></th>' : ''}</tr></thead><tbody>
+        ${T.list.slice(0, sec.wheel ? 8 : 22).map((h) => `<tr><td class="g ${h.a}">${ptGlyph(h.a)}</td><td class="g">${ASP[h.aspect].glyph}</td><td class="g ${h.b}">${ptGlyph(h.b)}</td><td>${ptName(h.a)} ${ASP[h.aspect].name.toLowerCase()} natal ${ptName(h.b)}</td><td>${h.from}–${h.to}</td><td>${h.exact}</td>${sec.balance ? `<td>${bar(h)}</td>` : ''}</tr>`).join('')}
+        </tbody></table>${foot(1, n)}</div>`);
+      pages.push(`<div class="${cls}">${rb}${head('Transit forecast', sub)}<h4>Transits in the period, continued</h4><table><tbody>
+        ${T.list.slice(8, 34).map((h) => `<tr><td class="g ${h.a}">${ptGlyph(h.a)}</td><td class="g">${ASP[h.aspect].glyph}</td><td class="g ${h.b}">${ptGlyph(h.b)}</td><td>${ptName(h.a)} ${ASP[h.aspect].name.toLowerCase()} natal ${ptName(h.b)}</td><td>${h.from}–${h.to}</td><td>${h.exact}</td>${sec.balance ? `<td style="width:110px">${bar(h)}</td>` : ''}</tr>`).join('') || '<tr><td>None.</td></tr>'}
+        </tbody></table>${sec.readings ? `<h4>Notes</h4><p>Each transit gets a short note here: what the transiting planet stirs up, read through the natal point it touches and that point's house. <span style="color:#8a7d62">(Placeholder: text to be written.)</span></p>` : ''}${foot(2, n)}</div>`);
+      return { count: n, html: pages.slice(0, o.only || 2).join('') };
+    }
+    if (type === 'synastry') {
+      const q = PEOPLE[S.partner === S.person ? (S.person + 1) % PEOPLE.length : S.partner], other = compute(q);
+      const cross = E.aspects(natal.bodies.slice(0, 10).map((b) => ({ id: b.id, lon: b.lon })), other.bodies.slice(0, 10).map((b) => ({ id: b.id, lon: b.lon })), { orbScale: .75 });
+      const overlay = other.bodies.slice(0, 10).map((b) => `<tr><td class="g ${b.id}">${b.glyph}</td><td>${esc(q.name.split(' ')[0])}'s ${b.name}</td><td><i class="gs">${b.sign.glyph}</i> ${fmtDeg(b)}</td><td class="r">in ${esc(p.name.split(' ')[0])}'s ${ord(E.houseOf(b.lon, natal.houses.cusps))}</td></tr>`).join('');
+      pages.push(`<div class="${cls}">${rb}${head('Comparison', `${esc(p.name)} (inner) &amp; ${esc(q.name)} (outer)<br>${fmtBirth(p)} · ${fmtBirth(q)}`)}
+        ${sec.wheel ? `<div class="wheel-wrap">${wheel(natal, other)}</div>` : ''}
+        <div class="two"><div>${sec.aspects ? `<h4>Cross-aspects</h4><table><tbody>${cross.slice(0, 13).map((a) => `<tr><td class="g ${a.a}">${BODY[a.a].glyph}</td><td class="g">${ASP[a.aspect].glyph}</td><td class="g ${a.b}">${BODY[a.b].glyph}</td><td>${BODY[a.a].name} ${ASP[a.aspect].name.toLowerCase()} ${BODY[a.b].name}</td><td class="r">${a.orb.toFixed(1)}°</td></tr>`).join('')}</tbody></table>` : ''}</div>
+        <div>${sec.houses ? `<h4>House overlays</h4><table><tbody>${overlay}</tbody></table>` : ''}</div></div>${foot(1, 3)}</div>`);
+      return { count: 3, html: pages.slice(0, o.only || 2).join('') };
+    }
+    return { count: pages.length, html: pages.slice(0, o.only || 2).join('') };
+  }
+
+  // ---------- wiring ----------
+  function render() {
+    $('who-name').textContent = PEOPLE[S.person].name;
+    $('main').innerHTML = { chart: screenChart, library: screenLibrary, reports: screenReports, samples: screenSamples, notes: screenNotes }[S.screen]();
+    document.querySelectorAll('[data-s]').forEach((b) => b.classList.toggle('on', b.dataset.s === S.screen || (b.classList.contains('rail-btn') && S.screen === 'samples' && b.dataset.s === 'reports')));
+  }
+  const go = (s) => { S.screen = s; render(); };
+  function toast(html) { const t = $('toast'); t.innerHTML = html; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 3600); }
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('button'); if (!el) return;
+    const d = el.dataset;
+    if (d.s) return go(d.s);
+    if (d.t) { document.body.dataset.theme = d.t; document.querySelectorAll('#mk-theme button').forEach((b) => b.classList.toggle('on', b === el)); return; }
+    if (d.go) return go(d.go);
+    if (d.mode) { S.mode = d.mode; return render(); }
+    if (d.open) { S.person = +d.open; return go('chart'); }
+    if (d.report) { S.person = +d.report; return go('reports'); }
+    if (d.rtype) { S.rtype = d.rtype; return render(); }
+    if (d.fmt) { S.fmt = d.fmt; return render(); }
+    if (d.act === 'save') return toast('Saved to <b>Saved charts</b>.');
+    if (d.act === 'generate') {
+      const p = PEOPLE[S.person], t = RTYPES.find((r) => r.id === S.rtype);
+      const base = `${t.name} - ${p.name}`;
+      const files = S.fmt === 'both' ? [`${base}.pdf`, `${base}.docx`] : [`${base}.${S.fmt}`];
+      return toast(`Saved ${files.map((f) => `<code>${esc(f)}</code>`).join(' and ')} to <code>Documents\\Pagbalatik</code> and opened ${files.length > 1 ? 'them' : 'it'}.`);
+    }
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target, d = el.dataset;
+    if ('houses' in d) S.houses = el.value;
+    else if ('person' in d) S.person = +el.value;
+    else if ('partner' in d) S.partner = +el.value;
+    else if ('from' in d) S.from = el.value || S.from;
+    else if ('months' in d) S.months = +el.value;
+    else if ('paper' in d) S.paper = el.value;
+    else if ('style' in d) S.style = el.value;
+    else if ('sec' in d) S.sections[d.sec] = el.checked;
+    else if ('both' in d) S.fmt = el.checked ? 'both' : 'pdf';
+    else return;
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

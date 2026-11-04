@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Natal report mockup</title>
+<style>
+:root {
+  --bg: #05070F; --bg-2: #0A0F1E; --panel: #121A33; --panel-2: #0E1529;
+  --border: #2A3550; --border-strong: #3A4A7A;
+  --text: #E8EEFF; --text-soft: #C9D4FF; --text-muted: #9FB0D8; --text-faint: #7A86A8;
+  --accent: #E8B84A; --accent-soft: #F2D27A; --accent-wash: rgba(232,184,74,.12); --on-accent: #05070F;
+  --f-ui: "Segoe UI", system-ui, sans-serif;
+  --f-text: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --f-mono: "Cascadia Mono", Consolas, monospace;
+  --f-sym: "Segoe UI Symbol", "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: #1b1d22; color: var(--text); font: 14px/1.45 var(--f-ui); display: flex; flex-direction: column; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select, textarea { font: inherit; }
+
+.mock-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 16px; background: #0d0e11; color: #c8ccd6; border-bottom: 1px solid #2a2d35; font-size: 13px; }
+.mock-bar b { color: #fff; font-weight: 600; }
+.mock-bar .grp { display: flex; gap: 4px; flex-wrap: wrap; }
+.mock-bar button { padding: 4px 11px; border: 1px solid #343843; border-radius: 999px; color: #aab0bd; }
+.mock-bar button.on { border-color: #E8B84A; color: #F2D27A; background: rgba(232,184,74,.1); }
+.mock-bar select { background: #16181d; color: #c8ccd6; border: 1px solid #343843; border-radius: 6px; padding: 3px 8px; }
+.mock-note { margin-left: auto; color: #7d8492; font-size: 12px; }
+#main { flex: 1; min-height: 0; display: flex; }
+
+/* ---------- app panels ---------- */
+.app { flex: 1; min-height: 0; display: grid; grid-template-columns: 360px minmax(0,1fr); background: var(--bg-2); }
+.side { min-height: 0; overflow: auto; border-right: 1px solid var(--border); background: var(--panel-2); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.side h2 { margin: 0; font: 600 18px var(--f-text); }
+.side h3 { margin: 6px 0 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); font-weight: 500; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field > span { font-size: 12px; color: var(--text-faint); }
+.field input[type=text], .field select, .field textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; color: var(--text); font-size: 13px; }
+.field textarea { resize: vertical; min-height: 50px; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
+.checks { display: flex; flex-direction: column; gap: 6px; }
+.checks label { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--text-soft); }
+.checks label small { display: block; color: var(--text-faint); font-size: 11.5px; }
+.checks input, input[type=range] { accent-color: var(--accent); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--panel); color: var(--text-soft); border-radius: 6px; padding: 6px 12px; font-size: 13px; }
+.btn:hover { color: var(--text); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.later { border: 1px dashed var(--border-strong); border-radius: 8px; padding: 10px 12px; color: var(--text-faint); font-size: 12.5px; }
+.later b { color: var(--text-muted); }
+.later ol { margin: 6px 0 0; padding-left: 18px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.seg button { padding: 5px 12px; font-size: 13px; color: var(--text-muted); }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--panel); color: var(--accent-soft); }
+.logo-drop { border: 1px dashed var(--border-strong); border-radius: 8px; padding: 14px; display: flex; gap: 12px; align-items: center; background: var(--bg); }
+.logo-drop .thumb { width: 64px; height: 64px; border-radius: 6px; background: #fbf8f1; display: grid; place-items: center; overflow: hidden; flex: none; }
+.logo-drop .thumb img { max-width: 100%; max-height: 100%; }
+.logo-drop .txt { font-size: 12px; color: var(--text-faint); }
+.logo-drop .acts { display: flex; gap: 6px; margin-top: 6px; }
+.toc { display: flex; flex-direction: column; gap: 2px; }
+.toc button { text-align: left; padding: 4px 8px; border-radius: 5px; font-size: 13px; color: var(--text-soft); display: flex; gap: 8px; }
+.toc button:hover { background: var(--panel); }
+.toc button span { color: var(--text-faint); font-family: var(--f-mono); font-size: 11px; width: 18px; }
+.viewer { min-height: 0; overflow: auto; background: #2a2c31; padding: 26px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.viewer.thumbs { flex-direction: row; flex-wrap: wrap; justify-content: center; align-content: flex-start; }
+.viewer.thumbs .pwrap { width: calc(595px * .42); height: calc(842px * .42); overflow: hidden; cursor: pointer; }
+.viewer.thumbs .paper { transform: scale(.42); transform-origin: top left; }
+.vhead { align-self: stretch; display: flex; gap: 10px; align-items: center; color: #b8bdc8; font-size: 12px; }
+.vhead .gen { margin-left: auto; display: flex; gap: 8px; }
+
+/* ---------- paper ---------- */
+.paper { --ink: #1d1a14; --ink-2: #4a4234; --ink-3: #8a7d62; --rule: #d9cfba; --pa: #8E2A1C; --wash: #f3ecdd;
+  width: 595px; min-height: 842px; background: #fbf8f1; color: var(--ink); box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  padding: 40px 46px 46px; font: 10.5px/1.52 var(--f-text); position: relative; flex: none; }
+.paper.clean { background: #fff; --pa: #23407F; --rule: #dde2ea; --wash: #f1f4f9; --ink-3: #6a7487; }
+.paper .ph { display: flex; align-items: center; gap: 12px; border-bottom: 1.4px solid var(--pa); padding-bottom: 7px; margin-bottom: 12px; min-height: 34px; }
+.paper .ph .logo { flex: none; display: flex; align-items: center; }
+.paper .ph .logo img { display: block; }
+.paper .ph .tt { flex: 1; }
+.paper .ph h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--pa); line-height: 1.15; }
+.paper .ph .sub { font: 9px var(--f-ui); color: var(--ink-2); text-align: right; line-height: 1.4; }
+.paper h4 { font: 600 8.5px var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--pa); margin: 12px 0 5px; }
+.paper h5 { font-size: 12.5px; margin: 0 0 3px; font-weight: 600; display: flex; align-items: baseline; gap: 6px; }
+.paper h5 .gs { font-size: 15px; }
+.paper p { margin: 0 0 5px; text-align: justify; hyphens: auto; }
+.paper .src { font: italic 8.5px var(--f-ui); color: var(--ink-3); margin-top: 2px; }
+.paper .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.paper table { width: 100%; border-collapse: collapse; font: 9.2px var(--f-ui); font-variant-numeric: tabular-nums; }
+.paper td, .paper th { padding: 2.3px 3px; border-bottom: .5px solid var(--rule); text-align: left; vertical-align: top; }
+.paper th { font-weight: 600; color: var(--ink-2); font-size: 7.8px; letter-spacing: .06em; text-transform: uppercase; }
+.paper td.c, .paper th.c { text-align: center; }
+.paper td.r, .paper th.r { text-align: right; }
+.paper tr.tot td { font-weight: 600; border-top: 1px solid var(--ink-2); }
+.paper tr.hi td { background: var(--wash); }
+.paper .gs { font-family: var(--f-sym); font-style: normal; }
+.paper .pos { color: #2f6b3e; } .paper .neg { color: #a3321f; }
+.paper .pf { position: absolute; left: 46px; right: 46px; bottom: 16px; display: flex; justify-content: space-between; font: 8px var(--f-ui); color: var(--ink-3); border-top: .5px solid var(--rule); padding-top: 4px; }
+.paper .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 6px; }
+.paper .facts div { border: .5px solid var(--rule); border-radius: 3px; padding: 5px 7px; font: 8.5px var(--f-ui); color: var(--ink-2); background: #fffdf8; }
+.paper.clean .facts div { background: #fff; }
+.paper .facts b { display: block; font: 600 11.5px var(--f-text); color: var(--ink); }
+.paper .box { border: .5px solid var(--rule); background: var(--wash); border-radius: 3px; padding: 6px 8px; margin: 4px 0 6px; font: 9px var(--f-ui); color: var(--ink-2); display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 10px; }
+.paper .box b { color: var(--ink); font-weight: 600; }
+.paper .planet { margin-bottom: 12px; break-inside: avoid; }
+.paper .house { margin-bottom: 9px; }
+.paper .house h5 { font-size: 11.5px; }
+.paper .cover { display: flex; flex-direction: column; min-height: 756px; }
+.paper .cover .brand { display: flex; align-items: center; gap: 12px; }
+.paper .cover .brand .who { font: 9.5px/1.4 var(--f-ui); color: var(--ink-2); white-space: pre-line; }
+.paper .cover .brand .who b { color: var(--ink); font-size: 11px; }
+.paper .cover .mid { text-align: center; margin-top: 54px; }
+.paper .cover .kicker { font: 600 9px var(--f-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
+.paper .cover .t { font-size: 32px; color: var(--pa); margin: 8px 0 2px; }
+.paper .cover .d { font: 10.5px var(--f-ui); color: var(--ink-2); }
+.paper .cover .wheel-wrap svg { width: 360px; height: 360px; }
+.paper .cover .note { margin-top: auto; font: 8.5px/1.5 var(--f-ui); color: var(--ink-3); border-top: .5px solid var(--rule); padding-top: 8px; }
+.paper .wheel-wrap { display: flex; justify-content: center; margin: 6px 0; }
+.paper .wheel-wrap.sm svg { width: 250px; height: 250px; }
+.paper .tally { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0; }
+.paper .tally div { text-align: center; border: .5px solid var(--rule); border-radius: 3px; padding: 6px; font: 8.5px var(--f-ui); color: var(--ink-2); }
+.paper .tally b { display: block; font: 600 16px var(--f-text); color: var(--ink); }
+.paper .tally .win { border-color: var(--pa); background: var(--wash); }
+.paper .refs li { margin-bottom: 4px; }
+.paper .refs { padding-left: 14px; margin: 0; font-size: 9.6px; }
+.paper .tag { font: 600 7.5px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; border-radius: 2px; margin-left: 4px; vertical-align: 1px; }
+.paper .tag.pd { background: #dcebdc; color: #2f5f37; } .paper .tag.cc0 { background: #d9e6f5; color: #23407F; } .paper .tag.chk { background: #f5e8c8; color: #7a5a12; } .paper .tag.ref { background: #eee; color: #666; }
+/* wheel colours on paper */
+.paper .wheel text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-sym); }
+.paper .wheel .ring { fill: none; stroke: #a99a78; stroke-width: 1.2; }
+.paper .wheel .ring.faint { stroke: #cfc3a8; stroke-dasharray: 3 4; }
+.paper .wheel .sign-line, .paper .wheel .cusp { stroke: #a99a78; stroke-width: 1; }
+.paper .wheel .deg-tick { stroke: #cfc3a8; stroke-width: 1; }
+.paper .wheel .cusp.angle { stroke: #6b5f48; stroke-width: 1.6; }
+.paper .wheel .sign { font-size: 24px; }
+.paper .wheel .house-num { font-size: 15px; fill: #8a7d62; font-style: italic; font-family: var(--f-text); }
+.paper .wheel .angle-label { font-size: 15px; fill: #3b3020; font-family: var(--f-ui); }
+.paper .wheel .glyph { font-size: 25px; }
+.paper .wheel .deg { font-size: 12px; fill: #8a7d62; font-family: var(--f-ui); }
+.paper .wheel .tick-body { stroke: #6b5f48; stroke-width: 1.4; }
+.paper .wheel .asp { stroke-width: 1.6; }
+.paper .el-fire { fill: #B8402C; color: #B8402C; } .paper .el-earth { fill: #8A5A22; color: #8A5A22; } .paper .el-air { fill: #2F6FA3; color: #2F6FA3; } .paper .el-water { fill: #24805A; color: #24805A; }
+.paper .asp-trine { stroke: #2C55B0; } .paper .asp-sextile { stroke: #237A52; } .paper .asp-square { stroke: #B23A24; } .paper .asp-opposition { stroke: #B85A1C; stroke-dasharray: 6 4; }
+.paper .sun { fill: #A8740E; color: #A8740E; } .paper .moon { fill: #6E6A5C; color: #6E6A5C; } .paper .mercury { fill: #2E8A78; color: #2E8A78; } .paper .venus { fill: #B5487A; color: #B5487A; }
+.paper .mars { fill: #B8402C; color: #B8402C; } .paper .jupiter { fill: #4B4BB0; color: #4B4BB0; } .paper .saturn { fill: #7A6630; color: #7A6630; } .paper .uranus { fill: #237F94; color: #237F94; }
+.paper .neptune { fill: #2F62A8; color: #2F62A8; } .paper .pluto { fill: #7A4A9C; color: #7A4A9C; } .paper .node, .paper .snode { fill: #6b5f48; color: #6b5f48; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; overflow: auto; }
+  .side { overflow: visible; border-right: 0; border-bottom: 1px solid var(--border); }
+  .viewer { overflow: visible; padding: 12px 0; }
+  .viewer:not(.thumbs) .pwrap { width: calc(595px * .6); height: calc(842px * .6); overflow: hidden; }
+  .viewer:not(.thumbs) .paper { transform: scale(.6); transform-origin: top left; }
+  .mock-note { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="mock-bar">
+  <b>Natal reading · mockup</b>
+  <div class="grp" id="mk-screens">
+    <button data-s="report" class="on">1 · The report</button>
+    <button data-s="builder">2 · Report options</button>
+    <button data-s="settings">3 · Settings · Logo</button>
+  </div>
+  <label>Chart <select id="mk-person"></select></label>
+  <span class="mock-note">Every table and paragraph is computed from the chart. The wording is a draft for review.</span>
+</div>
+<div id="main"></div>
+
+<script>/* chart-engine.js from FEMT PC 0.6.3, inlined */
+// FEMT chart engine: tropical positions of the Sun, Moon, planets and lunar node, the angles,
+// house cusps and aspects for a moment and place. Pure functions; scripts/test-chart.js checks them.
+//
+// Planets use the same Keplerian elements as the phone app (E. M. Standish, JPL, valid 1800–2050:
+// errors of arcminutes). The Moon uses the main periodic terms of Meeus, Astronomical Algorithms
+// ch. 47 (good to about 0.01°), since a chart shows the Moon to the degree.
+(function (root) {
+  const DEG = Math.PI / 180;
+  const J2000 = 2451545.0;
+  const PRECESSION = 1.396971; // general precession in longitude, degrees per century
+  const norm = (d) => ((d % 360) + 360) % 360;
+  const sin = (d) => Math.sin(d * DEG), cos = (d) => Math.cos(d * DEG);
+  const julianDay = (ms) => ms / 86400000 + 2440587.5;
+  const centuries = (jd) => (jd - J2000) / 36525;
+  const obliquity = (T) => 23.439291 - 0.0130042 * T;
+
+  // ---------- planets (Standish Table 1: a, e, I, L, long. perihelion, node; and rates per century)
+  const EL = {
+    earth: [[1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0.0], [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0.0]],
+    mercury: [[0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593], [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081]],
+    venus: [[0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255], [0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418]],
+    mars: [[1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891], [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343]],
+    jupiter: [[5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909], [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106]],
+    saturn: [[9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448], [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794]],
+    uranus: [[19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503], [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589]],
+    neptune: [[30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574], [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664]],
+    pluto: [[39.48211675, 0.24882730, 17.14001206, 238.92903833, 224.06891629, 110.30393684], [-0.00031596, 0.00005170, 0.00004818, 145.20780515, -0.04062942, -0.01183482]],
+  };
+
+  function helio(name, T) {
+    const [base, rate] = EL[name];
+    const v = base.map((b, i) => b + rate[i] * T);
+    const [a, e] = v;
+    const inc = v[2] * DEG, node = v[5] * DEG, peri = (v[4] - v[5]) * DEG;
+    let M = norm(v[3] - v[4]);
+    if (M > 180) M -= 360;
+    const m = M * DEG;
+    let E = m + e * Math.sin(m);
+    for (let i = 0; i < 30; i++) {
+      const d = (E - e * Math.sin(E) - m) / (1 - e * Math.cos(E));
+      E -= d;
+      if (Math.abs(d) < 1e-12) break;
+    }
+    const xp = a * (Math.cos(E) - e), yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+    const cw = Math.cos(peri), sw = Math.sin(peri), cn = Math.cos(node), sn = Math.sin(node), ci = Math.cos(inc), si = Math.sin(inc);
+    return [
+      (cw * cn - sw * sn * ci) * xp + (-sw * cn - cw * sn * ci) * yp,
+      (cw * sn + sw * cn * ci) * xp + (-sw * sn + cw * cn * ci) * yp,
+      (sw * si) * xp + (cw * si) * yp,
+    ];
+  }
+
+  /** Geocentric ecliptic longitude and latitude, equinox of date, degrees. */
+  function planetLonLat(name, T) {
+    const earth = helio('earth', T);
+    const p = name === 'sun' ? [0, 0, 0] : helio(name, T);
+    const x = p[0] - earth[0], y = p[1] - earth[1], z = p[2] - earth[2];
+    return { lon: norm(Math.atan2(y, x) / DEG + PRECESSION * T), lat: Math.atan2(z, Math.hypot(x, y)) / DEG };
+  }
+
+  // ---------- Moon (Meeus ch. 47, main terms; coefficients in degrees)
+  const MOON_LON = [
+    // D, M, M', F, coefficient
+    [0, 0, 1, 0, 6.288774], [2, 0, -1, 0, 1.274027], [2, 0, 0, 0, 0.658314], [0, 0, 2, 0, 0.213618],
+    [0, 1, 0, 0, -0.185116], [0, 0, 0, 2, -0.114332], [2, 0, -2, 0, 0.058793], [2, -1, -1, 0, 0.057066],
+    [2, 0, 1, 0, 0.053322], [2, -1, 0, 0, 0.045758], [0, 1, -1, 0, -0.040923], [1, 0, 0, 0, -0.034720],
+    [0, 1, 1, 0, -0.030383], [2, 0, 0, -2, 0.015327], [0, 0, 1, 2, -0.012528], [0, 0, 1, -2, 0.010980],
+    [4, 0, -1, 0, 0.010675], [0, 0, 3, 0, 0.010034], [4, 0, -2, 0, 0.008548], [2, 1, -1, 0, -0.007888],
+    [2, 1, 0, 0, -0.006766], [1, 0, -1, 0, -0.005163], [1, 1, 0, 0, 0.004987], [2, -1, 1, 0, 0.004036],
+    [2, 0, 2, 0, 0.003994], [4, 0, 0, 0, 0.003861], [2, 0, -3, 0, 0.003665], [0, 1, -2, 0, -0.002689],
+    [2, 0, -1, 2, -0.002602], [2, -1, -2, 0, 0.002390], [1, 0, 1, 0, -0.002348], [2, -2, 0, 0, 0.002236],
+    [0, 1, 2, 0, -0.002120], [0, 2, 0, 0, -0.002069], [2, -2, -1, 0, 0.002048], [2, 0, 1, -2, -0.001773],
+    [2, 0, 0, 2, -0.001595], [4, -1, -1, 0, 0.001215], [0, 0, 2, 2, -0.001110], [3, 0, -1, 0, -0.000892],
+    [2, 1, 1, 0, -0.000810], [4, -1, -2, 0, 0.000759], [0, 2, -1, 0, -0.000713], [2, 2, -1, 0, -0.000700],
+    [2, 1, -2, 0, 0.000691], [2, -1, 0, -2, 0.000596], [4, 0, 1, 0, 0.000549], [0, 0, 4, 0, 0.000537],
+    [4, -1, 0, 0, 0.000520], [1, 0, -2, 0, -0.000487],
+  ];
+  const MOON_LAT = [
+    [0, 0, 0, 1, 5.128122], [0, 0, 1, 1, 0.280602], [0, 0, 1, -1, 0.277693], [2, 0, 0, -1, 0.173237],
+    [2, 0, -1, 1, 0.055413], [2, 0, -1, -1, 0.046271], [2, 0, 0, 1, 0.032573], [0, 0, 2, 1, 0.017198],
+    [2, 0, 1, -1, 0.009266], [0, 0, 2, -1, 0.008822], [2, -1, 0, -1, 0.008216], [2, 0, -2, -1, 0.004324],
+    [2, 0, 1, 1, 0.004200], [2, 1, 0, -1, -0.003359], [2, -1, -1, 1, 0.002463], [2, -1, 0, 1, 0.002211],
+    [2, -1, -1, -1, 0.002065], [0, 1, -1, -1, -0.001870], [4, 0, -1, -1, 0.001828], [0, 1, 0, 1, -0.001794],
+  ];
+
+  function moonArgs(T) {
+    return {
+      L: norm(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T),
+      D: norm(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T),
+      M: norm(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T),
+      Mp: norm(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T),
+      F: norm(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T),
+      E: 1 - 0.002516 * T - 0.0000074 * T * T,
+    };
+  }
+
+  function series(terms, a) {
+    let s = 0;
+    for (const [d, m, mp, f, c] of terms) {
+      const ecc = Math.abs(m) === 1 ? a.E : Math.abs(m) === 2 ? a.E * a.E : 1;
+      s += c * ecc * sin(d * a.D + m * a.M + mp * a.Mp + f * a.F);
+    }
+    return s;
+  }
+
+  function moonLonLat(T) {
+    const a = moonArgs(T);
+    const A1 = norm(119.75 + 131.849 * T), A2 = norm(53.09 + 479264.290 * T), A3 = norm(313.45 + 481266.484 * T);
+    const lon = a.L + series(MOON_LON, a) + 0.003958 * sin(A1) + 0.001962 * sin(a.L - a.F) + 0.000318 * sin(A2);
+    const lat = series(MOON_LAT, a) - 0.002235 * sin(a.L) + 0.000382 * sin(A3) + 0.000175 * sin(A1 - a.F)
+      + 0.000175 * sin(A1 + a.F) + 0.000127 * sin(a.L - a.Mp) - 0.000115 * sin(a.L + a.Mp);
+    return { lon: norm(lon), lat };
+  }
+
+  /** The Moon's ascending node: mean, or true (mean plus Meeus's main corrections). */
+  function nodeLon(T, kind) {
+    const mean = norm(125.0445479 - 1934.1362891 * T + 0.0020754 * T * T);
+    if (kind === 'mean') return mean;
+    const a = moonArgs(T);
+    return norm(mean - 1.4979 * sin(2 * (a.D - a.F)) - 0.1500 * sin(a.M) - 0.1226 * sin(2 * a.D)
+      + 0.1176 * sin(2 * a.F) - 0.0801 * sin(2 * (a.Mp - a.F)));
+  }
+
+  // ---------- angles and houses
+  function gmst(jd) {
+    const T = centuries(jd);
+    return norm(280.46061837 + 360.98564736629 * (jd - J2000) + 0.000387933 * T * T - (T * T * T) / 38710000);
+  }
+
+  /** Ecliptic longitude of the point on the ecliptic with right ascension ra. */
+  const raToLon = (ra, eps) => norm(Math.atan2(sin(ra), cos(ra) * cos(eps)) / DEG);
+  const lonToDec = (lon, eps) => Math.asin(sin(eps) * sin(lon)) / DEG;
+
+  function angles(ramc, lat, eps) {
+    const mc = raToLon(ramc, eps);
+    const asc = norm(Math.atan2(cos(ramc), -(sin(ramc) * cos(eps) + Math.tan(lat * DEG) * sin(eps))) / DEG);
+    return { asc, mc, dsc: norm(asc + 180), ic: norm(mc + 180) };
+  }
+
+  /**
+   * Placidus cusps by iteration: houses 11 and 12 divide the semi-diurnal arc above the horizon
+   * into thirds, houses 2 and 3 the semi-nocturnal arc below. Null above the polar circles,
+   * where some degrees never rise or set.
+   */
+  function placidus(ramc, lat, eps, ang) {
+    const tanPhi = Math.tan(lat * DEG);
+    const cusp = (f, below) => {
+      let lon = below ? norm(ang.asc + f * 60) : norm(ang.mc + f * 60);
+      for (let i = 0; i < 60; i++) {
+        const x = -tanPhi * Math.tan(lonToDec(lon, eps) * DEG);
+        if (Math.abs(x) > 1) return null;
+        const sda = Math.acos(x) / DEG;
+        const ra = below ? ramc + 180 - (1 - f) * (180 - sda) : ramc + f * sda;
+        const next = raToLon(ra, eps);
+        const diff = Math.abs(((next - lon + 540) % 360) - 180);
+        lon = next;
+        if (diff < 1e-9) break;
+      }
+      return lon;
+    };
+    const c11 = cusp(1 / 3, false), c12 = cusp(2 / 3, false), c2 = cusp(1 / 3, true), c3 = cusp(2 / 3, true);
+    if ([c11, c12, c2, c3].some((c) => c == null)) return null;
+    return [ang.asc, c2, c3, ang.ic, norm(c11 + 180), norm(c12 + 180), ang.dsc, norm(c2 + 180), norm(c3 + 180), ang.mc, c11, c12];
+  }
+
+  function porphyry(ang) {
+    const q1 = norm(ang.ic - ang.asc), q2 = norm(ang.dsc - ang.ic);
+    const c = [ang.asc, norm(ang.asc + q1 / 3), norm(ang.asc + 2 * q1 / 3), ang.ic, norm(ang.ic + q2 / 3), norm(ang.ic + 2 * q2 / 3)];
+    return c.concat(c.map((x) => norm(x + 180)));
+  }
+
+  function houses(system, ramc, lat, eps, ang) {
+    if (system === 'whole') { const s = Math.floor(ang.asc / 30) * 30; return { system, cusps: Array.from({ length: 12 }, (_, i) => norm(s + 30 * i)) }; }
+    if (system === 'equal') return { system, cusps: Array.from({ length: 12 }, (_, i) => norm(ang.asc + 30 * i)) };
+    if (system === 'porphyry') return { system, cusps: porphyry(ang) };
+    const p = placidus(ramc, lat, eps, ang);
+    return p ? { system: 'placidus', cusps: p } : { system: 'porphyry', cusps: porphyry(ang), fallback: 'Placidus is undefined this close to the pole; Porphyry is used instead.' };
+  }
+
+  /** Which house (1–12) a longitude falls in. */
+  function houseOf(lon, cusps) {
+    for (let i = 0; i < 12; i++) {
+      const a = cusps[i], b = cusps[(i + 1) % 12];
+      const span = norm(b - a), off = norm(lon - a);
+      if (off < span) return i + 1;
+    }
+    return 1;
+  }
+
+  // ---------- bodies, aspects, chart
+  const BODIES = [
+    { id: 'sun', name: 'Sun', glyph: '☉' }, { id: 'moon', name: 'Moon', glyph: '☽' },
+    { id: 'mercury', name: 'Mercury', glyph: '☿' }, { id: 'venus', name: 'Venus', glyph: '♀' },
+    { id: 'mars', name: 'Mars', glyph: '♂' }, { id: 'jupiter', name: 'Jupiter', glyph: '♃' },
+    { id: 'saturn', name: 'Saturn', glyph: '♄' }, { id: 'uranus', name: 'Uranus', glyph: '♅' },
+    { id: 'neptune', name: 'Neptune', glyph: '♆' }, { id: 'pluto', name: 'Pluto', glyph: '♇' },
+    { id: 'node', name: 'North Node', glyph: '☊' }, { id: 'snode', name: 'South Node', glyph: '☋' },
+  ];
+
+  const SIGNS = [
+    ['Aries', '♈', 'fire'], ['Taurus', '♉', 'earth'], ['Gemini', '♊', 'air'], ['Cancer', '♋', 'water'],
+    ['Leo', '♌', 'fire'], ['Virgo', '♍', 'earth'], ['Libra', '♎', 'air'], ['Scorpio', '♏', 'water'],
+    ['Sagittarius', '♐', 'fire'], ['Capricorn', '♑', 'earth'], ['Aquarius', '♒', 'air'], ['Pisces', '♓', 'water'],
+  ].map(([name, glyph, element], i) => ({ name, glyph, element, start: i * 30 }));
+
+  const ASPECTS = [
+    { id: 'conjunction', name: 'Conjunction', glyph: '☌', angle: 0, orb: 8, kind: 'neutral' },
+    { id: 'sextile', name: 'Sextile', glyph: '⚹', angle: 60, orb: 4, kind: 'soft' },
+    { id: 'square', name: 'Square', glyph: '□', angle: 90, orb: 7, kind: 'hard' },
+    { id: 'trine', name: 'Trine', glyph: '△', angle: 120, orb: 7, kind: 'soft' },
+    { id: 'opposition', name: 'Opposition', glyph: '☍', angle: 180, orb: 8, kind: 'hard' },
+  ];
+
+  function lonAt(id, T, nodeKind) {
+    if (id === 'moon') return moonLonLat(T).lon;
+    if (id === 'node') return nodeLon(T, nodeKind);
+    if (id === 'snode') return norm(nodeLon(T, nodeKind) + 180);
+    return planetLonLat(id, T).lon;
+  }
+
+  /** Signed daily motion in degrees, from a day either side. Negative means retrograde. */
+  function speed(id, jd, nodeKind) {
+    const a = lonAt(id, centuries(jd - 0.5), nodeKind), b = lonAt(id, centuries(jd + 0.5), nodeKind);
+    return ((b - a + 540) % 360) - 180;
+  }
+
+  function signOf(lon) {
+    const s = SIGNS[Math.floor(norm(lon) / 30)];
+    const within = norm(lon) - s.start;
+    const d = Math.floor(within), m = Math.floor((within - d) * 60);
+    return { sign: s, deg: d, min: m };
+  }
+
+  const separation = (a, b) => { const d = Math.abs(norm(a) - norm(b)) % 360; return d > 180 ? 360 - d : d; };
+
+  /** Aspects within orb between two lists of points ({id, lon}); same list = within one chart. */
+  function aspects(listA, listB, opts = {}) {
+    const scale = opts.orbScale ?? 1;
+    const out = [];
+    const same = listA === listB;
+    for (let i = 0; i < listA.length; i++) {
+      for (let j = same ? i + 1 : 0; j < listB.length; j++) {
+        const a = listA[i], b = listB[j];
+        if (same && ((a.id === 'node' && b.id === 'snode') || (a.id === 'snode' && b.id === 'node'))) continue;
+        const sep = separation(a.lon, b.lon);
+        for (const asp of ASPECTS) {
+          const orb = Math.abs(sep - asp.angle);
+          if (orb <= asp.orb * scale) { out.push({ a: a.id, b: b.id, aspect: asp.id, kind: asp.kind, orb }); break; }
+        }
+      }
+    }
+    return out.sort((x, y) => x.orb - y.orb);
+  }
+
+  /**
+   * The chart for a moment (UTC milliseconds) and place. opts: { houseSystem, nodeKind }.
+   * Returns bodies with longitude, sign, house and speed; the angles; house cusps; aspects.
+   */
+  function chart(ms, lat, lon, opts = {}) {
+    const jd = julianDay(ms);
+    const T = centuries(jd);
+    const eps = obliquity(T);
+    const ramc = norm(gmst(jd) + lon);
+    const ang = angles(ramc, lat, eps);
+    const hs = houses(opts.houseSystem || 'placidus', ramc, lat, eps, ang);
+    const nodeKind = opts.nodeKind || 'true';
+    const bodies = BODIES.map((b) => {
+      const l = lonAt(b.id, T, nodeKind);
+      const v = speed(b.id, jd, nodeKind);
+      return { ...b, lon: l, speed: v, retrograde: v < 0 && b.id !== 'node' && b.id !== 'snode', house: houseOf(l, hs.cusps), ...signOf(l) };
+    });
+    const points = bodies.map((b) => ({ id: b.id, lon: b.lon }));
+    return { ms, jd, lat, lon, eps, ramc, angles: ang, houses: hs, bodies, aspects: aspects(points, points, opts) };
+  }
+
+  // ---------- time zones (IANA, via the browser's own tz database)
+  /** Offset of zone `tz` from UTC at instant `ms`, in minutes (east positive). */
+  function zoneOffset(ms, tz) {
+    const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const p = Object.fromEntries(f.formatToParts(new Date(ms)).filter((x) => x.type !== 'literal').map((x) => [x.type, +x.value]));
+    const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+    return Math.round((asUtc - Math.floor(ms / 1000) * 1000) / 60000);
+  }
+
+  /** A wall-clock time in zone `tz` to UTC milliseconds. */
+  function zonedToUtc(y, mo, d, h, mi, tz) {
+    const guess = Date.UTC(y, mo - 1, d, h, mi);
+    const first = guess - zoneOffset(guess, tz) * 60000;
+    return guess - zoneOffset(first, tz) * 60000;
+  }
+
+  /** UTC milliseconds to the wall-clock parts in zone `tz`. */
+  function utcToZoned(ms, tz) {
+    const off = zoneOffset(ms, tz);
+    const t = new Date(ms + off * 60000);
+    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), h: t.getUTCHours(), mi: t.getUTCMinutes(), offset: off };
+  }
+
+  const api = { chart, aspects, signOf, separation, planetLonLat, moonLonLat, nodeLon, angles, houses, houseOf, gmst, julianDay, centuries, obliquity, zoneOffset, zonedToUtc, utcToZoned, BODIES, SIGNS, ASPECTS, norm };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.ChartEngine = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>
+(function () {
+  'use strict';
+  const E = window.ChartEngine;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const DEG = Math.PI / 180;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const ELC = { fire: 'el-fire', earth: 'el-earth', air: 'el-air', water: 'el-water' };
+  const ASP = Object.fromEntries(E.ASPECTS.map((a) => [a.id, a]));
+  const BODY = Object.fromEntries(E.BODIES.map((b) => [b.id, b]));
+  const ord = (n) => n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
+  const cap = (s) => s[0].toUpperCase() + s.slice(1);
+  const fmtLon = (lon) => { const s = E.signOf(lon); return `${s.deg}°${pad(s.min)}′ <i class="gs ${ELC[s.sign.element]}">${s.sign.glyph}</i>`; };
+  const signName = (lon) => E.SIGNS[Math.floor(E.norm(lon) / 30)].name;
+  const signIdx = (lon) => Math.floor(E.norm(lon) / 30);
+  const G = (id) => `<i class="gs ${id}">${BODY[id].glyph}</i>`;
+  const N = (id) => BODY[id].name;
+  const NA = (id) => (id === 'sun' || id === 'moon' ? 'the ' : '') + BODY[id].name; // with the article, mid-sentence
+  const an = (w) => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+
+  // ---------- sample people (made up) ----------
+  const mk = (name, y, mo, d, h, mi, tz, place, lat, lon) => ({ name, ms: E.zonedToUtc(y, mo, d, h, mi, tz), tz, place: { name: place, lat, lon }, birth: [y, mo, d, h, mi] });
+  const PEOPLE = [
+    mk('Maria Santos', 1990, 6, 15, 8, 30, 'Asia/Manila', 'Manila', 14.5995, 120.9842),
+    mk('Diego Reyes', 1987, 11, 3, 21, 10, 'Asia/Manila', 'Cebu City', 10.3157, 123.8854),
+    mk('Ana Lim', 2001, 2, 22, 5, 45, 'Asia/Manila', 'Davao City', 7.1907, 125.4553),
+    mk('Grace Okafor', 1995, 4, 1, 23, 20, 'Europe/London', 'London', 51.5074, -0.1278),
+  ];
+  const fmtBirth = (p) => { const [y, mo, d, h, mi] = p.birth; return `${d} ${MONTHS[mo - 1]} ${y}, ${pad(h)}:${pad(mi)}`; };
+  const offsetOf = (p) => { const o = E.utcToZoned(p.ms, p.tz).offset; return `UTC${o < 0 ? '−' : '+'}${pad(Math.floor(Math.abs(o) / 60))}:${pad(Math.abs(o) % 60)}`; };
+
+  const SAMPLE_LOGO = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="none" stroke="#8E2A1C" stroke-width="3"/><circle cx="32" cy="32" r="17" fill="none" stroke="#8E2A1C" stroke-width="2"/><path d="M32 3v12M32 49v12M3 32h12M49 32h12" stroke="#8E2A1C" stroke-width="2.5"/><path d="M32 22l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7L32 36.4 26.1 40l1.7-6.7-5.3-4.4 6.9-.5z" fill="#C9973A"/></svg>`);
+  const S = { screen: 'report', person: 0, view: 'pages',
+    logo: SAMPLE_LOGO, logoSize: 34, logoWhere: 'all', practice: 'Sample Practice', contact: 'readings@example.com\nManila', style: 'vellum',
+    houses: 'whole', trip: 'dorothean', modern: 'listed', omitDeath: true, cite: true,
+    sec: { cover: true, glance: true, dignities: true, temperament: true, planets: true, houses: true, lots: true, timing: true, sources: true } };
+
+  // ---------- traditional tables ----------
+  const T7 = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+  const CHALDEAN = ['saturn', 'jupiter', 'mars', 'sun', 'venus', 'mercury', 'moon'];
+  const RULER = { Aries: 'mars', Taurus: 'venus', Gemini: 'mercury', Cancer: 'moon', Leo: 'sun', Virgo: 'mercury', Libra: 'venus', Scorpio: 'mars', Sagittarius: 'jupiter', Capricorn: 'saturn', Aquarius: 'saturn', Pisces: 'jupiter' };
+  const EXALT = { sun: 'Aries', moon: 'Taurus', mercury: 'Virgo', venus: 'Pisces', mars: 'Capricorn', jupiter: 'Cancer', saturn: 'Libra' };
+  const EXALT_BY_SIGN = Object.fromEntries(Object.entries(EXALT).map(([p, s]) => [s, p]));
+  const TRIP = { dorothean: { fire: ['sun', 'jupiter', 'saturn'], earth: ['venus', 'moon', 'mars'], air: ['saturn', 'mercury', 'jupiter'], water: ['venus', 'mars', 'moon'] },
+                 ptolemaic: { fire: ['sun', 'jupiter'], earth: ['venus', 'moon'], air: ['saturn', 'mercury'], water: ['mars', 'mars'] } };
+  const TERMS = { // Egyptian terms: [lord, end degree]
+    Aries: [['jupiter', 6], ['venus', 12], ['mercury', 20], ['mars', 25], ['saturn', 30]], Taurus: [['venus', 8], ['mercury', 14], ['jupiter', 22], ['saturn', 27], ['mars', 30]],
+    Gemini: [['mercury', 6], ['jupiter', 12], ['venus', 17], ['mars', 24], ['saturn', 30]], Cancer: [['mars', 7], ['venus', 13], ['mercury', 19], ['jupiter', 26], ['saturn', 30]],
+    Leo: [['jupiter', 6], ['venus', 11], ['saturn', 18], ['mercury', 24], ['mars', 30]], Virgo: [['mercury', 7], ['venus', 17], ['jupiter', 21], ['mars', 28], ['saturn', 30]],
+    Libra: [['saturn', 6], ['mercury', 14], ['jupiter', 21], ['venus', 28], ['mars', 30]], Scorpio: [['mars', 7], ['venus', 11], ['mercury', 19], ['jupiter', 24], ['saturn', 30]],
+    Sagittarius: [['jupiter', 12], ['venus', 17], ['mercury', 21], ['saturn', 26], ['mars', 30]], Capricorn: [['mercury', 7], ['jupiter', 14], ['venus', 22], ['saturn', 26], ['mars', 30]],
+    Aquarius: [['mercury', 7], ['venus', 13], ['jupiter', 20], ['mars', 25], ['saturn', 30]], Pisces: [['venus', 12], ['jupiter', 16], ['mercury', 19], ['mars', 28], ['saturn', 30]] };
+  const FACES = ['mars', 'sun', 'venus', 'mercury', 'moon', 'saturn', 'jupiter'];
+  const termLord = (lon) => { const d = E.norm(lon) % 30; return TERMS[signName(lon)].find(([, end]) => d < end)[0]; };
+  const faceLord = (lon) => FACES[Math.floor(E.norm(lon) / 10) % 7];
+  const oppSign = (name) => E.SIGNS[(E.SIGNS.findIndex((s) => s.name === name) + 6) % 12].name;
+  const MEAN_SPEED = { moon: 13.18, mercury: 1.38, venus: 1.2, mars: .524, jupiter: .083, saturn: .033 };
+  const QUAL = { fire: ['hot', 'dry'], earth: ['cold', 'dry'], air: ['hot', 'moist'], water: ['cold', 'moist'] };
+  const PLANET_QUAL = { saturn: ['cold', 'dry'], jupiter: ['hot', 'moist'], mars: ['hot', 'dry'], sun: ['hot', 'dry'], venus: ['cold', 'moist'], moon: ['cold', 'moist'] };
+  const MODE = ['cardinal', 'fixed', 'mutable'];
+
+  function essential(id, lon, day) {
+    const sg = signName(lon), el = E.SIGNS[signIdx(lon)].element, trip = TRIP[S.trip][el];
+    const out = []; let score = 0;
+    if (RULER[sg] === id) { out.push(['Domicile', 5]); score += 5; }
+    if (EXALT[id] === sg) { out.push(['Exaltation', 4]); score += 4; }
+    const tripLord = S.trip === 'dorothean' ? trip[day ? 0 : 1] : trip[day ? 0 : 1];
+    if (tripLord === id) { out.push(['Triplicity', 3]); score += 3; }
+    else if (S.trip === 'dorothean' && trip.includes(id)) out.push(['Triplicity (partner)', 0]);
+    if (termLord(lon) === id) { out.push(['Term', 2]); score += 2; }
+    if (faceLord(lon) === id) { out.push(['Face', 1]); score += 1; }
+    if (RULER[oppSign(sg)] === id) { out.push(['Detriment', -5]); score -= 5; }
+    if (EXALT[id] === oppSign(sg)) { out.push(['Fall', -4]); score -= 4; }
+    const peregrine = !out.some(([n, v]) => v > 0 || n.startsWith('Triplicity'));
+    if (peregrine) { out.push(['Peregrine', -5]); score -= 5; }
+    return { list: out, score, peregrine, state: out.find(([n]) => ['Domicile', 'Exaltation', 'Detriment', 'Fall'].includes(n))?.[0] || (peregrine ? 'Peregrine' : out.find(([, v]) => v > 0)?.[0] || out.find(([n]) => n === 'Triplicity (partner)')?.[0] || 'Minor dignity') };
+  }
+  const HOUSE_PTS = [0, 5, 3, 1, 4, 3, -2, 4, -2, 2, 5, 4, -5];
+  function accidental(b, ch) {
+    const sun = ch.bodies[0], out = [];
+    out.push([`${ord(b.house)} house`, HOUSE_PTS[b.house]]);
+    if (b.id !== 'sun' && b.id !== 'moon') out.push(b.retrograde ? ['Retrograde', -5] : ['Direct', 4]);
+    if (MEAN_SPEED[b.id] && !b.retrograde) out.push(Math.abs(b.speed) >= MEAN_SPEED[b.id] ? ['Swift', 2] : ['Slow', -2]);
+    if (b.id !== 'sun') {
+      const d = E.separation(b.lon, sun.lon);
+      out.push(d <= 17 / 60 ? ['Cazimi', 5] : d < 8.5 ? ['Combust', -5] : d < 17 ? ['Under the beams', -4] : ['Free of the Sun', 5]);
+      const oriental = E.norm(sun.lon - b.lon) < 180;
+      if (['saturn', 'jupiter', 'mars'].includes(b.id)) out.push(oriental ? ['Oriental', 2] : ['Occidental', -2]);
+      if (['mercury', 'venus'].includes(b.id)) out.push(oriental ? ['Oriental', -2] : ['Occidental', 2]);
+      if (b.id === 'moon') out.push(E.norm(b.lon - sun.lon) < 180 ? ['Increasing in light', 2] : ['Decreasing in light', -2]);
+    }
+    return { list: out, score: out.reduce((a, [, v]) => a + v, 0) };
+  }
+  const grade = (t) => t >= 12 ? 'strong and well dignified' : t >= 4 ? 'reasonably strong' : t >= -4 ? 'of mixed condition' : 'weak and afflicted';
+
+  // ---------- the whole analysis ----------
+  function analyse(p) {
+    const ch = E.chart(p.ms, p.place.lat, p.place.lon, { houseSystem: S.houses, nodeKind: 'true' });
+    const B = Object.fromEntries(ch.bodies.map((b) => [b.id, b]));
+    const sunAbove = E.norm(B.sun.lon - ch.angles.asc) > 180; // between Asc and Dsc through the MC
+    const day = sunAbove;
+    const P = {};
+    for (const id of T7) { const b = B[id]; const es = essential(id, b.lon, day), ac = accidental(b, ch); P[id] = { b, es, ac, total: es.score + ac.score }; }
+    const cusps = ch.houses.cusps;
+    const lordOf = (h) => RULER[signName(cusps[h - 1])];
+    const rules = (id) => [...Array(12).keys()].map((i) => i + 1).filter((h) => lordOf(h) === id);
+    const fortune = E.norm(day ? ch.angles.asc + B.moon.lon - B.sun.lon : ch.angles.asc + B.sun.lon - B.moon.lon);
+    const spirit = E.norm(day ? ch.angles.asc + B.sun.lon - B.moon.lon : ch.angles.asc + B.moon.lon - B.sun.lon);
+    const houseOf = (lon) => E.houseOf(lon, cusps);
+    const sectBenefic = day ? 'jupiter' : 'venus', sectMalefic = day ? 'saturn' : 'mars', contraryMalefic = day ? 'mars' : 'saturn';
+    const ascLord = lordOf(1);
+    const ranked = T7.slice().sort((a, b) => P[b].total - P[a].total);
+    return { p, ch, B, P, day, cusps, lordOf, rules, fortune, spirit, houseOf, sectBenefic, sectMalefic, contraryMalefic, ascLord, ranked };
+  }
+
+  // ---------- wheel (FEMT geometry) ----------
+  const SIZE = 820, CX = SIZE / 2, CY = SIZE / 2;
+  function wheel(main) {
+    const asc = main.angles.asc;
+    const pos = (lon, r) => { const t = (180 + (lon - asc)) * DEG; return [CX + r * Math.cos(t), CY - r * Math.sin(t)]; };
+    const spread = (bodies, gap) => { const it = bodies.map((b) => ({ b, at: b.lon })).sort((x, y) => x.at - y.at);
+      for (let q = 0; q < 40; q++) { let mv = false; for (let i = 0; i < it.length; i++) { const a = it[i], b = it[(i + 1) % it.length]; const g = E.norm(b.at - a.at); if (g < gap) { const push = (gap - g) / 2; a.at = E.norm(a.at - push); b.at = E.norm(b.at + push); mv = true; } } if (!mv) break; } return it; };
+    const R = { z1: 400, z0: 356, glyph: 320, label: 293, h0: 268, asp: 240 };
+    let s = `<circle cx="${CX}" cy="${CY}" r="${R.z1}" class="ring"/><circle cx="${CX}" cy="${CY}" r="${R.z0}" class="ring"/>`;
+    for (const sg of E.SIGNS) { const [x1, y1] = pos(sg.start, R.z0), [x2, y2] = pos(sg.start, R.z1), [gx, gy] = pos(sg.start + 15, (R.z0 + R.z1) / 2);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="sign-line"/><text x="${gx}" y="${gy}" class="sign ${ELC[sg.element]}">${sg.glyph}</text>`; }
+    for (let d = 0; d < 360; d += 5) { const len = d % 10 === 0 ? 9 : 6; const [x1, y1] = pos(d, R.z0), [x2, y2] = pos(d, R.z0 + len); s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="deg-tick"/>`; }
+    s += `<circle cx="${CX}" cy="${CY}" r="${R.h0}" class="ring"/><circle cx="${CX}" cy="${CY}" r="${R.asp}" class="ring"/>`;
+    const cs = main.houses.cusps;
+    cs.forEach((c, i) => { const [x1, y1] = pos(c, R.asp), [x2, y2] = pos(c, R.z0); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${i % 3 === 0 ? 'cusp angle' : 'cusp'}"/>`;
+      const [nx, ny] = pos(c + E.norm(cs[(i + 1) % 12] - c) / 2, (R.h0 + R.asp) / 2); s += `<text x="${nx}" y="${ny}" class="house-num">${i + 1}</text>`; });
+    [['asc', 'As'], ['dsc', 'Ds'], ['mc', 'Mc'], ['ic', 'Ic']].forEach(([k, l]) => { const [x1, y1] = pos(main.angles[k], R.z1), [x2, y2] = pos(main.angles[k], R.z1 + 12), [lx, ly] = pos(main.angles[k], R.z1 + 26);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="cusp angle"/><text x="${lx}" y="${ly}" class="angle-label">${l}</text>`; });
+    for (const a of main.aspects) { if (a.aspect === 'conjunction') continue; const pa = main.bodies.find((b) => b.id === a.a), pb = main.bodies.find((b) => b.id === a.b);
+      const [x1, y1] = pos(pa.lon, R.asp), [x2, y2] = pos(pb.lon, R.asp); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="asp asp-${a.aspect}" style="opacity:${(1 - (a.orb / (ASP[a.aspect].orb + .5)) * .65).toFixed(2)}"/>`; }
+    const shown = S.modern === 'off' ? main.bodies.filter((b) => !['uranus', 'neptune', 'pluto'].includes(b.id)) : main.bodies;
+    s += spread(shown, 6.5).map(({ b, at }) => { const [x1, y1] = pos(b.lon, R.h0 + 106), [x2, y2] = pos(b.lon, R.h0 + 96), [gx, gy] = pos(at, R.glyph), [lx, ly] = pos(at, R.label);
+      return `<g><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="tick-body"/><text x="${gx}" y="${gy}" class="glyph ${b.id}">${b.glyph}</text><text x="${lx}" y="${ly}" class="deg">${b.deg}${b.retrograde ? '℞' : ''}</text></g>`; }).join('');
+    return `<svg class="wheel" viewBox="-34 -34 ${SIZE + 68} ${SIZE + 68}">${s}</svg>`;
+  }
+
+  // ---------- wording (draft, our own words; ideas after the sources cited) ----------
+  const NATURE = {
+    saturn: 'Saturn is cold and dry, the greater malefic: slowness, endurance, limits, age and the long view. Well placed he gives gravity, patience and the capacity for solitary, lasting work; badly placed, fear, melancholy, delay and loss.',
+    jupiter: 'Jupiter is hot and moist, the greater benefic: increase, magnanimity, law, religion and fair dealing. Well placed he gives faith, generosity and sound counsel; badly placed, waste, careless pride or promises that come to nothing.',
+    mars: 'Mars is hot and dry, the lesser malefic: heat, cutting, courage and strife. Well placed he gives boldness, skill with tools and readiness to defend; badly placed, rashness, quarrels, wounds and fevers.',
+    sun: 'The Sun is hot and dry, the light of the day: life, honour, authority and the father. Well placed he gives dignity, loyalty and the power to command; badly placed, arrogance, or a life lived in others\' shadow.',
+    venus: 'Venus is cool and moist, the lesser benefic: pleasure, beauty, affection, music and ease. Well placed she gives grace, charm and good fortune in love; badly placed, idleness, excess and jealousy.',
+    mercury: 'Mercury is changeable, taking the nature of the planets he joins: wit, speech, writing, trade and craft. Well placed he gives a sharp, inventive mind; badly placed, cunning, scattered effort and deceit.',
+    moon: 'The Moon is cold and moist, the light of the night: the body, the common people, change, journeys and the mother. Well placed she gives adaptability, popularity and fertility; badly placed, restlessness, wandering and frailty.' };
+  const STATE = {
+    Domicile: 'In its own domicile it is like a person in their own house: it acts freely, with means and authority, and what it signifies is well supplied.',
+    Exaltation: 'In its exaltation it is an honoured guest: favoured and given a hearing, though inclined to overstate what it can do.',
+    Triplicity: 'It has triplicity here, standing among allies: it is supported and does not lack help, though it does not command.',
+    'Triplicity (partner)': 'It shares in the triplicity as a partner, so it has some standing among allies.',
+    Term: 'It has only the dignity of term: modest resources, enough to keep it from want.',
+    Face: 'It has only the dignity of face: like a person keeping up appearances on little, anxious to preserve its standing.',
+    'Minor dignity': 'It has minor dignity only.',
+    Peregrine: 'It is peregrine, a wanderer with no standing in the sign: it acts according to the planets it meets, for good or ill.',
+    Detriment: 'In its detriment it is far from home, working against the grain: its efforts misfire, or are resented.',
+    Fall: 'In its fall it is dishonoured: it struggles to be heard, and what it signifies is brought low or comes late.' };
+  const SIGN_KW = { Aries: 'quick, direct and impatient with delay', Taurus: 'steady, sensual and slow to be moved', Gemini: 'curious, double-minded and quick of tongue', Cancer: 'protective, tender and rooted in home', Leo: 'warm, proud and wanting to be seen', Virgo: 'careful, discriminating and exacting', Libra: 'fair-minded, gracious and seeking balance', Scorpio: 'intense, secretive and unflinching', Sagittarius: 'frank, hopeful and drawn to the far horizon', Capricorn: 'patient, ambitious and practical', Aquarius: 'principled, original and somewhat aloof', Pisces: 'compassionate, imaginative and easily swayed' };
+  const HOUSE = ['', 'life, body and temperament', 'wealth and livelihood', 'siblings, neighbours, letters and short journeys', 'the father, land, home and the end of matters', 'children, pleasure and gifts', 'illness, servants and daily labour', 'marriage, partners, contracts and open enemies', 'inheritance, other people\'s money and fear', 'long journeys, religion, learning and dreams', 'profession, honour, reputation and the mother', 'friends, hopes and patrons', 'hidden enemies, confinement and sorrow'];
+  const HOUSE_SHORT = ['', 'the self', 'money', 'siblings', 'home and father', 'children', 'illness and work', 'partners', 'inheritance', 'travel and faith', 'career', 'friends', 'hidden troubles'];
+  const HOUSE_NAME = ['', 'Life', 'Wealth', 'Siblings and short journeys', 'Parents and property', 'Children and pleasure', 'Health and service', 'Marriage and partnership', 'Inheritance and shared resources', 'Travel, religion and learning', 'Profession and honour', 'Friends and hopes', 'Hidden enemies and retreat'];
+  const angularity = (h) => [1, 4, 7, 10].includes(h) ? 'angular' : [2, 5, 8, 11].includes(h) ? 'succedent' : 'cadent';
+  const ANG_TXT = { angular: 'An angular house gives it strength and visibility: its effects are open and felt early.', succedent: 'A succedent house gives it moderate strength: its effects build and endure.', cadent: 'A cadent house weakens it: its effects are slower, indirect or pursued at a distance.' };
+  const derived = (from, to) => from === to ? `its lord at home: the ${HOUSE_SHORT[from]} is self-governing and stable` :
+    `the matters of the ${ord(from)} (${HOUSE_SHORT[from]}) are carried into the ${ord(to)} (${HOUSE_SHORT[to]})` +
+    ([6, 8, 12].includes(to) ? ', one of the troubled houses, so they bring care or cost' : angularity(to) === 'angular' ? ', where they are acted on openly' : angularity(to) === 'succedent' ? ', where they accumulate and last' : ', where they are weakened or deferred');
+
+  function planetReading(A, id) {
+    const { b, es, ac, total } = A.P[id];
+    const out = [];
+    out.push(NATURE[id]);
+    out.push(`Here ${NA(id)} is in ${b.sign.name}, a sign ${SIGN_KW[b.sign.name]}. ${STATE[es.state]}`);
+    const ang = angularity(b.house);
+    out.push(`It stands in the ${ord(b.house)} house, of ${HOUSE[b.house]}. ${ANG_TXT[ang]}`);
+    const r = A.rules(id);
+    if (r.length) out.push(`As lord of the ${r.map(ord).join(' and the ')}, ${r.map((h) => derived(h, b.house)).join('; and ')}.`);
+    else out.push('It rules no house cusp in this chart, so it acts mainly through its own significations and its aspects.');
+    if (id === A.sectBenefic) out.push(`${N(id)} is the benefic of the ${A.day ? 'day' : 'night'} sect, so its gifts come more fully.`);
+    if (id === A.sectMalefic) out.push(`${N(id)} is the malefic of the ${A.day ? 'day' : 'night'} sect: in favour, so its hardships are more constructive and its difficulty tempered.`);
+    if (id === A.contraryMalefic) out.push(`${N(id)} is the malefic contrary to the sect, the more troublesome of the two; much depends on its dignity and the help it receives.`);
+    const sol = ac.list.find(([n]) => ['Combust', 'Under the beams', 'Cazimi'].includes(n));
+    if (sol) out.push(sol[0] === 'Cazimi' ? 'It is cazimi, in the heart of the Sun, and greatly strengthened.' : sol[0] === 'Combust' ? 'It is combust, burnt by the Sun\'s rays: hidden, anxious, its significations obscured.' : 'It is under the Sun\'s beams, partly hidden; its works go on out of sight.');
+    if (b.retrograde) out.push('Being retrograde, it goes back over its ground: delays, second thoughts and things that return.');
+    const asps = A.ch.aspects.filter((a) => (a.a === id || a.b === id) && T7.includes(a.a) && T7.includes(a.b)).slice(0, 3);
+    const asp = asps.map((a) => {
+      const o = a.a === id ? a.b : a.a, kind = ASP[a.aspect].kind;
+      const how = ['jupiter', 'venus'].includes(o) ? (kind === 'hard' ? 'helped, with some strain, by' : 'helped by') : ['saturn', 'mars'].includes(o) ? (kind === 'soft' ? 'tempered, without much harm, by' : 'pressed by') : (kind === 'hard' ? 'at odds with' : kind === 'soft' ? 'in sympathy with' : 'joined with');
+      const rec = RULER[b.sign.name] === o && RULER[A.B[o].sign.name] === id ? ' in mutual reception, each in the other\'s sign, so they help one another' : RULER[b.sign.name] === o ? `; ${N(o)} receives it into its own sign, which softens the contact` : '';
+      return `${how} ${N(o)} by ${ASP[a.aspect].name.toLowerCase()} (orb ${a.orb.toFixed(1)}°)${rec}`;
+    });
+    if (asp.length) out.push(`It is ${asp.join('; ')}.`);
+    out.push(`On balance ${NA(id)} is ${grade(total)} (${total > 0 ? '+' : ''}${total}).`);
+    return out;
+  }
+
+  function houseReading(A, h) {
+    const cusp = A.cusps[h - 1], lord = A.lordOf(h), L = A.P[lord];
+    const occ = T7.filter((id) => A.B[id].house === h);
+    const out = [`${signName(cusp)} on the cusp makes ${NA(lord)} lord of the ${ord(h)}. It is in the ${ord(L.b.house)}: ${derived(h, L.b.house)}. Its lord is ${grade(L.total)}.`];
+    if (occ.length) out.push(`${occ.map(N).join(' and ')} ${occ.length > 1 ? 'are' : 'is'} in the house. ` + occ.map((id) => id === A.sectBenefic ? `${N(id)}, the benefic of the sect, promises good here` : ['jupiter', 'venus'].includes(id) ? `${N(id)} is a help, if a lesser one` : id === A.contraryMalefic ? `${N(id)}, the malefic contrary to the sect, is the hardest testimony here` : id === A.sectMalefic ? `${N(id)} brings difficulty, though of the kind that teaches` : `${N(id)} colours the house with its own nature`).join('; ') + '.');
+    else out.push('No traditional planet is in the house, so its lord speaks for it.');
+    if (h === 2) out.push(`The Lot of Fortune, in ${signName(A.fortune)}, adds its testimony: its lord ${NA(RULER[signName(A.fortune)])} is ${grade(A.P[RULER[signName(A.fortune)]].total)}.`);
+    if (h === 7) out.push(`Venus, the natural significator of love, is ${grade(A.P.venus.total)}.`);
+    if (h === 8 && S.omitDeath) out.push('<span class="src">Judgments of the manner and time of death, which the old authors give under this house, are left out of this report.</span>');
+    if (h === 10) { const nearMc = T7.filter((id) => E.separation(A.B[id].lon, A.ch.angles.mc) < 6); if (nearMc.length) out.push(`${nearMc.map(N).join(' and ')} near the Midheaven ${nearMc.length > 1 ? 'are' : 'is'} prominent in the career.`); }
+    return out;
+  }
+
+  function temperament(A) {
+    const t = [];
+    const add = (src, q) => t.push({ src, q });
+    const ascS = E.SIGNS[signIdx(A.ch.angles.asc)];
+    add(`Ascendant in ${ascS.name}`, QUAL[ascS.element]);
+    const lord = A.ascLord, Lb = A.B[lord];
+    add(`Its lord ${N(lord)} in ${Lb.sign.name}`, QUAL[Lb.sign.element]);
+    add(`${N(lord)} by nature`, lord === 'mercury' ? QUAL[Lb.sign.element] : PLANET_QUAL[lord]);
+    add(`Moon in ${A.B.moon.sign.name}`, QUAL[A.B.moon.sign.element]);
+    const el = E.norm(A.B.moon.lon - A.B.sun.lon);
+    add(`Moon's phase (${el < 90 ? 'new to first quarter' : el < 180 ? 'first quarter to full' : el < 270 ? 'full to last quarter' : 'last quarter to new'})`, el < 90 ? ['hot', 'moist'] : el < 180 ? ['hot', 'dry'] : el < 270 ? ['cold', 'dry'] : ['cold', 'moist']);
+    const sIdx = signIdx(A.B.sun.lon);
+    add(`Season of the Sun (${['spring', 'summer', 'autumn', 'winter'][Math.floor(sIdx / 3)]})`, [['hot', 'moist'], ['hot', 'dry'], ['cold', 'dry'], ['cold', 'moist']][Math.floor(sIdx / 3)]);
+    const close = T7.filter((id) => id !== 'moon' && id !== lord && E.separation(A.B[id].lon, A.ch.angles.asc) < 8);
+    close.forEach((id) => add(`${N(id)} rising`, id === 'mercury' ? QUAL[A.B.mercury.sign.element] : PLANET_QUAL[id]));
+    const n = { hot: 0, cold: 0, moist: 0, dry: 0 };
+    t.forEach(({ q }) => q.forEach((k) => n[k]++));
+    const a = n.hot >= n.cold ? 'hot' : 'cold', b = n.moist >= n.dry ? 'moist' : 'dry';
+    const name = { 'hot moist': 'Sanguine', 'hot dry': 'Choleric', 'cold dry': 'Melancholic', 'cold moist': 'Phlegmatic' }[`${a} ${b}`];
+    return { t, n, name, a, b };
+  }
+  const TEMP_TXT = { Sanguine: 'warm, sociable, hopeful and generous, fond of company and pleasure, quick to forgive.', Choleric: 'quick, ambitious, decisive and easily angered, at its best when it has something to lead or overcome.', Melancholic: 'thoughtful, careful, constant and reserved, inclined to study and to worry, slow to trust and slow to forget.', Phlegmatic: 'calm, patient, gentle and receptive, slow to move and slow to anger, given to ease and reflection.' };
+  const ELEM_MIND = { fire: 'quick, bold and eager', earth: 'practical, steady and concrete', air: 'sociable, reasoning and articulate', water: 'intuitive, retentive and feeling' };
+  const MODE_MIND = { cardinal: 'drawn to public affairs and to starting things', fixed: 'firm, persistent and hard to turn', mutable: 'versatile, changeable and many-sided' };
+
+  // Fixed stars, ecliptic longitude J2000 (approximate; the app would use the Yale Bright Star Catalogue)
+  const STARS = [['Algol', 56.17, 'Saturn–Jupiter'], ['Alcyone', 60.0, 'Moon–Mars'], ['Aldebaran', 69.78, 'Mars'], ['Rigel', 76.83, 'Jupiter–Saturn'], ['Capella', 81.85, 'Mars–Mercury'], ['Betelgeuse', 88.75, 'Mars–Mercury'], ['Sirius', 104.08, 'Jupiter–Mars'], ['Castor', 110.23, 'Mercury'], ['Pollux', 113.22, 'Mars'], ['Procyon', 115.78, 'Mercury–Mars'], ['Regulus', 149.83, 'Mars–Jupiter'], ['Spica', 203.83, 'Venus–Mars'], ['Arcturus', 204.23, 'Jupiter–Mars'], ['Antares', 249.77, 'Mars–Jupiter'], ['Vega', 285.32, 'Venus–Mercury'], ['Deneb Algedi', 323.55, 'Saturn–Jupiter'], ['Fomalhaut', 333.87, 'Venus–Mercury']];
+
+  function profections(A) {
+    const by = A.p.birth[0], age = Math.floor((Date.now() - A.p.ms) / (365.2425 * 864e5));
+    const ascI = signIdx(A.ch.angles.asc);
+    return [...Array(7).keys()].map((k) => { const a = age - 1 + k; const si = (ascI + a) % 12; const sg = E.SIGNS[si]; const lord = RULER[sg.name];
+      return { a, years: `${by + a}–${String(by + a + 1).slice(2)}`, house: (a % 12) + 1, sg, lord, now: a === age, total: A.P[lord].total }; });
+  }
+  function firdaria(A) {
+    const seq = A.day ? [['sun', 10], ['venus', 8], ['mercury', 13], ['moon', 9], ['saturn', 11], ['jupiter', 12], ['mars', 7], ['node', 3], ['snode', 2]]
+                      : [['moon', 9], ['saturn', 11], ['jupiter', 12], ['mars', 7], ['sun', 10], ['venus', 8], ['mercury', 13], ['node', 3], ['snode', 2]];
+    const age = (Date.now() - A.p.ms) / (365.2425 * 864e5);
+    let start = 0; const rows = [];
+    for (const [id, len] of seq) {
+      const subs = BODY[id] && T7.includes(id) ? (() => { const i0 = CHALDEAN.indexOf(id); return [...Array(7).keys()].map((k) => { const s = start + k * len / 7; return { id: CHALDEAN[(i0 + k) % 7], from: s, to: s + len / 7 }; }); })() : [];
+      rows.push({ id, from: start, to: start + len, subs, now: age >= start && age < start + len });
+      start += len;
+    }
+    return { rows, age };
+  }
+  const yr = (A, a) => (A.p.birth[0] + a).toFixed(0);
+  const yrm = (A, a) => { const t = new Date(A.p.ms + a * 365.2425 * 864e5); return `${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}`; };
+
+  // ---------- pages ----------
+  function pages(A) {
+    const p = A.p, ch = A.ch, cls = `paper${S.style === 'clean' ? ' clean' : ''}`;
+    const logo = (size) => S.logo ? `<span class="logo"><img src="${S.logo}" style="height:${size}px;max-width:${size * 3.2}px" alt=""></span>` : '';
+    const head = (title) => `<div class="ph">${S.logoWhere === 'all' ? logo(S.logoSize) : ''}<div class="tt"><h3>${title}</h3></div><div class="sub">${esc(p.name)}<br>${fmtBirth(p)} ${offsetOf(p)} · ${esc(p.place.name)}</div></div>`;
+    const cite = (t) => S.cite ? `<div class="src">${t}</div>` : '';
+    const out = [];
+    const page = (id, title, body) => out.push({ id, title, html: (n, of) => `<div class="${cls}" data-page="${id}">${body(n, of)}<div class="pf"><span>${esc(S.practice || 'Pagbalatik')} · Natal reading · tropical zodiac, ${S.houses === 'whole' ? 'whole-sign' : cap(S.houses)} houses</span><span>${n} / ${of}</span></div></div>` });
+    const sun = A.B.sun, moon = A.B.moon, ascS = E.signOf(ch.angles.asc), mcS = E.signOf(ch.angles.mc);
+
+    if (S.sec.cover) page('cover', 'Cover', () => `<div class="cover">
+        <div class="brand">${logo(Math.round(S.logoSize * 1.7))}<div class="who"><b>${esc(S.practice)}</b>\n${esc(S.contact)}</div></div>
+        <div class="mid"><div class="kicker">A natal reading in the traditional manner</div><div class="t">${esc(p.name)}</div>
+        <div class="d">Born ${fmtBirth(p)} (${offsetOf(p)}) at ${esc(p.place.name)}, ${p.place.lat.toFixed(2)}°, ${p.place.lon.toFixed(2)}°</div>
+        <div class="wheel-wrap">${wheel(ch)}</div>
+        <div class="d">A ${A.day ? 'day' : 'night'} chart · ${ascS.sign.name} rising · Sun in ${sun.sign.name} · Moon in ${moon.sign.name}</div></div>
+        <div class="note">Prepared ${new Date().getDate()} ${MONTHS[new Date().getMonth()]} ${new Date().getFullYear()}. The judgments follow the traditional authors listed at the end, in our own words. Astrology describes inclinations, not fixed outcomes.</div></div>`);
+
+    if (S.sec.glance) page('glance', 'The nativity at a glance', () => `${head('The nativity at a glance')}
+      <div class="facts"><div><b>${A.day ? 'Day' : 'Night'}</b>Sect (Sun ${A.day ? 'above' : 'below'} the horizon)</div><div><b>${G(A.ascLord)} ${N(A.ascLord)}</b>Lord of the Ascendant</div><div><b>${G(A.ranked[0])} ${N(A.ranked[0])}</b>Strongest planet</div><div><b>${G(A.ranked[6])} ${N(A.ranked[6])}</b>Weakest planet</div>
+      <div><b>${G(A.sectBenefic)} ${N(A.sectBenefic)}</b>Benefic of the sect</div><div><b>${G(A.contraryMalefic)} ${N(A.contraryMalefic)}</b>Malefic contrary to sect</div><div><b>${fmtLon(A.fortune)}</b>Lot of Fortune</div><div><b>${fmtLon(A.spirit)}</b>Lot of Spirit</div></div>
+      <div class="two"><div><h4>Positions</h4><table><thead><tr><th></th><th>Planet</th><th class="r">Longitude</th><th class="c">House</th><th class="c">Rules</th></tr></thead><tbody>
+        ${ch.bodies.filter((b) => S.modern !== 'off' || !['uranus', 'neptune', 'pluto'].includes(b.id)).map((b) => `<tr><td class="c">${G(b.id)}</td><td>${b.name}${b.retrograde ? ' ℞' : ''}${['uranus', 'neptune', 'pluto'].includes(b.id) ? ' <span class="src">(not judged)</span>' : ''}</td><td class="r">${fmtLon(b.lon)}</td><td class="c">${b.house}</td><td class="c">${T7.includes(b.id) ? A.rules(b.id).join(', ') : ''}</td></tr>`).join('')}
+        <tr><td class="c">As</td><td>Ascendant</td><td class="r">${fmtLon(ch.angles.asc)}</td><td class="c">1</td><td></td></tr><tr><td class="c">Mc</td><td>Midheaven</td><td class="r">${fmtLon(ch.angles.mc)}</td><td class="c">${A.houseOf(ch.angles.mc)}</td><td></td></tr></tbody></table></div>
+      <div><h4>Summary</h4>
+        <p>${esc(p.name.split(' ')[0])} was born by ${A.day ? 'day' : 'night'}, with ${ascS.sign.name} rising and its lord ${N(A.ascLord)} in the ${ord(A.B[A.ascLord].house)} house, ${grade(A.P[A.ascLord].total)}. The life is steered by the matters of that house: ${HOUSE[A.B[A.ascLord].house]}.</p>
+        <p>The strongest planet is ${N(A.ranked[0])} (${A.P[A.ranked[0]].total > 0 ? '+' : ''}${A.P[A.ranked[0]].total}), in the ${ord(A.B[A.ranked[0]].house)}; the weakest is ${N(A.ranked[6])} (${A.P[A.ranked[6]].total}), in the ${ord(A.B[A.ranked[6]].house)}. Where the strong planets rule, things come easily; where the weak ones rule, they come with effort.</p>
+        <p>The Midheaven is in ${mcS.sign.name}, ruled by ${N(RULER[mcS.sign.name])}. The Lot of Fortune falls in the ${ord(A.houseOf(A.fortune))} house, the Lot of Spirit in the ${ord(A.houseOf(A.spirit))}.</p>
+        <h4>Aspects between the seven planets</h4><table><tbody>${ch.aspects.filter((a) => T7.includes(a.a) && T7.includes(a.b)).slice(0, 12).map((a) => `<tr><td class="c">${G(a.a)}</td><td class="c gs">${ASP[a.aspect].glyph}</td><td class="c">${G(a.b)}</td><td>${N(a.a)} ${ASP[a.aspect].name.toLowerCase()} ${N(a.b)}</td><td class="r">${a.orb.toFixed(1)}°</td></tr>`).join('')}</tbody></table>
+      </div></div>
+      ${cite('Sect: Valens, Anthology II–III; Ptolemy, Tetrabiblos I, "Of day and night". Lots: Valens II; Ptolemy III. Modern planets are shown for reference but take no part in the judgments.')}`);
+
+    if (S.sec.dignities) page('dignities', 'Essential and accidental dignity', () => `${head('Essential and accidental dignity')}
+      <p>Each planet's strength is judged twice: by <b>essential dignity</b>, its standing in the sign and degree it occupies, and by <b>accidental dignity</b>, its circumstances in this chart: house, speed, direction and distance from the Sun. The points follow Lilly's table; the triplicity rulers are the ${S.trip === 'dorothean' ? 'Dorothean (day, night and partner)' : 'Ptolemaic, as Lilly gives them'}, the terms the Egyptian.</p>
+      <h4>Essential dignity</h4><table><thead><tr><th></th><th>Planet</th><th>Sign</th><th class="c">Dom.</th><th class="c">Exalt.</th><th class="c">Trip.</th><th class="c">Term</th><th class="c">Face</th><th class="c">Det./Fall</th><th class="r">Score</th></tr></thead><tbody>
+        ${T7.map((id) => { const { b, es } = A.P[id]; const has = (n) => es.list.some(([x]) => x === n); const sg = b.sign.name, el = b.sign.element, tr = TRIP[S.trip][el];
+          return `<tr><td class="c">${G(id)}</td><td>${N(id)}</td><td>${fmtLon(b.lon)}</td><td class="c">${G(RULER[sg])}${has('Domicile') ? ' ●' : ''}</td><td class="c">${EXALT_BY_SIGN[sg] ? G(EXALT_BY_SIGN[sg]) : '—'}${has('Exaltation') ? ' ●' : ''}</td><td class="c">${[...new Set(tr)].map(G).join('')}${has('Triplicity') ? ' ●' : ''}</td><td class="c">${G(termLord(b.lon))}${has('Term') ? ' ●' : ''}</td><td class="c">${G(faceLord(b.lon))}${has('Face') ? ' ●' : ''}</td><td class="c">${has('Detriment') ? '<span class="neg">Detriment</span>' : has('Fall') ? '<span class="neg">Fall</span>' : es.peregrine ? '<span class="neg">Peregrine</span>' : ''}</td><td class="r ${es.score >= 0 ? 'pos' : 'neg'}">${es.score > 0 ? '+' : ''}${es.score}</td></tr>`; }).join('')}
+      </tbody></table>
+      <h4>Accidental dignity</h4><table><thead><tr><th></th><th>Planet</th><th>House</th><th>Motion</th><th>Speed</th><th>The Sun</th><th>Phase</th><th class="r">Score</th></tr></thead><tbody>
+        ${T7.map((id) => { const { ac } = A.P[id]; const f = (keys) => { const x = ac.list.find(([n]) => keys.some((k) => n.includes(k))); return x ? `${x[0].replace(/^\d+\w+ house$/, (m) => m)} <span class="${x[1] >= 0 ? 'pos' : 'neg'}">${x[1] > 0 ? '+' : ''}${x[1]}</span>` : '—'; };
+          return `<tr><td class="c">${G(id)}</td><td>${N(id)}</td><td>${f(['house'])}</td><td>${f(['Direct', 'Retrograde'])}</td><td>${f(['Swift', 'Slow'])}</td><td>${f(['Cazimi', 'Combust', 'beams', 'Free'])}</td><td>${f(['Oriental', 'Occidental', 'light'])}</td><td class="r ${ac.score >= 0 ? 'pos' : 'neg'}">${ac.score > 0 ? '+' : ''}${ac.score}</td></tr>`; }).join('')}
+      </tbody></table>
+      <h4>Total strength</h4><table><thead><tr><th>Rank</th><th></th><th>Planet</th><th class="r">Essential</th><th class="r">Accidental</th><th class="r">Total</th><th>Judgment</th></tr></thead><tbody>
+        ${A.ranked.map((id, i) => `<tr class="${i === 0 ? 'hi' : ''}"><td>${i + 1}</td><td class="c">${G(id)}</td><td>${N(id)}</td><td class="r">${A.P[id].es.score}</td><td class="r">${A.P[id].ac.score}</td><td class="r"><b>${A.P[id].total > 0 ? '+' : ''}${A.P[id].total}</b></td><td>${cap(grade(A.P[id].total))}</td></tr>`).join('')}
+      </tbody></table>
+      ${cite('Point values: Lilly, Christian Astrology, Book I, the table of essential and accidental fortitudes and debilities. Terms and faces: Ptolemy, Tetrabiblos I. Triplicities: Dorotheus, Carmen I (Dorothean); Ptolemy I (Ptolemaic). Aspects to Jupiter, Venus and the fixed stars, which Lilly also scores, are judged in the text instead.')}`);
+
+    if (S.sec.temperament) page('temperament', 'Temperament and the quality of the soul', () => { const T = temperament(A); const m = A.B.mercury, mo = A.B.moon;
+      const mMode = MODE[signIdx(m.lon) % 3], moMode = MODE[signIdx(mo.lon) % 3];
+      return `${head('Temperament and the quality of the soul')}
+      <h4>Temperament</h4><p>The old authors judged the temperament, the balance of hot, cold, moist and dry in the constitution, by taking testimonies from the Ascendant and its lord, the Moon and her phase, the season of the Sun, and any planet rising. Each testimony is counted below.</p>
+      <table><thead><tr><th>Testimony</th><th class="c">Hot</th><th class="c">Cold</th><th class="c">Moist</th><th class="c">Dry</th></tr></thead><tbody>
+        ${T.t.map(({ src, q }) => `<tr><td>${src}</td>${['hot', 'cold', 'moist', 'dry'].map((k) => `<td class="c">${q.includes(k) ? '●' : ''}</td>`).join('')}</tr>`).join('')}
+        <tr class="tot"><td>Total</td>${['hot', 'cold', 'moist', 'dry'].map((k) => `<td class="c">${T.n[k]}</td>`).join('')}</tr></tbody></table>
+      <div class="tally">${['Sanguine', 'Choleric', 'Melancholic', 'Phlegmatic'].map((k) => `<div class="${k === T.name ? 'win' : ''}"><b>${k === T.name ? '●' : '○'}</b>${k}</div>`).join('')}</div>
+      <p>The testimonies lean ${T.a} and ${T.b}, so the temperament is <b>${T.name.toLowerCase()}</b>: ${TEMP_TXT[T.name]} ${T.n.hot === T.n.cold || T.n.moist === T.n.dry ? 'The count is close, so the temperament is mixed, and the second quality should be read alongside the first.' : ''}</p>
+      <h4>The quality of the soul</h4>
+      <p>Ptolemy takes the quality of the soul from Mercury, for the reasoning part, and from the Moon, for the feeling and instinctive part, judged by their signs and by the planets that rule and aspect them.</p>
+      <h5>${G('mercury')} The mind: Mercury in ${m.sign.name}</h5>
+      <p>Mercury in ${an(m.sign.element)} sign makes the mind ${ELEM_MIND[m.sign.element]}; in ${an(mMode)} sign it is ${MODE_MIND[mMode]}. ${RULER[m.sign.name] === 'mercury' ? 'Mercury rules its own sign here, which gives the mind independence' : `Its ruler is ${NA(RULER[m.sign.name])}`}${RULER[m.sign.name] === 'mercury' ? '' : `, which lends Mercury something of its nature: ${NATURE[RULER[m.sign.name]].split(':')[1].split('.')[0].trim()}`}. Mercury is ${grade(A.P.mercury.total)}${A.P.mercury.ac.list.some(([n]) => n === 'Combust') ? ', and combust, so the thinking is apt to be hidden, private or overshadowed by the will' : ''}.</p>
+      <h5>${G('moon')} The feelings: Moon in ${mo.sign.name}</h5>
+      <p>The Moon in ${an(mo.sign.element)} sign makes the feelings ${ELEM_MIND[mo.sign.element]}; in ${an(moMode)} sign they are ${MODE_MIND[moMode]}. She is ruled by ${N(RULER[mo.sign.name])} and is ${grade(A.P.moon.total)}. ${A.ch.aspects.filter((a) => (a.a === 'moon' || a.b === 'moon') && T7.includes(a.a) && T7.includes(a.b)).slice(0, 2).map((a) => { const o = a.a === 'moon' ? a.b : a.a; return `Her ${ASP[a.aspect].name.toLowerCase()} with ${N(o)} brings in ${['jupiter', 'venus'].includes(o) ? 'warmth and ease' : ['saturn'].includes(o) ? 'caution and reserve' : o === 'mars' ? 'heat and impatience' : o === 'mercury' ? 'thought and talk' : 'vitality and pride'}.`; }).join(' ')}</p>
+      <h5>Mercury and the Moon together</h5>
+      <p>${E.separation(m.lon, mo.lon) < 60 || A.ch.aspects.some((a) => (a.a === 'mercury' && a.b === 'moon') || (a.a === 'moon' && a.b === 'mercury')) ? 'They are in aspect, so mind and feeling work together, and what is felt is soon put into words.' : 'They are not in aspect, so mind and feeling keep separate counsel: the head may decide one way while the heart goes another.'}</p>
+      ${cite('Temperament: Lilly, Christian Astrology III (the temperature of the native); Gadbury, Genethlialogia. Quality of the soul: Ptolemy, Tetrabiblos III, "Of the quality of the soul".')}`; });
+
+    if (S.sec.planets) {
+      const chunks = [['sun', 'moon'], ['mercury', 'venus'], ['mars', 'jupiter'], ['saturn']];
+      chunks.forEach((ids, ci) => page(`planets${ci}`, ci === 0 ? 'The seven planets' : `The seven planets (${ci + 1})`, () => `${head(ci === 0 ? 'The seven planets' : 'The seven planets, continued')}
+        ${ci === 0 ? '<p>Each planet is read by its nature, its condition (sign and dignity), its place (house), the houses it rules and the planets it meets. The condition decides how well it can deliver what it signifies.</p>' : ''}
+        ${ids.map((id) => { const X = A.P[id]; return `<div class="planet"><h5>${G(id)} ${N(id)} in ${X.b.sign.name}, ${ord(X.b.house)} house</h5>
+          <div class="box"><span>Position <b>${fmtLon(X.b.lon)}${X.b.retrograde ? ' ℞' : ''}</b></span><span>Dignity <b>${X.es.state}</b> (${X.es.score > 0 ? '+' : ''}${X.es.score})</span><span>Accidental <b>${X.ac.score > 0 ? '+' : ''}${X.ac.score}</b></span>
+          <span>Rules <b>${A.rules(id).map(ord).join(', ') || '—'}</b></span><span>Dispositor <b>${N(RULER[X.b.sign.name])}</b></span><span>Total <b>${X.total > 0 ? '+' : ''}${X.total}</b></span></div>
+          ${planetReading(A, id).map((t) => `<p>${t}</p>`).join('')}</div>`; }).join('')}
+        ${ci === chunks.length - 1 && S.modern === 'listed' ? `<h4>Uranus, Neptune and Pluto</h4><p>The modern planets were unknown to the traditional authors and are not judged here. For reference: ${['uranus', 'neptune', 'pluto'].map((id) => `${N(id)} ${fmtLon(A.B[id].lon)} in the ${ord(A.B[id].house)}`).join('; ')}.</p>` : ''}
+        ${cite('Natures of the planets: Ptolemy, Tetrabiblos I; Lilly, Christian Astrology I. Dignity and debility: Lilly I. Houses and their lords: Valens, Anthology II; Lilly III; Ramesey, Astrologia Restaurata.')}`));
+    }
+
+    if (S.sec.houses) [[1, 6], [7, 12]].forEach(([a, z], k) => page(`houses${k}`, k ? 'The houses (2)' : 'The twelve houses', () => `${head(k ? 'The twelve houses, continued' : 'The twelve houses')}
+      ${k ? '' : '<p>Each house is judged by the sign on its cusp, the condition and place of its lord, and any planet in it. Benefics in a house, or a strong lord, promise good in its matters; malefics, or a weak and badly placed lord, promise difficulty.</p>'}
+      ${[...Array(z - a + 1).keys()].map((i) => { const h = a + i; return `<div class="house"><h5>${h}. ${HOUSE_NAME[h]} <span class="src" style="font-style:normal">${fmtLon(A.cusps[h - 1])} · lord ${G(A.lordOf(h))}</span></h5>${houseReading(A, h).map((t) => `<p>${t}</p>`).join('')}</div>`; }).join('')}
+      ${cite('Lilly, Christian Astrology III, the judgment of each house in a nativity; Ptolemy, Tetrabiblos IV (material fortune, profession, marriage, children, friends, travel); Firmicus Maternus, Mathesis III.')}`));
+
+    if (S.sec.lots) page('lots', 'Lots and fixed stars', () => { const yrs = (p.ms / 864e5 / 365.2425) + 1970 - 2000; const hits = [];
+      const pts = T7.map((id) => [NA(id), A.B[id].lon]).concat([['the Ascendant', ch.angles.asc], ['the Midheaven', ch.angles.mc]]);
+      for (const [st, l0, nat] of STARS) { const l = E.norm(l0 + yrs * 0.013969); for (const [pn, pl] of pts) { const d = E.separation(l, pl); if (d <= 1.5) hits.push({ st, l, nat, pn, d }); } }
+      const lot = (name, lon, txt) => { const lord = RULER[signName(lon)], h = A.houseOf(lon); return `<h5>${name} ${fmtLon(lon)}, ${ord(h)} house</h5><p>${txt} It falls in the ${ord(h)}, of ${HOUSE[h]}, and its lord ${N(lord)} is in the ${ord(A.B[lord].house)}, ${grade(A.P[lord].total)}. ${[6, 8, 12].includes(h) ? 'Falling in a troubled house, it shows fortune won through difficulty.' : angularity(h) === 'angular' ? 'Being angular, it is active and evident in the life.' : ''}</p>`; };
+      return `${head('Lots and fixed stars')}
+      <h4>The Lots</h4><p>A lot is a point found by measuring the distance between two planets and projecting it from the Ascendant. ${A.day ? 'By day' : 'By night'} the Lot of Fortune is taken from the ${A.day ? 'Sun to the Moon' : 'Moon to the Sun'}, and the Lot of Spirit the reverse.</p>
+      ${lot('Lot of Fortune', A.fortune, 'Fortune signifies the body, material circumstances and what comes to the native by chance.')}
+      ${lot('Lot of Spirit', A.spirit, 'Spirit signifies the mind, intentions and what the native does by choice: action, profession and reputation.')}
+      <h4>Fixed stars</h4><p>The bright stars within 1½° of a planet or angle, with their natures as Ptolemy gives them in terms of the planets.</p>
+      ${hits.length ? `<table><thead><tr><th>Star</th><th class="r">Position</th><th>Nature</th><th>With</th><th class="r">Orb</th></tr></thead><tbody>${hits.map((h) => `<tr><td>${h.st}</td><td class="r">${fmtLon(h.l)}</td><td>${h.nat}</td><td>${h.pn}</td><td class="r">${h.d.toFixed(1)}°</td></tr>`).join('')}</tbody></table>
+      ${hits.map((h) => `<p><b>${h.st} with ${h.pn}.</b> A star of the nature of ${h.nat.replace('–', ' and ')}, joined to the ${h.pn === 'the Ascendant' || h.pn === 'the Midheaven' ? 'angle' : 'planet'}, adds that colouring to it: ${/Jupiter|Venus/.test(h.nat) && !/Mars|Saturn/.test(h.nat) ? 'a fortunate one' : /Mars|Saturn/.test(h.nat) && !/Jupiter|Venus/.test(h.nat) ? 'a sharp or testing one' : !/Mars|Saturn|Jupiter|Venus/.test(h.nat) ? 'a changeable one, taking the colour of what it touches' : 'mixed, with honour and danger together'}.</p>`).join('')}` : '<p>No bright star is within orb of a planet or angle.</p>'}
+      ${cite('Lots: Valens, Anthology II; Ptolemy, Tetrabiblos III (the Lot of Fortune). Stars and their natures: Ptolemy, Tetrabiblos I, "Of the power of the fixed stars". Positions: approximate here; the app will use the Yale Bright Star Catalogue (public domain).')}`; });
+
+    if (S.sec.timing) page('timing', 'Timing: profections and firdaria', () => { const pr = profections(A), F = firdaria(A); const cur = F.rows.find((r) => r.now);
+      return `${head('Timing: profections and firdaria')}
+      <p>Two of the oldest timing methods divide the life into periods, each ruled by a planet. That planet's condition in the birth chart colours the period.</p>
+      <h4>Annual profections</h4><p>The Ascendant moves forward one sign for each year of life. The sign it reaches is the year's house, and its ruler is the Lord of the Year (the same Lord of the Year that FEMT's Celestial Alignment uses).</p>
+      <table><thead><tr><th>Age</th><th>Year</th><th>House</th><th>Sign</th><th>Lord of the Year</th><th>Natal condition</th></tr></thead><tbody>
+        ${pr.map((r) => `<tr class="${r.now ? 'hi' : ''}"><td>${r.a}${r.now ? ' (now)' : ''}</td><td>${r.years}</td><td>${ord(r.house)}: ${HOUSE_SHORT[r.house]}</td><td><i class="gs ${ELC[r.sg.element]}">${r.sg.glyph}</i> ${r.sg.name}</td><td>${G(r.lord)} ${N(r.lord)}</td><td>${cap(grade(r.total))}</td></tr>`).join('')}
+      </tbody></table>
+      ${(() => { const r = pr.find((x) => x.now); return `<p>This year the profection reaches the ${ord(r.house)} house, bringing ${HOUSE[r.house]} to the fore. ${N(r.lord)}, ${grade(r.total)} in the birth chart and placed in the ${ord(A.B[r.lord].house)}, rules the year: watch its transits, and the matters of the ${ord(A.B[r.lord].house)} house.</p>`; })()}
+      <h4>Firdaria</h4><p>The life is divided into planetary periods in a fixed order, which ${A.day ? 'by day begins with the Sun' : 'by night begins with the Moon'}. Each planet's period is divided into seven sub-periods.</p>
+      <div class="two"><table><thead><tr><th>Period</th><th>Ages</th><th>From</th></tr></thead><tbody>
+        ${F.rows.map((r) => `<tr class="${r.now ? 'hi' : ''}"><td>${G(r.id)} ${N(r.id)}</td><td>${r.from.toFixed(0)}–${r.to.toFixed(0)}</td><td>${yrm(A, r.from)}</td></tr>`).join('')}</tbody></table>
+      <div>${cur && cur.subs.length ? `<table><thead><tr><th colspan="2">${N(cur.id)} period: sub-periods</th><th>From</th></tr></thead><tbody>${cur.subs.map((s) => `<tr class="${F.age >= s.from && F.age < s.to ? 'hi' : ''}"><td>${G(cur.id)}/${G(s.id)}</td><td>${N(s.id)}</td><td>${yrm(A, s.from)}</td></tr>`).join('')}</tbody></table>
+        <p style="margin-top:6px">Now in the period of ${N(cur.id)} (${grade(A.P[cur.id].total)}), sub-period of ${N(cur.subs.find((s) => F.age >= s.from && F.age < s.to).id)}.</p>` : '<p>The current period is a node period, which has no sub-periods.</p>'}</div></div>
+      ${cite('Profections: Valens, Anthology IV; Ptolemy, Tetrabiblos IV, "Of the division of times". Firdaria: Abu Ma\'shar, in Bonatti, Liber Astronomiae (Latin, 1491); order of the nodes after Bonatti.')}`; });
+
+    if (S.sec.sources) page('sources', 'Method and sources', () => `${head('Method and sources')}
+      <p>This reading follows the traditional (Hellenistic, Persian, medieval and seventeenth-century English) method: seven planets, dignities, sect, the houses and their lords, lots and periods. The text is our own synthesis; the authors below are where the rules come from.</p>
+      <h4>Primary sources</h4><ol class="refs">
+        <li>Ptolemy, <i>Tetrabiblos</i>, tr. F. E. Robbins (Loeb, 1940) <span class="tag pd">PD in US</span> and tr. J. M. Ashmand (1822) <span class="tag pd">PD</span>.</li>
+        <li>William Lilly, <i>Christian Astrology</i> (London, 1647) <span class="tag pd">PD</span>.</li>
+        <li>William Ramesey, <i>Astrologia Restaurata</i> (1653), EEBO-TCP transcription <span class="tag cc0">CC0</span>.</li>
+        <li>John Gadbury, <i>Genethlialogia</i> (1661) <span class="tag pd">PD</span>.</li>
+        <li>Vettius Valens, <i>Anthologies</i>, ed. Kroll (1908) <span class="tag pd">PD</span>; tr. M. Riley (2010) <span class="tag chk">free, no licence</span>.</li>
+        <li>Firmicus Maternus, <i>Mathesis</i>, ed. Kroll &amp; Skutsch (Teubner, 1897–1913) <span class="tag pd">PD</span>.</li>
+        <li>Guido Bonatti, <i>Liber Astronomiae</i> (Augsburg, 1491) <span class="tag pd">PD</span>.</li>
+        <li>Dorotheus of Sidon, <i>Carmen Astrologicum</i>, tr. Pingree (1976) <span class="tag ref">consulted, not quoted</span>.</li>
+      </ol>
+      <h4>Data</h4><ol class="refs"><li>Planetary positions: JPL Keplerian elements (E. M. Standish) and Meeus, <i>Astronomical Algorithms</i> for the Moon, as in FEMT.</li><li>Fixed stars: Yale Bright Star Catalogue, 5th ed. <span class="tag pd">PD</span></li></ol>
+      <h4>Settings used</h4><table><tbody><tr><td>Zodiac</td><td>Tropical</td></tr><tr><td>Houses</td><td>${S.houses === 'whole' ? 'Whole sign' : cap(S.houses)}</td></tr><tr><td>Triplicities</td><td>${S.trip === 'dorothean' ? 'Dorothean' : 'Ptolemaic (Lilly)'}</td></tr><tr><td>Terms</td><td>Egyptian</td></tr><tr><td>Faces</td><td>Chaldean</td></tr><tr><td>Modern planets</td><td>${S.modern === 'off' ? 'Left out' : 'Listed, not judged'}</td></tr><tr><td>Length of life and death</td><td>${S.omitDeath ? 'Left out' : 'Included'}</td></tr></tbody></table>`);
+    return out;
+  }
+
+  // ---------- screens ----------
+  function reportScreen(thumbs) {
+    const A = analyse(PEOPLE[S.person]), P = pages(A);
+    return `<div class="app"><div class="side">
+      <h2>Natal reading</h2>
+      <div class="seg"><button class="${thumbs ? '' : 'on'}" data-view="pages">Pages</button><button class="${thumbs ? 'on' : ''}" data-view="thumbs">Overview</button></div>
+      <div class="toc">${P.map((pg, i) => `<button data-jump="${pg.id}"><span>${i + 1}</span>${pg.title}</button>`).join('')}</div>
+      <div class="later"><b>Development path</b><ol><li><b>Natal reading</b> (this report)</li><li>Chart sheet</li><li>Transit forecast</li><li>Comparison</li></ol></div>
+    </div>
+    <div class="viewer${thumbs ? ' thumbs' : ''}" id="viewer">
+      ${thumbs ? '' : `<div class="vhead"><span>${P.length} pages · A4 · ${S.style === 'clean' ? 'Clean' : 'Vellum'} style</span><span class="gen"><button class="btn primary" data-gen="pdf">Save PDF…</button><button class="btn" data-gen="docx">Save DOCX…</button></span></div>`}
+      ${P.map((pg, i) => `<div class="pwrap" data-open="${pg.id}">${pg.html(i + 1, P.length)}</div>`).join('')}
+    </div></div>`;
+  }
+
+  function builderScreen() {
+    const chk = (k, l, d) => `<label><input type="checkbox" data-sec="${k}"${S.sec[k] ? ' checked' : ''}><span>${l}${d ? `<small>${d}</small>` : ''}</span></label>`;
+    const opt = (v, l, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${l}</option>`;
+    const A = analyse(PEOPLE[S.person]), P = pages(A);
+    return `<div class="app"><div class="side">
+      <h2>Report options</h2>
+      <label class="field"><span>Chart</span><select data-k="person">${PEOPLE.map((q, i) => opt(i, q.name, S.person)).join('')}</select></label>
+      <h3>Sections</h3><div class="checks">
+        ${chk('cover', 'Cover', 'Logo, practice details, wheel')}${chk('glance', 'The nativity at a glance', 'Sect, chart ruler, strongest and weakest planet, lots')}
+        ${chk('dignities', 'Essential and accidental dignity', 'Lilly\'s points, for all seven planets')}${chk('temperament', 'Temperament and the quality of the soul', 'Lilly\'s tally; Ptolemy on Mercury and the Moon')}
+        ${chk('planets', 'The seven planets', 'About a page and a half of reading per two planets')}${chk('houses', 'The twelve houses', 'Each house by its cusp, lord and occupants')}
+        ${chk('lots', 'Lots and fixed stars')}${chk('timing', 'Timing: profections and firdaria')}${chk('sources', 'Method and sources')}</div>
+      <h3>Method</h3>
+      <label class="field"><span>Houses</span><select data-k="houses">${opt('whole', 'Whole sign (Hellenistic)', S.houses)}${opt('porphyry', 'Porphyry', S.houses)}${opt('placidus', 'Placidus', S.houses)}${opt('equal', 'Equal', S.houses)}<option disabled>Regiomontanus (Lilly) — to add</option><option disabled>Alcabitius — to add</option></select></label>
+      <label class="field"><span>Triplicity rulers</span><select data-k="trip">${opt('dorothean', 'Dorothean (day, night, partner)', S.trip)}${opt('ptolemaic', 'Ptolemaic (as Lilly)', S.trip)}</select></label>
+      <label class="field"><span>Uranus, Neptune, Pluto</span><select data-k="modern">${opt('listed', 'List them, don\'t judge them', S.modern)}${opt('off', 'Leave them out', S.modern)}</select></label>
+      <div class="checks"><label><input type="checkbox" data-k="omitDeath"${S.omitDeath ? ' checked' : ''}><span>Leave out length of life and death<small>Hyleg, alcocoden and the 8th-house judgments of death</small></span></label>
+      <label><input type="checkbox" data-k="cite"${S.cite ? ' checked' : ''}><span>Cite sources under each section</span></label></div>
+      <h3>Look</h3>
+      <label class="field"><span>Style</span><select data-k="style">${opt('vellum', 'Vellum', S.style)}${opt('clean', 'Clean', S.style)}</select></label>
+      <button class="btn primary" data-s="report">Preview the ${P.length} pages</button>
+      <div class="later"><b>Later report types:</b> Chart sheet, Transit forecast and Comparison appear here as they're built.</div>
+    </div>
+    <div class="viewer thumbs">${P.map((pg, i) => `<div class="pwrap" data-open="${pg.id}">${pg.html(i + 1, P.length)}</div>`).join('')}</div></div>`;
+  }
+
+  function settingsScreen() {
+    const A = analyse(PEOPLE[S.person]), P = pages(A);
+    const cover = P.find((p) => p.id === 'cover'), inner = P.find((p) => p.id !== 'cover');
+    return `<div class="app"><div class="side">
+      <h2>Settings · Reports</h2>
+      <h3>Logo</h3>
+      <div class="logo-drop"><div class="thumb">${S.logo ? `<img src="${S.logo}" alt="">` : '<span style="color:#999;font-size:11px">None</span>'}</div>
+        <div><div class="txt">PNG, JPG or SVG. Printed in the upper left of the report. Kept in %APPDATA%\\pagbalatik\\branding.</div>
+        <div class="acts"><label class="btn">Choose image…<input type="file" accept="image/png,image/jpeg,image/svg+xml" id="logo-file" hidden></label>${S.logo ? '<button class="btn" data-k2="nologo">Remove</button>' : ''}${S.logo !== SAMPLE_LOGO ? '<button class="btn" data-k2="sample">Sample</button>' : ''}</div></div></div>
+      <label class="field"><span>Show the logo on</span><select data-k="logoWhere"><option value="all"${S.logoWhere === 'all' ? ' selected' : ''}>The cover and every page header</option><option value="cover"${S.logoWhere === 'cover' ? ' selected' : ''}>The cover only</option></select></label>
+      <label class="field"><span>Logo height in the header: ${S.logoSize} pt (cover: ${Math.round(S.logoSize * 1.7)} pt)</span><input type="range" min="20" max="56" value="${S.logoSize}" data-k="logoSize"></label>
+      <h3>Beside the logo, on the cover</h3>
+      <label class="field"><span>Practice or reader's name</span><input type="text" value="${esc(S.practice)}" data-k="practice"></label>
+      <label class="field"><span>Contact lines</span><textarea data-k="contact">${esc(S.contact)}</textarea></label>
+      <p class="txt" style="font-size:12px;color:var(--text-faint);margin:0">The name also goes in each page's footer. Leave both empty for a plain cover.</p>
+    </div>
+    <div class="viewer">${cover ? `<div class="pwrap">${cover.html(1, P.length)}</div>` : ''}${inner ? `<div class="pwrap">${inner.html(2, P.length)}</div>` : ''}</div></div>`;
+  }
+
+  // ---------- wiring ----------
+  function render(keepScroll) {
+    const v = $('viewer'), top = v ? v.scrollTop : 0;
+    $('main').innerHTML = S.screen === 'report' ? reportScreen(S.view === 'thumbs') : S.screen === 'builder' ? builderScreen() : settingsScreen();
+    document.querySelectorAll('#mk-screens button').forEach((b) => b.classList.toggle('on', b.dataset.s === S.screen));
+    $('mk-person').value = S.person;
+    if (keepScroll && $('viewer')) $('viewer').scrollTop = top;
+    const f = $('logo-file');
+    if (f) f.addEventListener('change', () => { const file = f.files[0]; if (!file) return; const r = new FileReader(); r.onload = () => { S.logo = r.result; render(); }; r.readAsDataURL(file); });
+  }
+  $('mk-person').innerHTML = PEOPLE.map((q, i) => `<option value="${i}">${esc(q.name)}</option>`).join('');
+  $('mk-person').addEventListener('change', (e) => { S.person = +e.target.value; render(); });
+  const jump = (id) => { const el = document.querySelector(`#viewer [data-page="${id}"]`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button, .pwrap'); if (!t) return;
+    const d = t.dataset;
+    if (d.s) { S.screen = d.s; S.view = 'pages'; return render(); }
+    if (d.view) { S.view = d.view; return render(); }
+    if (d.jump) { if (S.view === 'thumbs') { S.view = 'pages'; render(); } return jump(d.jump); }
+    if (d.open && (S.screen === 'builder' || S.view === 'thumbs')) { S.screen = 'report'; S.view = 'pages'; render(); return setTimeout(() => jump(d.open), 30); }
+    if (d.k2 === 'nologo') { S.logo = null; return render(); }
+    if (d.k2 === 'sample') { S.logo = SAMPLE_LOGO; return render(); }
+    if (d.gen) alert(`In the app: asks where to save "Natal reading - ${PEOPLE[S.person].name}.${d.gen}", then opens it.`);
+  });
+  const onField = (e) => {
+    const el = e.target, d = el.dataset;
+    if (d.sec) S.sec[d.sec] = el.checked;
+    else if (d.k === 'person') S.person = +el.value;
+    else if (d.k === 'logoSize') S.logoSize = +el.value;
+    else if (['omitDeath', 'cite'].includes(d.k)) S[d.k] = el.checked;
+    else if (d.k) S[d.k] = el.value;
+    else return;
+    if (e.type === 'input' && (d.k === 'practice' || d.k === 'contact')) { // update previews without losing focus
+      const v = $('viewer'); const A = analyse(PEOPLE[S.person]), P = pages(A); const c = P.find((p) => p.id === 'cover'), i = P.find((p) => p.id !== 'cover');
+      v.innerHTML = `${c ? `<div class="pwrap">${c.html(1, P.length)}</div>` : ''}${i ? `<div class="pwrap">${i.html(2, P.length)}</div>` : ''}`; return;
+    }
+    render(true);
+  };
+  document.addEventListener('change', (e) => { if (e.target.id !== 'mk-person' && e.target.id !== 'logo-file' && !['practice', 'contact'].includes(e.target.dataset.k)) onField(e); });
+  document.addEventListener('input', (e) => { if (['practice', 'contact', 'logoSize'].includes(e.target.dataset.k)) { if (e.target.dataset.k === 'logoSize') { S.logoSize = +e.target.value; const lbl = e.target.previousElementSibling; if (lbl) lbl.textContent = `Logo height in the header: ${S.logoSize} pt (cover: ${Math.round(S.logoSize * 1.7)} pt)`; const v = $('viewer'); const A = analyse(PEOPLE[S.person]), P = pages(A); const c = P.find((p) => p.id === 'cover'), i = P.find((p) => p.id !== 'cover'); v.innerHTML = `${c ? `<div class="pwrap">${c.html(1, P.length)}</div>` : ''}${i ? `<div class="pwrap">${i.html(2, P.length)}</div>` : ''}`; } else onField(e); } });
+  render();
+})();
+</script>
+</body>
+</html>
