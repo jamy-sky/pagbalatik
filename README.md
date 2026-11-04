@@ -16,3 +16,7 @@ Both run FEMT's chart engine (`chart-engine.js`, inlined), so the positions are 
 2. Chart sheet
 3. Transit forecast
 4. Comparison
+
+The natal reading includes **Working with the chart**: FEMT's five actions (magnify, strengthen, neutralize, restrain,
+settle) applied to each planet, with timing (elections), way of life (Ficino), correspondences (Agrippa) and plants
+(Culpeper). Planned next for that section: the prayer and psalm for each action, from FEMT.

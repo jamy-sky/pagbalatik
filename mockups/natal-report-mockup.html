@@ -126,6 +126,20 @@ input, select, textarea { font: inherit; }
 .paper .tally .win { border-color: var(--pa); background: var(--wash); }
 .paper .refs li { margin-bottom: 4px; }
 .paper .refs { padding-left: 14px; margin: 0; font-size: 9.6px; }
+.paper .act { font: 600 7.8px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; color: #fff; white-space: nowrap; }
+.paper .act.magnify { background: #A8740E; } .paper .act.strengthen { background: #2f6b3e; } .paper .act.neutralize { background: #2C55B0; }
+.paper .act.restrain { background: #B23A24; } .paper .act.settle { background: #5b4d36; } .paper .act.none { background: #b9ad94; }
+.paper .rem { border: .5px solid var(--rule); border-radius: 4px; padding: 8px 10px 6px; margin-bottom: 10px; background: #fffdf8; }
+.paper.clean .rem { background: #fff; }
+.paper .rem h5 { justify-content: space-between; }
+.paper .rem .why { margin: 0 0 6px; padding-left: 13px; font: 9px/1.45 var(--f-ui); color: var(--ink-2); }
+.paper .rem .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; }
+.paper .rem .lbl { font: 600 7.8px var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--pa); margin: 4px 0 2px; }
+.paper .rem table td:first-child { color: var(--ink-3); width: 58px; }
+.paper .days { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
+.paper .days span { font: 8.5px var(--f-ui); border: .5px solid var(--rule); border-radius: 10px; padding: 0 6px; background: var(--wash); }
+.paper .future { border: .5px dashed var(--ink-3); border-radius: 3px; padding: 3px 7px; font: 8.5px var(--f-ui); color: var(--ink-3); margin-top: 4px; }
+.paper .defs { display: grid; grid-template-columns: 74px 1fr; gap: 3px 8px; font: 9.2px/1.45 var(--f-ui); color: var(--ink-2); margin: 4px 0 8px; align-items: baseline; }
 .paper .tag { font: 600 7.5px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; border-radius: 2px; margin-left: 4px; vertical-align: 1px; }
 .paper .tag.pd { background: #dcebdc; color: #2f5f37; } .paper .tag.cc0 { background: #d9e6f5; color: #23407F; } .paper .tag.chk { background: #f5e8c8; color: #7a5a12; } .paper .tag.ref { background: #eee; color: #666; }
 /* wheel colours on paper */
@@ -512,7 +526,7 @@ input, select, textarea { font: inherit; }
   const S = { screen: 'report', person: 0, view: 'pages',
     logo: SAMPLE_LOGO, logoSize: 34, logoWhere: 'all', practice: 'Sample Practice', contact: 'readings@example.com\nManila', style: 'vellum',
     houses: 'whole', trip: 'dorothean', modern: 'listed', omitDeath: true, cite: true,
-    sec: { cover: true, glance: true, dignities: true, temperament: true, planets: true, houses: true, lots: true, timing: true, sources: true } };
+    sec: { cover: true, glance: true, dignities: true, temperament: true, planets: true, houses: true, lots: true, timing: true, remedies: true, sources: true }, herbs: true };
 
   // ---------- traditional tables ----------
   const T7 = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
@@ -736,6 +750,91 @@ input, select, textarea { font: inherit; }
     return { rows, age };
   }
   const yr = (A, a) => (A.p.birth[0] + a).toFixed(0);
+  // ---------- remedies: FEMT's five actions, applied to the natal chart ----------
+  const DAYNUM = { sun: 0, moon: 1, mars: 2, mercury: 3, jupiter: 4, venus: 5, saturn: 6 };
+  const WEEKDAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  // Agrippa, Three Books of Occult Philosophy (1651): I.23–29 (planetary things), II.22 (the tables of the planets). A selection.
+  const AGRIPPA = {
+    sun: { metal: 'Gold', colour: 'Gold, saffron', stones: 'Carbuncle, chrysolite, topaz', square: '6 × 6 (sum 111)' },
+    moon: { metal: 'Silver', colour: 'White, silver', stones: 'Selenite, pearl, crystal', square: '9 × 9 (sum 369)' },
+    mercury: { metal: 'Quicksilver', colour: 'Mixed colours', stones: 'Agate, emerald', square: '8 × 8 (sum 260)' },
+    venus: { metal: 'Copper', colour: 'Green, rose', stones: 'Beryl, coral, carnelian', square: '7 × 7 (sum 175)' },
+    mars: { metal: 'Iron', colour: 'Red', stones: 'Bloodstone, red jasper', square: '5 × 5 (sum 65)' },
+    jupiter: { metal: 'Tin', colour: 'Sky blue', stones: 'Sapphire, hyacinth', square: '4 × 4 (sum 34)' },
+    saturn: { metal: 'Lead', colour: 'Black, dark grey', stones: 'Onyx, chalcedony, lodestone', square: '3 × 3 (sum 15)' } };
+  // Culpeper, The Complete Herbal (1653): herbs under each planet. A selection of the milder ones.
+  const CULPEPER = { sun: 'angelica, chamomile, St John\'s wort, rosemary, marigold', moon: 'chickweed, cleavers, purslane, watercress, white willow',
+    mercury: 'fennel, dill, lavender, marjoram, parsley', venus: 'thyme, violet, mint, damask rose, yarrow', mars: 'basil, garlic, nettle, wormwood, mustard',
+    jupiter: 'borage, betony, sage, hyssop, balm', saturn: 'mullein, horsetail, shepherd\'s purse, Solomon\'s seal' };
+  // Culpeper's rule of antipathy: Jupiter and Mercury, the Lights and Saturn, Mars and Venus answer one another.
+  const ANTIPATHY = { jupiter: 'mercury', mercury: 'jupiter', sun: 'saturn', moon: 'saturn', saturn: 'sun', mars: 'venus', venus: 'mars' };
+  // Ficino, De vita III (1489), paraphrased.
+  const FICINO = { sun: 'daylight and open sky, gold and saffron colours, and music of a grave sweetness; Ficino counts the Sun, with Jupiter and Venus, among the three Graces that sustain life',
+    moon: 'regular rhythms, nearness to water, short journeys, and white and silver about you',
+    mercury: 'study, writing and conversation with quick-witted company, and lively, nimble music',
+    venus: 'flowers, roses and sweet scents, green and rose colours, gardens, play and joyful music',
+    jupiter: 'temperate living, solemn and harmonious music, generous company and the open air of gardens and hills',
+    saturn: 'solitude given to study and contemplation, so that Saturn is turned to its higher use rather than to brooding',
+    mars: 'hard exercise and honest effort, which give Mars a lawful outlet' };
+  const ACT_DEF = { magnify: 'make more of a strong planet that helps the chart', strengthen: 'support a planet the chart needs that is weak in itself',
+    neutralize: 'counter a weak planet that strikes at the chart, through its opposite', restrain: 'keep Mars in check, always, as in FEMT', settle: 'calm Saturn and give it a purpose, always, as in FEMT' };
+  const homes = (id) => E.SIGNS.filter((s) => RULER[s.name] === id).map((s) => s.name).concat(EXALT[id] ? [`${EXALT[id]} (exaltation)`] : []);
+
+  function remedies(A) {
+    const counter = A.P.jupiter.total >= A.P.venus.total ? 'jupiter' : 'venus';
+    return T7.map((id) => {
+      const X = A.P[id], why = [];
+      const roles = [A.ascLord === id ? 'lord of the Ascendant' : null, A.lordOf(10) === id ? 'lord of the 10th' : null, RULER[signName(A.fortune)] === id ? 'lord of the Lot of Fortune' : null, id === 'sun' || id === 'moon' ? 'a light of the chart' : null].filter(Boolean);
+      const bad = X.es.list.filter(([n]) => ['Detriment', 'Fall', 'Peregrine'].includes(n)).map(([n]) => n.toLowerCase())
+        .concat(X.ac.list.filter(([n, v]) => v <= -4).map(([n]) => n.toLowerCase()));
+      const good = X.es.list.filter(([n, v]) => v >= 3).map(([n]) => n.toLowerCase()).concat(X.ac.list.filter(([n, v]) => v >= 4 && !/Free|Direct/.test(n)).map(([n]) => n));
+      const strikes = A.ch.aspects.filter((a) => (a.a === id || a.b === id) && ASP[a.aspect].kind === 'hard' && a.orb < 6)
+        .map((a) => a.a === id ? a.b : a.a).filter((o) => T7.includes(o) && (o === A.ascLord || o === 'sun' || o === 'moon' || o === A.lordOf(10)) && o !== id);
+      let act = 'none', pri = 0;
+      if (id === 'mars' || id === 'saturn') {
+        act = id === 'mars' ? 'restrain' : 'settle';
+        pri = id === A.contraryMalefic ? 3 : X.total < 0 ? 2 : 1;
+        why.push(id === A.contraryMalefic ? `${N(id)} is the malefic contrary to the sect, the more harmful of the two` : `${N(id)} is the malefic of the sect, so its harm is milder`);
+      } else if (X.total < 0 && strikes.length) { act = 'neutralize'; pri = 3; why.push(`It is weak and strikes at ${strikes.map(NA).join(' and ')} by hard aspect`); }
+      else if (X.total < 0) { act = 'strengthen'; pri = roles.length ? 2 : 1; }
+      else if (X.total >= 10 && (['jupiter', 'venus'].includes(id) || roles.length)) { act = 'magnify'; pri = roles.length ? 2 : 1; }
+      else if (roles.length && X.total < 4) { act = 'strengthen'; pri = 1; }
+      if (act === 'none') why.push(`Sound enough as it is (${grade(X.total)})`);
+      if (act === 'magnify' && good.length) why.push(`Strengths: ${good.join(', ')}`);
+      if (roles.length) why.push(`It is ${roles.join(' and ')}`);
+      if (bad.length) why.push(`Debilities: ${bad.join(', ')}`);
+      if (good.length && (act === 'restrain' || act === 'settle')) why.push(`Strengths: ${good.join(', ')}`);
+      why.push(`Total strength ${X.total > 0 ? '+' : ''}${X.total}: ${grade(X.total)}`);
+      const via = act === 'neutralize' || act === 'restrain' || act === 'settle' ? (id === 'saturn' ? (A.P.sun.total >= A.P[counter].total ? 'sun' : counter) : id === 'mars' ? 'venus' : counter) : id;
+      return { id, act, pri, why, via, herbs: act === 'none' ? null : ['magnify', 'strengthen'].includes(act) ? id : ANTIPATHY[id] };
+    }).sort((a, b) => b.pri - a.pri || A.P[a.id].total - A.P[b.id].total);
+  }
+  /** The next few days, in the native's zone, that suit an action: the right weekday, with the Moon well placed. */
+  function nextDays(A, r) {
+    const day = DAYNUM[r.via], target = signIdx(A.B[r.via].lon), avoid = signIdx(A.B[r.id].lon), out = [];
+    const now = E.utcToZoned(Date.now(), A.p.tz);
+    for (let i = 1; i <= 70 && out.length < 4; i++) {
+      const t = new Date(Date.UTC(now.y, now.m - 1, now.d + i));
+      if (t.getUTCDay() !== day) continue;
+      const ms = E.zonedToUtc(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate(), 12, 0, A.p.tz);
+      const m = signIdx(E.chart(ms, A.p.place.lat, A.p.place.lon).bodies[1].lon);
+      const toT = (m - target + 12) % 12, toA = (m - avoid + 12) % 12;
+      if (![0, 2, 4, 8, 10].includes(toT)) continue;
+      if (r.via !== r.id && [3, 6, 9].includes(toA)) continue;
+      out.push(`${WEEKDAY[t.getUTCDay()].slice(0, 3)} ${t.getUTCDate()} ${MONTHS[t.getUTCMonth()]}`);
+    }
+    return out;
+  }
+  function timingText(A, r) {
+    const topics = A.rules(r.id).map((h) => HOUSE_SHORT[h]).join(' and ');
+    const mat = `Act for ${NA(r.id)}'s matters${topics ? ` (${topics})` : ''} on ${WEEKDAY[DAYNUM[r.id]]}`;
+    if (r.via === r.id && r.id === 'moon') return `${mat}, in her own hours, while the Moon is waxing and in a sign that sees her natal place by sextile or trine. The best elections come when she is in ${homes('moon').join(' or ')}, swift and free of the malefics.`;
+    if (r.via === r.id && r.id === 'sun') return `${mat}, in his own hours, with the Moon in a sign that sees the Sun's natal sign by sextile or trine. The best elections come when the Sun is in ${homes('sun').join(' or ')} and angular.`;
+    if (r.via === r.id) return `${mat}, in its own hours, with the Moon in a sign that sees ${NA(r.id)}'s sign by sextile or trine. The best elections come when ${NA(r.id)} is direct, out of the Sun's beams, and in ${homes(r.id).join(' or ')}.`;
+    const hard = [3, 6, 9].map((k) => E.SIGNS[(signIdx(A.B[r.id].lon) + k) % 12].name).join(', ');
+    return `Don't begin ${NA(r.id)}'s matters on ${WEEKDAY[DAYNUM[r.id]]} or in its hours, or while the Moon is in ${hard}, square or opposite it. Act instead on ${WEEKDAY[DAYNUM[r.via]]}, in the hours of ${NA(r.via)}, with the Moon well placed to ${NA(r.via)}.`;
+  }
+
   const yrm = (A, a) => { const t = new Date(A.p.ms + a * 365.2425 * 864e5); return `${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}`; };
 
   // ---------- pages ----------
@@ -849,6 +948,35 @@ input, select, textarea { font: inherit; }
         <p style="margin-top:6px">Now in the period of ${N(cur.id)} (${grade(A.P[cur.id].total)}), sub-period of ${N(cur.subs.find((s) => F.age >= s.from && F.age < s.to).id)}.</p>` : '<p>The current period is a node period, which has no sub-periods.</p>'}</div></div>
       ${cite('Profections: Valens, Anthology IV; Ptolemy, Tetrabiblos IV, "Of the division of times". Firdaria: Abu Ma\'shar, in Bonatti, Liber Astronomiae (Latin, 1491); order of the nodes after Bonatti.')}`; });
 
+    if (S.sec.remedies) {
+      const R = remedies(A), acting = R.filter((r) => r.act !== 'none');
+      const card = (r) => { const ag = AGRIPPA[r.via], days = nextDays(A, r);
+        return `<div class="rem"><h5><span>${G(r.id)} ${N(r.id)} <span class="src" style="font-style:normal">${fmtLon(A.B[r.id].lon)}, ${ord(A.B[r.id].house)} house</span></span><span class="act ${r.act}">${r.act}</span></h5>
+          <ul class="why">${r.why.map((w) => `<li>${w}.</li>`).join('')}</ul>
+          <div class="cols"><div>
+            <div class="lbl">Timing</div><p>${timingText(A, r)}</p>
+            ${days.length ? `<div class="lbl">Next suitable days</div><div class="days">${days.map((d) => `<span>${d}</span>`).join('')}</div>` : ''}
+            <div class="lbl">Way of life</div><p>${r.via === r.id ? `Draw on ${NA(r.id)} through ${FICINO[r.id]}.` : `Temper ${NA(r.id)} with ${NA(r.via)}: ${FICINO[r.via]}.${r.id === 'mars' ? ' Avoid heat, haste and quarrels in its hours.' : r.id === 'saturn' ? ' Give its solitude a purpose.' : ''}`}</p>
+          </div><div>
+            <div class="lbl">Correspondences of ${NA(r.via)}</div>
+            <table><tbody><tr><td>Day</td><td>${WEEKDAY[DAYNUM[r.via]]}</td></tr><tr><td>Metal</td><td>${ag.metal}</td></tr><tr><td>Colours</td><td>${ag.colour}</td></tr><tr><td>Stones</td><td>${ag.stones}</td></tr><tr><td>Table</td><td>${ag.square}</td></tr></tbody></table>
+            ${S.herbs ? `<div class="lbl">Plants${r.herbs === r.id ? ', by sympathy' : `, by antipathy (${N(r.herbs)})`}</div><p>${cap(CULPEPER[r.herbs])}.</p>` : ''}
+          </div></div>
+          <div class="future">Planned: the prayer and psalm for this ${r.act === 'none' ? 'planet' : 'action'}, from FEMT.</div></div>`; };
+      page('remedies', 'Working with the chart', () => `${head('Working with the chart')}
+        <p>Ptolemy defends astrology as useful because knowing what is coming lets us prepare for it, as a physician acts on a prognosis. The <i>Centiloquium</i> puts it more boldly: <i>sapiens dominabitur astris</i>, the wise one will rule the stars. This section suggests how to work with each planet according to its condition, using the five actions of FEMT's Celestial Alignment:</p>
+        <div class="defs">${Object.entries(ACT_DEF).map(([k, v]) => `<span class="act ${k}">${k}</span><span>${cap(v)}.</span>`).join('')}</div>
+        <h4>The planets in order of need</h4>
+        <table><thead><tr><th></th><th>Planet</th><th class="r">Strength</th><th>Action</th><th>Through</th><th>Chiefly because</th></tr></thead><tbody>
+          ${R.map((r) => `<tr><td class="c">${G(r.id)}</td><td>${N(r.id)}</td><td class="r">${A.P[r.id].total > 0 ? '+' : ''}${A.P[r.id].total}</td><td><span class="act ${r.act}">${r.act === 'none' ? 'leave be' : r.act}</span></td><td>${r.act === 'none' ? '' : `${G(r.via)} ${N(r.via)}`}</td><td>${r.why[0]}</td></tr>`).join('')}
+        </tbody></table>
+        <p style="margin-top:8px">Each planet that needs work has its own entry on the following pages: when to act (elections), the way of life that draws or tempers it (after Ficino), and its correspondences (after Agrippa)${S.herbs ? ' and plants (after Culpeper)' : ''}. Planets marked <i>leave be</i> are sound enough to need nothing.</p>
+        ${S.herbs ? '<p class="src">The plants are traditional correspondences, given for understanding the chart. They are not medical advice: ask a qualified practitioner before taking any herb.</p>' : ''}
+        ${cite('Ptolemy, Tetrabiblos I, "That it is also beneficial". Pseudo-Ptolemy, Centiloquium. The five actions follow FEMT\'s Celestial Alignment. Elections: Sahl ibn Bishr, On Elections; Ramesey, Astrologia Restaurata; Bonatti, Liber Astronomiae.')}`);
+      for (let i = 0; i < acting.length; i += 2) page(`remedies${i / 2 + 1}`, `Working with the chart (${i / 2 + 2})`, () => `${head('Working with the chart, continued')}${acting.slice(i, i + 2).map(card).join('')}
+        ${cite('Way of life: Ficino, De vita III. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 and II.22. Plants and the rule of antipathy: Culpeper, The Complete Herbal and Semeiotica Uranica.')}`);
+    }
+
     if (S.sec.sources) page('sources', 'Method and sources', () => `${head('Method and sources')}
       <p>This reading follows the traditional (Hellenistic, Persian, medieval and seventeenth-century English) method: seven planets, dignities, sect, the houses and their lords, lots and periods. The text is our own synthesis; the authors below are where the rules come from.</p>
       <h4>Primary sources</h4><ol class="refs">
@@ -860,6 +988,13 @@ input, select, textarea { font: inherit; }
         <li>Firmicus Maternus, <i>Mathesis</i>, ed. Kroll &amp; Skutsch (Teubner, 1897–1913) <span class="tag pd">PD</span>.</li>
         <li>Guido Bonatti, <i>Liber Astronomiae</i> (Augsburg, 1491) <span class="tag pd">PD</span>.</li>
         <li>Dorotheus of Sidon, <i>Carmen Astrologicum</i>, tr. Pingree (1976) <span class="tag ref">consulted, not quoted</span>.</li>
+      </ol>
+      <h4>Working with the chart</h4><ol class="refs">
+        <li>Pseudo-Ptolemy, <i>Centiloquium</i> (Latin) <span class="tag pd">PD</span>. Sahl ibn Bishr, <i>On Elections</i> (Latin) <span class="tag pd">PD</span>.</li>
+        <li>H. C. Agrippa, <i>Three Books of Occult Philosophy</i>, tr. J. F. (London, 1651) <span class="tag pd">PD</span>.</li>
+        <li>Marsilio Ficino, <i>De vita libri tres</i> (Florence, 1489), Book III <span class="tag pd">PD</span>, paraphrased from the Latin.</li>
+        <li>Nicholas Culpeper, <i>Semeiotica Uranica</i> (1651), EEBO-TCP <span class="tag cc0">CC0</span>; <i>The Complete Herbal</i> (1653) <span class="tag pd">PD</span>.</li>
+        <li><i>Picatrix</i> <span class="tag ref">consulted, not quoted</span>: all English translations are in copyright.</li>
       </ol>
       <h4>Data</h4><ol class="refs"><li>Planetary positions: JPL Keplerian elements (E. M. Standish) and Meeus, <i>Astronomical Algorithms</i> for the Moon, as in FEMT.</li><li>Fixed stars: Yale Bright Star Catalogue, 5th ed. <span class="tag pd">PD</span></li></ol>
       <h4>Settings used</h4><table><tbody><tr><td>Zodiac</td><td>Tropical</td></tr><tr><td>Houses</td><td>${S.houses === 'whole' ? 'Whole sign' : cap(S.houses)}</td></tr><tr><td>Triplicities</td><td>${S.trip === 'dorothean' ? 'Dorothean' : 'Ptolemaic (Lilly)'}</td></tr><tr><td>Terms</td><td>Egyptian</td></tr><tr><td>Faces</td><td>Chaldean</td></tr><tr><td>Modern planets</td><td>${S.modern === 'off' ? 'Left out' : 'Listed, not judged'}</td></tr><tr><td>Length of life and death</td><td>${S.omitDeath ? 'Left out' : 'Included'}</td></tr></tbody></table>`);
@@ -892,7 +1027,8 @@ input, select, textarea { font: inherit; }
         ${chk('cover', 'Cover', 'Logo, practice details, wheel')}${chk('glance', 'The nativity at a glance', 'Sect, chart ruler, strongest and weakest planet, lots')}
         ${chk('dignities', 'Essential and accidental dignity', 'Lilly\'s points, for all seven planets')}${chk('temperament', 'Temperament and the quality of the soul', 'Lilly\'s tally; Ptolemy on Mercury and the Moon')}
         ${chk('planets', 'The seven planets', 'About a page and a half of reading per two planets')}${chk('houses', 'The twelve houses', 'Each house by its cusp, lord and occupants')}
-        ${chk('lots', 'Lots and fixed stars')}${chk('timing', 'Timing: profections and firdaria')}${chk('sources', 'Method and sources')}</div>
+        ${chk('lots', 'Lots and fixed stars')}${chk('timing', 'Timing: profections and firdaria')}${chk('remedies', 'Working with the chart', 'Magnify, strengthen, neutralize, restrain, settle')}${chk('sources', 'Method and sources')}</div>
+      <div class="checks"><label><input type="checkbox" data-k="herbs"${S.herbs ? ' checked' : ''}><span>Include plants (Culpeper)<small>With a not-medical-advice note</small></span></label></div>
       <h3>Method</h3>
       <label class="field"><span>Houses</span><select data-k="houses">${opt('whole', 'Whole sign (Hellenistic)', S.houses)}${opt('porphyry', 'Porphyry', S.houses)}${opt('placidus', 'Placidus', S.houses)}${opt('equal', 'Equal', S.houses)}<option disabled>Regiomontanus (Lilly) — to add</option><option disabled>Alcabitius — to add</option></select></label>
       <label class="field"><span>Triplicity rulers</span><select data-k="trip">${opt('dorothean', 'Dorothean (day, night, partner)', S.trip)}${opt('ptolemaic', 'Ptolemaic (as Lilly)', S.trip)}</select></label>
@@ -955,7 +1091,7 @@ input, select, textarea { font: inherit; }
     if (d.sec) S.sec[d.sec] = el.checked;
     else if (d.k === 'person') S.person = +el.value;
     else if (d.k === 'logoSize') S.logoSize = +el.value;
-    else if (['omitDeath', 'cite'].includes(d.k)) S[d.k] = el.checked;
+    else if (['omitDeath', 'cite', 'herbs'].includes(d.k)) S[d.k] = el.checked;
     else if (d.k) S[d.k] = el.value;
     else return;
     if (e.type === 'input' && (d.k === 'practice' || d.k === 'contact')) { // update previews without losing focus
