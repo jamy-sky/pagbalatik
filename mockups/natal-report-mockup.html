@@ -75,7 +75,7 @@ input, select, textarea { font: inherit; }
 /* ---------- paper ---------- */
 .paper { --ink: #1d1a14; --ink-2: #4a4234; --ink-3: #8a7d62; --rule: #d9cfba; --pa: #8E2A1C; --wash: #f3ecdd;
   width: 595px; min-height: 842px; background: #fbf8f1; color: var(--ink); box-shadow: 0 6px 24px rgba(0,0,0,.4);
-  padding: 40px 46px 46px; font: 10.5px/1.52 var(--f-text); position: relative; flex: none; }
+  padding: 40px 46px 36px; font: 10.5px/1.52 var(--f-text); position: relative; flex: none; }
 .paper.clean { background: #fff; --pa: #23407F; --rule: #dde2ea; --wash: #f1f4f9; --ink-3: #6a7487; }
 .paper .ph { display: flex; align-items: center; gap: 12px; border-bottom: 1.4px solid var(--pa); padding-bottom: 7px; margin-bottom: 12px; min-height: 34px; }
 .paper .ph .logo { flex: none; display: flex; align-items: center; }
@@ -132,13 +132,15 @@ input, select, textarea { font: inherit; }
 .paper .rem { border: .5px solid var(--rule); border-radius: 4px; padding: 7px 10px 5px; margin-bottom: 8px; background: #fffdf8; }
 .paper.clean .rem { background: #fff; }
 .paper .rem h5 { justify-content: space-between; }
-.paper .rem .why { margin: 0 0 6px; padding-left: 13px; font: 9px/1.45 var(--f-ui); color: var(--ink-2); }
+.paper .rem p { font-size: 9.6px; line-height: 1.42; margin-bottom: 3px; }
+.paper .rem table td { padding: 1.6px 3px; }
+.paper .rem .why { margin: 0 0 4px; padding-left: 13px; font: 8.6px/1.4 var(--f-ui); color: var(--ink-2); }
 .paper .rem .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; }
 .paper .rem .lbl { font: 600 7.8px var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--pa); margin: 4px 0 2px; }
 .paper .rem table td:first-child { color: var(--ink-3); width: 58px; }
 .paper .days { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
 .paper .days span { font: 8.5px var(--f-ui); border: .5px solid var(--rule); border-radius: 10px; padding: 0 6px; background: var(--wash); }
-.paper .future { border: .5px dashed var(--ink-3); border-radius: 3px; padding: 3px 7px; font: 8.5px var(--f-ui); color: var(--ink-3); margin-top: 4px; }
+.paper .future { border-top: .5px dashed var(--ink-3); padding-top: 2px; font: italic 8.3px var(--f-ui); color: var(--ink-3); margin-top: 2px; }
 .paper .defs { display: grid; grid-template-columns: 74px 1fr; gap: 3px 8px; font: 9.2px/1.45 var(--f-ui); color: var(--ink-2); margin: 4px 0 8px; align-items: baseline; }
 .paper .tag { font: 600 7.5px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; border-radius: 2px; margin-left: 4px; vertical-align: 1px; }
 .paper .tag.pd { background: #dcebdc; color: #2f5f37; } .paper .tag.cc0 { background: #d9e6f5; color: #23407F; } .paper .tag.chk { background: #f5e8c8; color: #7a5a12; } .paper .tag.ref { background: #eee; color: #666; }
@@ -772,14 +774,26 @@ input, select, textarea { font: inherit; }
   // Culpeper, "To the Reader", Instructions for the right use of the book, 4th: "diseases of Jupiter by herbs of Mercury, and the contrary;
   // diseases of the Luminaries by the herbs of Saturn, and the contrary; diseases of Mars by herbs of Venus, and the contrary."
   const ANTIPATHY = { jupiter: 'mercury', mercury: 'jupiter', sun: 'saturn', moon: 'saturn', saturn: 'sun', mars: 'venus', venus: 'mars' };
-  // Ficino, De vita III (1489), paraphrased.
-  const FICINO = { sun: 'daylight and open sky, gold and saffron colours, and music of a grave sweetness; Ficino counts the Sun, with Jupiter and Venus, among the three Graces that sustain life',
-    moon: 'regular rhythms, nearness to water, short journeys, and white and silver about you',
-    mercury: 'study, writing and conversation with quick-witted company, and lively, nimble music',
-    venus: 'flowers, roses and sweet scents, green and rose colours, gardens, play and joyful music',
-    jupiter: 'temperate living, solemn and harmonious music, generous company and the open air of gardens and hills',
-    saturn: 'solitude given to study and contemplation, so that Saturn is turned to its higher use rather than to brooding',
-    mars: 'hard exercise and honest effort, which give Mars a lawful outlet' };
+  // Ficino, De vita libri tres, Book III (De vita coelitus comparanda, 1489), paraphrased and checked against the
+  // Source Library transcription of the 1489 Florence edition. Chapters: III.5 (the three Graces), III.11 (spirit, colours,
+  // flavours, scents), III.18 (the three colours), III.21 (song), III.22 (Saturn, and Jupiter's defence against him).
+  const FICINO = {
+    sun: { draw: 'Spend the daylight hours under the open sky, in high, clear and temperate places, and keep about you the burning, saffron, golden and clear purple colours, and saffron, cloves, musk and amber among scents (III.11). The Sun is one of Ficino\'s three Graces, with Jupiter and Venus (III.5). Use solar things with care: too much of them, he warns, sharpens and dries the spirit, so mix in Jovial things (III.11).',
+      short: 'daylight under the open sky, and the golden, saffron and clear purple colours (III.11)' },
+    moon: { draw: 'Keep about you the watery, white and green colours and the scents of violets, roses and lilies, which Ficino gives to the Moon with Venus and Mercury (III.11, III.18). Above all, act when the Moon joins Jupiter or Venus: she carries the gifts of the three Graces to us, and is most fortunate in conjunction with them (III.5).',
+      short: 'the Moon joined to Jupiter or Venus, the messenger of the Graces (III.5)' },
+    mercury: { draw: 'Mercury governs the spirit that serves sense and imagination, and by his condition sharpens or dulls the mind (III.11). Work with him through songs of the middle kinds, which Ficino gives to Mercury and the Sun (III.21), and through the colours and scents he shares with Venus and the Moon; but mix Jovial things with his, since Mercurial things alone, Ficino says, profit little (III.11).',
+      short: 'songs of the middle kinds, which Ficino gives to Mercury and the Sun (III.21)' },
+    venus: { draw: 'Surround yourself with the colours of violets, roses and lilies (white, green, soft saffron) and with their scents (III.11); green is Venus\'s own colour (III.18). Pleasure itself, Ficino says, is how Venus enters the spirit (III.11), and her songs are soft and voluptuous (III.21). Hold her together with Jupiter: devoted to Venus alone, he warns, we do not easily keep the Sun (III.5).',
+      short: 'the colours and scents of violets, roses and lilies, and gentle pleasure (III.11)' },
+    jupiter: { draw: 'Use Jovial things as much as you can: Jupiter is the most tempered of the three Graces and the most congruent with human nature (III.5, III.11). His songs are grave yet intense, sweet, and joyful with constancy (III.21); his colours sapphire and airy, fuller purple, gold mixed with silver, and evergreen; his flavours the golden peach, pear and orange, and light wines (III.11). He is the helping father of those who live a common life among others (III.22).',
+      short: 'Jovial songs, grave yet sweet and joyful with constancy, and sapphire and airy colours (III.11, III.21)' },
+    saturn: { draw: 'Give Saturn\'s solitude to true contemplation: he is propitious to those who withdraw the mind to higher things, and most hostile to those who only pretend to (III.22).',
+      temper: 'Ficino\'s remedy for Saturn is to flee to Jupiter, who defends us from him, or to give the whole mind to divine contemplation. Keep Saturday for contemplation rather than civil or military business, and avoid slow, heavy, raucous and mournful songs, which are his (III.21–22).' },
+    mars: { draw: 'Ficino uses Mars rarely, as a medicine that heats, rouses and opens the spirit when it is sluggish (III.11).',
+      temper: 'Avoid fast, high, harsh and threatening songs, which are Mars\'s (III.21), and the vehement passions of the imagination that he governs; Ficino counts excessive Martial things as poisons to the spirit (III.11).' } };
+  const wayOfLife = (r) => r.via === r.id ? FICINO[r.id].draw
+    : `${FICINO[r.id].temper ? `${FICINO[r.id].temper} ` : ''}${FICINO[r.id].temper ? 'Draw instead on' : `Counter ${NA(r.id)} by drawing on`} ${NA(r.via)}: ${FICINO[r.via].short}.`;
   const ACT_DEF = { magnify: 'make more of a strong planet that helps the chart', strengthen: 'support a planet the chart needs that is weak in itself',
     neutralize: 'counter a weak planet that strikes at the chart, through its opposite', restrain: 'keep Mars in check, always, as in FEMT', settle: 'calm Saturn and give it a purpose, always, as in FEMT' };
   const homes = (id) => E.SIGNS.filter((s) => RULER[s.name] === id).map((s) => s.name).concat(EXALT[id] ? [`${EXALT[id]} (exaltation)`] : []);
@@ -809,7 +823,7 @@ input, select, textarea { font: inherit; }
       if (bad.length) why.push(`Debilities: ${bad.join(', ')}`);
       if (good.length && (act === 'restrain' || act === 'settle')) why.push(`Strengths: ${good.join(', ')}`);
       why.push(`Total strength ${X.total > 0 ? '+' : ''}${X.total}: ${grade(X.total)}`);
-      const via = act === 'neutralize' || act === 'restrain' || act === 'settle' ? (id === 'saturn' ? (A.P.sun.total >= A.P[counter].total ? 'sun' : counter) : id === 'mars' ? 'venus' : counter) : id;
+      const via = act === 'neutralize' || act === 'restrain' || act === 'settle' ? (id === 'saturn' ? 'jupiter' /* Ficino III.22: Jupiter defends us from Saturn */ : id === 'mars' ? 'venus' : counter) : id;
       return { id, act, pri, why, via, herbs: act === 'none' ? null : ['magnify', 'strengthen'].includes(act) ? id : ANTIPATHY[id] };
     }).sort((a, b) => b.pri - a.pri || A.P[a.id].total - A.P[b.id].total);
   }
@@ -960,12 +974,12 @@ input, select, textarea { font: inherit; }
           <div class="cols"><div>
             <div class="lbl">Timing</div><p>${timingText(A, r)}</p>
             ${days.length ? `<div class="lbl">Next suitable days</div><div class="days">${days.map((d) => `<span>${d}</span>`).join('')}</div>` : ''}
-            <div class="lbl">Way of life</div><p>${r.via === r.id ? `Draw on ${NA(r.id)} through ${FICINO[r.id]}.` : `Temper ${NA(r.id)} with ${NA(r.via)}: ${FICINO[r.via]}.${r.id === 'mars' ? ' Avoid heat, haste and quarrels in its hours.' : r.id === 'saturn' ? ' Give its solitude a purpose.' : ''}`}</p>
           </div><div>
             <div class="lbl">Correspondences of ${NA(r.via)} <span style="font-weight:400;letter-spacing:0;text-transform:none">(Agrippa ${ag.ch})</span></div>
             <table><tbody><tr><td>Day</td><td>${WEEKDAY[DAYNUM[r.via]]}</td></tr><tr><td>Metal</td><td>${ag.metal}</td></tr><tr><td>Colours</td><td>${ag.colour}</td></tr><tr><td>Stones</td><td>${ag.stones}</td></tr><tr><td>Table</td><td>${ag.square}</td></tr></tbody></table>
             ${S.herbs ? `<div class="lbl">Plants${r.herbs === r.id ? ', by sympathy' : `, by antipathy (${N(r.herbs)})`}</div><p>${cap(CULPEPER[r.herbs])}. Gathered, as Culpeper directs, in the hour of ${NA(r.herbs)}, with ${NA(r.herbs)} angular and the Moon applying to it by good aspect.</p>` : ''}
           </div></div>
+          <div class="lbl">Way of life <span style="font-weight:400;letter-spacing:0;text-transform:none">(Ficino, De vita III)</span></div><p>${wayOfLife(r)}</p>
           <div class="future">Planned: the prayer and psalm for this ${r.act === 'none' ? 'planet' : 'action'}, from FEMT.</div></div>`; };
       page('remedies', 'Working with the chart', () => `${head('Working with the chart')}
         <p>Ptolemy defends astrology as useful because knowing what is coming lets us prepare for it, as a physician acts on a prognosis. The <i>Centiloquium</i> puts it more boldly: <i>sapiens dominabitur astris</i>, the wise one will rule the stars. This section suggests how to work with each planet according to its condition, using the five actions of FEMT's Celestial Alignment:</p>
@@ -977,8 +991,15 @@ input, select, textarea { font: inherit; }
         <p style="margin-top:8px">Each planet that needs work has its own entry on the following pages: when to act (elections), the way of life that draws or tempers it (after Ficino), and its correspondences (after Agrippa)${S.herbs ? ' and plants (after Culpeper)' : ''}. Planets marked <i>leave be</i> are sound enough to need nothing.</p>
         ${S.herbs ? '<p class="src">The plants are traditional correspondences, given for understanding the chart. They are not medical advice: ask a qualified practitioner before taking any herb.</p>' : ''}
         ${cite('Ptolemy, Tetrabiblos I, "That it is also beneficial". Pseudo-Ptolemy, Centiloquium. The five actions follow FEMT\'s Celestial Alignment. Elections: Sahl ibn Bishr, On Elections; Ramesey, Astrologia Restaurata; Bonatti, Liber Astronomiae.')}`);
-      for (let i = 0; i < acting.length; i += 2) page(`remedies${i / 2 + 1}`, `Working with the chart (${i / 2 + 2})`, () => `${head('Working with the chart, continued')}${acting.slice(i, i + 2).map(card).join('')}
-        ${cite('Way of life: Ficino, De vita III. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 (metals, stones), I.49 (colours), II.22 (tables). Plants: Culpeper, The Complete Herbal, each herb\'s "Government and virtues"; sympathy and antipathy: "To the Reader", Instructions for the right use of the book, 4th and 5th; gathering: Directions, Section II, ch. 1, no. 5.')}`);
+      // Pack the cards by measured height, as the print engine would paginate them.
+      const measure = (h) => { const el = document.createElement('div'); el.className = cls; el.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;min-height:0'; el.innerHTML = h; document.body.appendChild(el); const v = el.offsetHeight; el.remove(); return v; };
+      const remCite = () => cite('Ficino, De vita III; Agrippa, Three Books of Occult Philosophy I.23–29, I.49, II.22; Culpeper, The Complete Herbal. Full references under Method and sources.');
+      const base = measure(head('Working with the chart, continued') + remCite()), budget = 842 - base - 4;
+      const groups = []; let cur = [], used = 0;
+      for (const r of acting) { const h = measure(card(r)) - 76 + 8; if (cur.length && used + h > budget) { groups.push(cur); cur = []; used = 0; } cur.push(r); used += h; }
+      if (cur.length) groups.push(cur);
+      groups.forEach((g, k) => page(`remedies${k + 1}`, `Working with the chart (${k + 2})`, () => `${head('Working with the chart, continued')}${g.map(card).join('')}${remCite()}`));
+      if (false) page('', '', () => `${cite('Way of life: Ficino, De vita III.5, 11, 18, 21 and 22. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 (metals, stones), I.49 (colours), II.22 (tables). Plants: Culpeper, The Complete Herbal, each herb\'s "Government and virtues"; sympathy and antipathy: "To the Reader", Instructions for the right use of the book, 4th and 5th; gathering: Directions, Section II, ch. 1, no. 5.')}`);
     }
 
     if (S.sec.sources) page('sources', 'Method and sources', () => `${head('Method and sources')}
@@ -996,7 +1017,7 @@ input, select, textarea { font: inherit; }
       <h4>Working with the chart</h4><ol class="refs">
         <li>Pseudo-Ptolemy, <i>Centiloquium</i> (Latin) <span class="tag pd">PD</span>. Sahl ibn Bishr, <i>On Elections</i> (Latin) <span class="tag pd">PD</span>.</li>
         <li>H. C. Agrippa, <i>Three Books of Occult Philosophy</i>, tr. J. F. (London, 1651), Book I ch. 23–29 and 49, Book II ch. 22 <span class="tag pd">PD</span>.</li>
-        <li>Marsilio Ficino, <i>De vita libri tres</i> (Florence, 1489), Book III <span class="tag pd">PD</span>, paraphrased from the Latin.</li>
+        <li>Marsilio Ficino, <i>De vita libri tres</i> (Florence, 1489), Book III, ch. 5, 11, 18, 21, 22 <span class="tag pd">PD</span>, paraphrased; checked against the Source Library transcription and translation <span class="tag ref">CC BY-SA, not quoted</span>.</li>
         <li>Nicholas Culpeper, <i>Semeiotica Uranica</i> (1651), EEBO-TCP <span class="tag cc0">CC0</span>; <i>The Complete Herbal</i> (1653), Project Gutenberg #49513 <span class="tag pd">PD</span>.</li>
         <li><i>Picatrix</i> <span class="tag ref">consulted, not quoted</span>: all English translations are in copyright.</li>
       </ol>
