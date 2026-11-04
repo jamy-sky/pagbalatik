@@ -129,7 +129,7 @@ input, select, textarea { font: inherit; }
 .paper .act { font: 600 7.8px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; color: #fff; white-space: nowrap; }
 .paper .act.magnify { background: #A8740E; } .paper .act.strengthen { background: #2f6b3e; } .paper .act.neutralize { background: #2C55B0; }
 .paper .act.restrain { background: #B23A24; } .paper .act.settle { background: #5b4d36; } .paper .act.none { background: #b9ad94; }
-.paper .rem { border: .5px solid var(--rule); border-radius: 4px; padding: 8px 10px 6px; margin-bottom: 10px; background: #fffdf8; }
+.paper .rem { border: .5px solid var(--rule); border-radius: 4px; padding: 7px 10px 5px; margin-bottom: 8px; background: #fffdf8; }
 .paper.clean .rem { background: #fff; }
 .paper .rem h5 { justify-content: space-between; }
 .paper .rem .why { margin: 0 0 6px; padding-left: 13px; font: 9px/1.45 var(--f-ui); color: var(--ink-2); }
@@ -753,20 +753,24 @@ input, select, textarea { font: inherit; }
   // ---------- remedies: FEMT's five actions, applied to the natal chart ----------
   const DAYNUM = { sun: 0, moon: 1, mars: 2, mercury: 3, jupiter: 4, venus: 5, saturn: 6 };
   const WEEKDAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  // Agrippa, Three Books of Occult Philosophy (1651): I.23–29 (planetary things), II.22 (the tables of the planets). A selection.
+  // Agrippa, Three Books of Occult Philosophy, tr. J. F. (1651), checked against the Esoteric Archives transcription.
+  // Metals and stones: I.23 Sun, I.24 Moon, I.25 Saturn, I.26 Jupiter, I.27 Mars, I.28 Venus, I.29 Mercury (a selection of each list).
+  // Colours: I.49, which gives Venus, Mercury and the Moon one shared list; their own shades come from I.24, I.28, I.29.
+  // Tables: II.22 (the 1651 text misprints Mars as "a square of four"; it is five, 25 numbers).
   const AGRIPPA = {
-    sun: { metal: 'Gold', colour: 'Gold, saffron', stones: 'Carbuncle, chrysolite, topaz', square: '6 × 6 (sum 111)' },
-    moon: { metal: 'Silver', colour: 'White, silver', stones: 'Selenite, pearl, crystal', square: '9 × 9 (sum 369)' },
-    mercury: { metal: 'Quicksilver', colour: 'Mixed colours', stones: 'Agate, emerald', square: '8 × 8 (sum 260)' },
-    venus: { metal: 'Copper', colour: 'Green, rose', stones: 'Beryl, coral, carnelian', square: '7 × 7 (sum 175)' },
-    mars: { metal: 'Iron', colour: 'Red', stones: 'Bloodstone, red jasper', square: '5 × 5 (sum 65)' },
-    jupiter: { metal: 'Tin', colour: 'Sky blue', stones: 'Sapphire, hyacinth', square: '4 × 4 (sum 34)' },
-    saturn: { metal: 'Lead', colour: 'Black, dark grey', stones: 'Onyx, chalcedony, lodestone', square: '3 × 3 (sum 15)' } };
-  // Culpeper, The Complete Herbal (1653): herbs under each planet. A selection of the milder ones.
-  const CULPEPER = { sun: 'angelica, chamomile, St John\'s wort, rosemary, marigold', moon: 'chickweed, cleavers, purslane, watercress, white willow',
-    mercury: 'fennel, dill, lavender, marjoram, parsley', venus: 'thyme, violet, mint, damask rose, yarrow', mars: 'basil, garlic, nettle, wormwood, mustard',
-    jupiter: 'borage, betony, sage, hyssop, balm', saturn: 'mullein, horsetail, shepherd\'s purse, Solomon\'s seal' };
-  // Culpeper's rule of antipathy: Jupiter and Mercury, the Lights and Saturn, Mars and Venus answer one another.
+    sun: { ch: 'I.23', metal: 'Gold', colour: 'Golden, saffron, purple, bright', stones: 'Carbuncle, chrysolite, topaz', square: '6 × 6 (sum 111)' },
+    moon: { ch: 'I.24', metal: 'Silver', colour: 'White and green', stones: 'Selenite, pearl, crystal', square: '9 × 9 (sum 369)' },
+    mercury: { ch: 'I.29', metal: 'Quicksilver', colour: 'Mixed, yellow with green', stones: 'Emerald, agate, topaz', square: '8 × 8 (sum 260)' },
+    venus: { ch: 'I.28', metal: 'Brass, yellow and red; silver', colour: 'Fair, white and green', stones: 'Beryl, coral, carnelian', square: '7 × 7 (sum 175)' },
+    mars: { ch: 'I.27', metal: 'Iron, red brass', colour: 'Red, fiery, the colour of iron', stones: 'Bloodstone, jasper, amethyst', square: '5 × 5 (sum 65)' },
+    jupiter: { ch: 'I.26', metal: 'Tin', colour: 'Sapphire and airy colours, evergreen', stones: 'Hyacinth, sapphire, beryl', square: '4 × 4 (sum 34)' },
+    saturn: { ch: 'I.25', metal: 'Lead', colour: 'Black, leaden, brown, earthy', stones: 'Onyx, chalcedony, lodestone', square: '3 × 3 (sum 15)' } };
+  // Culpeper, The Complete Herbal (1653), Project Gutenberg #49513: every herb checked against its "Government and virtues".
+  const CULPEPER = { sun: 'angelica, eyebright, St John\'s wort, rosemary, marigold', moon: 'chickweed, cleavers, purslane, watercress, willow',
+    mercury: 'fennel, dill, lavender, sweet marjoram, parsley', venus: 'thyme, violet, mint, damask rose, yarrow', mars: 'basil, garlic, nettle, wormwood, mustard',
+    jupiter: 'borage, wood betony, sage, hyssop, balm', saturn: 'mullein, horsetail, shepherd\'s purse, Solomon\'s seal, comfrey' };
+  // Culpeper, "To the Reader", Instructions for the right use of the book, 4th: "diseases of Jupiter by herbs of Mercury, and the contrary;
+  // diseases of the Luminaries by the herbs of Saturn, and the contrary; diseases of Mars by herbs of Venus, and the contrary."
   const ANTIPATHY = { jupiter: 'mercury', mercury: 'jupiter', sun: 'saturn', moon: 'saturn', saturn: 'sun', mars: 'venus', venus: 'mars' };
   // Ficino, De vita III (1489), paraphrased.
   const FICINO = { sun: 'daylight and open sky, gold and saffron colours, and music of a grave sweetness; Ficino counts the Sun, with Jupiter and Venus, among the three Graces that sustain life',
@@ -958,9 +962,9 @@ input, select, textarea { font: inherit; }
             ${days.length ? `<div class="lbl">Next suitable days</div><div class="days">${days.map((d) => `<span>${d}</span>`).join('')}</div>` : ''}
             <div class="lbl">Way of life</div><p>${r.via === r.id ? `Draw on ${NA(r.id)} through ${FICINO[r.id]}.` : `Temper ${NA(r.id)} with ${NA(r.via)}: ${FICINO[r.via]}.${r.id === 'mars' ? ' Avoid heat, haste and quarrels in its hours.' : r.id === 'saturn' ? ' Give its solitude a purpose.' : ''}`}</p>
           </div><div>
-            <div class="lbl">Correspondences of ${NA(r.via)}</div>
+            <div class="lbl">Correspondences of ${NA(r.via)} <span style="font-weight:400;letter-spacing:0;text-transform:none">(Agrippa ${ag.ch})</span></div>
             <table><tbody><tr><td>Day</td><td>${WEEKDAY[DAYNUM[r.via]]}</td></tr><tr><td>Metal</td><td>${ag.metal}</td></tr><tr><td>Colours</td><td>${ag.colour}</td></tr><tr><td>Stones</td><td>${ag.stones}</td></tr><tr><td>Table</td><td>${ag.square}</td></tr></tbody></table>
-            ${S.herbs ? `<div class="lbl">Plants${r.herbs === r.id ? ', by sympathy' : `, by antipathy (${N(r.herbs)})`}</div><p>${cap(CULPEPER[r.herbs])}.</p>` : ''}
+            ${S.herbs ? `<div class="lbl">Plants${r.herbs === r.id ? ', by sympathy' : `, by antipathy (${N(r.herbs)})`}</div><p>${cap(CULPEPER[r.herbs])}. Gathered, as Culpeper directs, in the hour of ${NA(r.herbs)}, with ${NA(r.herbs)} angular and the Moon applying to it by good aspect.</p>` : ''}
           </div></div>
           <div class="future">Planned: the prayer and psalm for this ${r.act === 'none' ? 'planet' : 'action'}, from FEMT.</div></div>`; };
       page('remedies', 'Working with the chart', () => `${head('Working with the chart')}
@@ -974,7 +978,7 @@ input, select, textarea { font: inherit; }
         ${S.herbs ? '<p class="src">The plants are traditional correspondences, given for understanding the chart. They are not medical advice: ask a qualified practitioner before taking any herb.</p>' : ''}
         ${cite('Ptolemy, Tetrabiblos I, "That it is also beneficial". Pseudo-Ptolemy, Centiloquium. The five actions follow FEMT\'s Celestial Alignment. Elections: Sahl ibn Bishr, On Elections; Ramesey, Astrologia Restaurata; Bonatti, Liber Astronomiae.')}`);
       for (let i = 0; i < acting.length; i += 2) page(`remedies${i / 2 + 1}`, `Working with the chart (${i / 2 + 2})`, () => `${head('Working with the chart, continued')}${acting.slice(i, i + 2).map(card).join('')}
-        ${cite('Way of life: Ficino, De vita III. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 and II.22. Plants and the rule of antipathy: Culpeper, The Complete Herbal and Semeiotica Uranica.')}`);
+        ${cite('Way of life: Ficino, De vita III. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 (metals, stones), I.49 (colours), II.22 (tables). Plants: Culpeper, The Complete Herbal, each herb\'s "Government and virtues"; sympathy and antipathy: "To the Reader", Instructions for the right use of the book, 4th and 5th; gathering: Directions, Section II, ch. 1, no. 5.')}`);
     }
 
     if (S.sec.sources) page('sources', 'Method and sources', () => `${head('Method and sources')}
@@ -991,9 +995,9 @@ input, select, textarea { font: inherit; }
       </ol>
       <h4>Working with the chart</h4><ol class="refs">
         <li>Pseudo-Ptolemy, <i>Centiloquium</i> (Latin) <span class="tag pd">PD</span>. Sahl ibn Bishr, <i>On Elections</i> (Latin) <span class="tag pd">PD</span>.</li>
-        <li>H. C. Agrippa, <i>Three Books of Occult Philosophy</i>, tr. J. F. (London, 1651) <span class="tag pd">PD</span>.</li>
+        <li>H. C. Agrippa, <i>Three Books of Occult Philosophy</i>, tr. J. F. (London, 1651), Book I ch. 23–29 and 49, Book II ch. 22 <span class="tag pd">PD</span>.</li>
         <li>Marsilio Ficino, <i>De vita libri tres</i> (Florence, 1489), Book III <span class="tag pd">PD</span>, paraphrased from the Latin.</li>
-        <li>Nicholas Culpeper, <i>Semeiotica Uranica</i> (1651), EEBO-TCP <span class="tag cc0">CC0</span>; <i>The Complete Herbal</i> (1653) <span class="tag pd">PD</span>.</li>
+        <li>Nicholas Culpeper, <i>Semeiotica Uranica</i> (1651), EEBO-TCP <span class="tag cc0">CC0</span>; <i>The Complete Herbal</i> (1653), Project Gutenberg #49513 <span class="tag pd">PD</span>.</li>
         <li><i>Picatrix</i> <span class="tag ref">consulted, not quoted</span>: all English translations are in copyright.</li>
       </ol>
       <h4>Data</h4><ol class="refs"><li>Planetary positions: JPL Keplerian elements (E. M. Standish) and Meeus, <i>Astronomical Algorithms</i> for the Moon, as in FEMT.</li><li>Fixed stars: Yale Bright Star Catalogue, 5th ed. <span class="tag pd">PD</span></li></ol>
