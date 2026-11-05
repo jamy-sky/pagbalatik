@@ -15,6 +15,7 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "jamy-sky",
     "targets": ["nsis"],
     "icon": ["../build/icon.png", "../build/icon.ico"],
     "windows": {
