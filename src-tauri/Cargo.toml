@@ -1,0 +1,39 @@
+[package]
+name = "pagbalatik"
+version = "0.9.0-beta"
+description = "Pagbalatik: natal charts and traditional-astrology reports for Windows"
+authors = ["jamy-sky"]
+license = "MIT"
+edition = "2021"
+
+[lib]
+name = "pagbalatik_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+base64 = "0.22"
+# DOCX reports, with the chart wheel drawn from its SVG.
+docx-rs = "0.4"
+resvg = "0.45"
+
+[target.'cfg(windows)'.dependencies]
+# PDF reports: WebView2 prints the report page itself. Versions match the ones Tauri's wry uses.
+webview2-com = "0.39"
+windows = { version = "0.62", features = ["Win32_Foundation"] }
+
+# The point of Tauri here is a small installer.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

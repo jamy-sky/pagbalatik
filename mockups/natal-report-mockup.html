@@ -857,7 +857,7 @@ input, select, textarea { font: inherit; }
 
   // ---------- pages ----------
   function pages(A) {
-    const p = A.p, ch = A.ch, cls = `paper${S.style === 'clean' ? ' clean' : ''}`;
+    const p = A.p, ch = A.ch, cls = `paper${S.style === 'clean' ? ' clean' : ''}${S.paper === 'letter' ? ' letter' : ''}`;
     const logo = (size) => S.logo ? `<span class="logo"><img src="${S.logo}" style="height:${size}px;max-width:${size * 3.2}px" alt=""></span>` : '';
     const head = (title) => `<div class="ph">${S.logoWhere === 'all' ? logo(S.logoSize) : ''}<div class="tt"><h3>${title}</h3></div><div class="sub">${esc(p.name)}<br>${fmtBirth(p)} ${offsetOf(p)} · ${esc(p.place.name)}</div></div>`;
     const cite = (t) => S.cite ? `<div class="src">${t}</div>` : '';
@@ -996,7 +996,7 @@ input, select, textarea { font: inherit; }
       const remCite = () => cite('Ficino, De vita III; Agrippa, Three Books of Occult Philosophy I.23–29, I.49, II.22; Culpeper, The Complete Herbal. Full references under Method and sources.');
       const base = measure(head('Working with the chart, continued') + remCite()), budget = 842 - base - 4;
       const groups = []; let cur = [], used = 0;
-      for (const r of acting) { const h = measure(card(r)) - 76 + 8; if (cur.length && used + h > budget) { groups.push(cur); cur = []; used = 0; } cur.push(r); used += h; }
+      for (const r of acting) { const h = measure(card(r)) - 76 /* the page's padding out; the card's own margin stays in */; if (cur.length && used + h - 8 > budget) { groups.push(cur); cur = []; used = 0; } cur.push(r); used += h; }
       if (cur.length) groups.push(cur);
       groups.forEach((g, k) => page(`remedies${k + 1}`, `Working with the chart (${k + 2})`, () => `${head('Working with the chart, continued')}${g.map(card).join('')}${remCite()}`));
       if (false) page('', '', () => `${cite('Way of life: Ficino, De vita III.5, 11, 18, 21 and 22. Correspondences: Agrippa, Three Books of Occult Philosophy I.23–29 (metals, stones), I.49 (colours), II.22 (tables). Plants: Culpeper, The Complete Herbal, each herb\'s "Government and virtues"; sympathy and antipathy: "To the Reader", Instructions for the right use of the book, 4th and 5th; gathering: Directions, Section II, ch. 1, no. 5.')}`);
