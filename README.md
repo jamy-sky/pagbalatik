@@ -10,11 +10,12 @@ and so are the prayer and psalm for each remedy (from FEMT).
 
 - **Chart:** the wheel for a birth moment and place (FEMT's: Ascendant on the left, Whole sign, Porphyry, Placidus or
   Equal houses), with positions and aspects. **Transits** puts the current sky, or any moment, in a ring around it.
+  The degrees of the Ascendant and Midheaven are written beside them on the wheel.
   Pick a city from the offline list and its time zone is set for you; the clock time stays as entered.
 - **Saved charts:** as many people as you like, with tags, search, copy, import and export. If FEMT is installed, its
   saved birth chart can be added with one click.
 - **Natal reading:** a report in the traditional manner, previewed page by page:
-  the nativity at a glance (sect, rulers, lots); essential and accidental dignity with Lilly's points; temperament
+  the nativity at a glance (sect, rulers, lots); essential and accidental dignity with Lilly's points; the bounds (Egyptian and Chaldean, after Ptolemy I.20–21) and faces of every planet, angle and sign; temperament
   and the quality of the soul; the seven planets; the twelve houses by their lords; lots and fixed stars;
   profections and firdaria; **working with the chart** (FEMT's five actions, magnify, strengthen, neutralize,
   restrain and settle, with elections, Ficino's way of life, Agrippa's correspondences and Culpeper's plants); and

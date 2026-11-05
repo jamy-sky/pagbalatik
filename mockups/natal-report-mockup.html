@@ -154,6 +154,8 @@ input, select, textarea { font: inherit; }
 .paper .wheel .sign { font-size: 24px; }
 .paper .wheel .house-num { font-size: 15px; fill: #8a7d62; font-style: italic; font-family: var(--f-text); }
 .paper .wheel .angle-label { font-size: 15px; fill: #3b3020; font-family: var(--f-ui); }
+.paper .wheel .angle-deg { font-size: 19px; fill: #1d1a14; font-family: var(--f-ui); font-weight: 600; }
+.paper .wheel .angle-deg tspan { font-family: var(--f-sym); font-weight: 400; }
 .paper .wheel .glyph { font-size: 25px; }
 .paper .wheel .deg { font-size: 12px; fill: #8a7d62; font-family: var(--f-ui); }
 .paper .wheel .tick-body { stroke: #6b5f48; stroke-width: 1.4; }
@@ -527,8 +529,8 @@ input, select, textarea { font: inherit; }
   const SAMPLE_LOGO = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="none" stroke="#8E2A1C" stroke-width="3"/><circle cx="32" cy="32" r="17" fill="none" stroke="#8E2A1C" stroke-width="2"/><path d="M32 3v12M32 49v12M3 32h12M49 32h12" stroke="#8E2A1C" stroke-width="2.5"/><path d="M32 22l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7L32 36.4 26.1 40l1.7-6.7-5.3-4.4 6.9-.5z" fill="#C9973A"/></svg>`);
   const S = { screen: 'report', person: 0, view: 'pages',
     logo: SAMPLE_LOGO, logoSize: 34, logoWhere: 'all', practice: 'Sample Practice', contact: 'readings@example.com\nManila', style: 'vellum',
-    houses: 'whole', trip: 'dorothean', modern: 'listed', omitDeath: true, cite: true,
-    sec: { cover: true, glance: true, dignities: true, temperament: true, planets: true, houses: true, lots: true, timing: true, remedies: true, sources: true }, herbs: true };
+    houses: 'whole', trip: 'dorothean', terms: 'egyptian', modern: 'listed', omitDeath: true, cite: true,
+    sec: { cover: true, glance: true, dignities: true, bounds: true, temperament: true, planets: true, houses: true, lots: true, timing: true, remedies: true, sources: true }, herbs: true };
 
   // ---------- traditional tables ----------
   const T7 = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
@@ -546,7 +548,21 @@ input, select, textarea { font: inherit; }
     Sagittarius: [['jupiter', 12], ['venus', 17], ['mercury', 21], ['saturn', 26], ['mars', 30]], Capricorn: [['mercury', 7], ['jupiter', 14], ['venus', 22], ['saturn', 26], ['mars', 30]],
     Aquarius: [['mercury', 7], ['venus', 13], ['jupiter', 20], ['mars', 25], ['saturn', 30]], Pisces: [['venus', 12], ['jupiter', 16], ['mercury', 19], ['mars', 28], ['saturn', 30]] };
   const FACES = ['mars', 'sun', 'venus', 'mercury', 'moon', 'saturn', 'jupiter'];
-  const termLord = (lon) => { const d = E.norm(lon) % 30; return TERMS[signName(lon)].find(([, end]) => d < end)[0]; };
+  // Chaldean terms (Ptolemy, Tetrabiblos I.21): in each triplicity its own lord first, then the lords of the following
+  // triplicities in turn (Jupiter, Venus, Saturn and Mercury, Mars), at 8, 7, 6, 5 and 4 degrees. Saturn and Mercury
+  // share the airy triplicity: Saturn goes first by day, Mercury by night.
+  const CHALDEAN_LORDS = ['jupiter', 'venus', 'air', 'mars'];
+  const ELEMENT_START = { fire: 0, earth: 1, air: 2, water: 3 };
+  function chaldeanTerms(sign, day) {
+    const el = E.SIGNS.find((s) => s.name === sign).element;
+    const order = [0, 1, 2, 3].map((k) => CHALDEAN_LORDS[(ELEMENT_START[el] + k) % 4])
+      .flatMap((p) => (p === 'air' ? (day ? ['saturn', 'mercury'] : ['mercury', 'saturn']) : [p]));
+    let end = 0;
+    return order.map((p, i) => [p, (end += 8 - i)]);
+  }
+  const termsOf = (sign, day, sys = S.terms) => (sys === 'chaldean' ? chaldeanTerms(sign, day) : TERMS[sign]);
+  const termLord = (lon, day = true, sys) => { const d = E.norm(lon) % 30; return termsOf(signName(lon), day, sys).find(([, end]) => d < end)[0]; };
+  const TERM_NAME = () => (S.terms === 'chaldean' ? 'Chaldean' : 'Egyptian');
   const faceLord = (lon) => FACES[Math.floor(E.norm(lon) / 10) % 7];
   const oppSign = (name) => E.SIGNS[(E.SIGNS.findIndex((s) => s.name === name) + 6) % 12].name;
   const MEAN_SPEED = { moon: 13.18, mercury: 1.38, venus: 1.2, mars: .524, jupiter: .083, saturn: .033 };
@@ -562,7 +578,7 @@ input, select, textarea { font: inherit; }
     const tripLord = S.trip === 'dorothean' ? trip[day ? 0 : 1] : trip[day ? 0 : 1];
     if (tripLord === id) { out.push(['Triplicity', 3]); score += 3; }
     else if (S.trip === 'dorothean' && trip.includes(id)) out.push(['Triplicity (partner)', 0]);
-    if (termLord(lon) === id) { out.push(['Term', 2]); score += 2; }
+    if (termLord(lon, day) === id) { out.push(['Term', 2]); score += 2; }
     if (faceLord(lon) === id) { out.push(['Face', 1]); score += 1; }
     if (RULER[oppSign(sg)] === id) { out.push(['Detriment', -5]); score -= 5; }
     if (EXALT[id] === oppSign(sg)) { out.push(['Fall', -4]); score -= 4; }
@@ -870,7 +886,7 @@ input, select, textarea { font: inherit; }
         <div class="mid"><div class="kicker">A natal reading in the traditional manner</div><div class="t">${esc(p.name)}</div>
         <div class="d">Born ${fmtBirth(p)} (${offsetOf(p)}) at ${esc(p.place.name)}, ${p.place.lat.toFixed(2)}°, ${p.place.lon.toFixed(2)}°</div>
         <div class="wheel-wrap">${wheel(ch)}</div>
-        <div class="d">A ${A.day ? 'day' : 'night'} chart · ${ascS.sign.name} rising · Sun in ${sun.sign.name} · Moon in ${moon.sign.name}</div></div>
+        <div class="d">A ${A.day ? 'day' : 'night'} chart · ${ascS.sign.name} rising at ${ascS.deg}°${pad(ascS.min)}′ · Midheaven ${mcS.deg}°${pad(mcS.min)}′ ${mcS.sign.name} · Sun in ${sun.sign.name} · Moon in ${moon.sign.name}</div></div>
         <div class="note">Prepared ${new Date().getDate()} ${MONTHS[new Date().getMonth()]} ${new Date().getFullYear()}. The judgments follow the traditional authors listed at the end, in our own words. Astrology describes inclinations, not fixed outcomes.</div></div>`);
 
     if (S.sec.glance) page('glance', 'The nativity at a glance', () => `${head('The nativity at a glance')}
@@ -880,7 +896,7 @@ input, select, textarea { font: inherit; }
         ${ch.bodies.filter((b) => S.modern !== 'off' || !['uranus', 'neptune', 'pluto'].includes(b.id)).map((b) => `<tr><td class="c">${G(b.id)}</td><td>${b.name}${b.retrograde ? ' ℞' : ''}${['uranus', 'neptune', 'pluto'].includes(b.id) ? ' <span class="src">(not judged)</span>' : ''}</td><td class="r">${fmtLon(b.lon)}</td><td class="c">${b.house}</td><td class="c">${T7.includes(b.id) ? A.rules(b.id).join(', ') : ''}</td></tr>`).join('')}
         <tr><td class="c">As</td><td>Ascendant</td><td class="r">${fmtLon(ch.angles.asc)}</td><td class="c">1</td><td></td></tr><tr><td class="c">Mc</td><td>Midheaven</td><td class="r">${fmtLon(ch.angles.mc)}</td><td class="c">${A.houseOf(ch.angles.mc)}</td><td></td></tr></tbody></table></div>
       <div><h4>Summary</h4>
-        <p>${esc(p.name.split(' ')[0])} was born by ${A.day ? 'day' : 'night'}, with ${ascS.sign.name} rising and its lord ${N(A.ascLord)} in the ${ord(A.B[A.ascLord].house)} house, ${grade(A.P[A.ascLord].total)}. The life is steered by the matters of that house: ${HOUSE[A.B[A.ascLord].house]}.</p>
+        <p>${esc(p.name.split(' ')[0])} was born by ${A.day ? 'day' : 'night'}, with ${ascS.deg}°${pad(ascS.min)}′ of ${ascS.sign.name} rising and its lord ${N(A.ascLord)} in the ${ord(A.B[A.ascLord].house)} house, ${grade(A.P[A.ascLord].total)}. The life is steered by the matters of that house: ${HOUSE[A.B[A.ascLord].house]}.</p>
         <p>The strongest planet is ${N(A.ranked[0])} (${A.P[A.ranked[0]].total > 0 ? '+' : ''}${A.P[A.ranked[0]].total}), in the ${ord(A.B[A.ranked[0]].house)}; the weakest is ${N(A.ranked[6])} (${A.P[A.ranked[6]].total}), in the ${ord(A.B[A.ranked[6]].house)}. Where the strong planets rule, things come easily; where the weak ones rule, they come with effort.</p>
         <p>The Midheaven is in ${mcS.sign.name}, ruled by ${N(RULER[mcS.sign.name])}. The Lot of Fortune falls in the ${ord(A.houseOf(A.fortune))} house, the Lot of Spirit in the ${ord(A.houseOf(A.spirit))}.</p>
         <h4>Aspects between the seven planets</h4><table><tbody>${ch.aspects.filter((a) => T7.includes(a.a) && T7.includes(a.b)).slice(0, 12).map((a) => `<tr><td class="c">${G(a.a)}</td><td class="c gs">${ASP[a.aspect].glyph}</td><td class="c">${G(a.b)}</td><td>${N(a.a)} ${ASP[a.aspect].name.toLowerCase()} ${N(a.b)}</td><td class="r">${a.orb.toFixed(1)}°</td></tr>`).join('')}</tbody></table>
@@ -888,10 +904,10 @@ input, select, textarea { font: inherit; }
       ${cite('Sect: Valens, Anthology II–III; Ptolemy, Tetrabiblos I, "Of day and night". Lots: Valens II; Ptolemy III. Modern planets are shown for reference but take no part in the judgments.')}`);
 
     if (S.sec.dignities) page('dignities', 'Essential and accidental dignity', () => `${head('Essential and accidental dignity')}
-      <p>Each planet's strength is judged twice: by <b>essential dignity</b>, its standing in the sign and degree it occupies, and by <b>accidental dignity</b>, its circumstances in this chart: house, speed, direction and distance from the Sun. The points follow Lilly's table; the triplicity rulers are the ${S.trip === 'dorothean' ? 'Dorothean (day, night and partner)' : 'Ptolemaic, as Lilly gives them'}, the terms the Egyptian.</p>
+      <p>Each planet's strength is judged twice: by <b>essential dignity</b>, its standing in the sign and degree it occupies, and by <b>accidental dignity</b>, its circumstances in this chart: house, speed, direction and distance from the Sun. The points follow Lilly's table; the triplicity rulers are the ${S.trip === 'dorothean' ? 'Dorothean (day, night and partner)' : 'Ptolemaic, as Lilly gives them'}, the terms the ${TERM_NAME()} (both systems are set out on the next page).</p>
       <h4>Essential dignity</h4><table><thead><tr><th></th><th>Planet</th><th>Sign</th><th class="c">Dom.</th><th class="c">Exalt.</th><th class="c">Trip.</th><th class="c">Term</th><th class="c">Face</th><th class="c">Det./Fall</th><th class="r">Score</th></tr></thead><tbody>
         ${T7.map((id) => { const { b, es } = A.P[id]; const has = (n) => es.list.some(([x]) => x === n); const sg = b.sign.name, el = b.sign.element, tr = TRIP[S.trip][el];
-          return `<tr><td class="c">${G(id)}</td><td>${N(id)}</td><td>${fmtLon(b.lon)}</td><td class="c">${G(RULER[sg])}${has('Domicile') ? ' ●' : ''}</td><td class="c">${EXALT_BY_SIGN[sg] ? G(EXALT_BY_SIGN[sg]) : '—'}${has('Exaltation') ? ' ●' : ''}</td><td class="c">${[...new Set(tr)].map(G).join('')}${has('Triplicity') ? ' ●' : ''}</td><td class="c">${G(termLord(b.lon))}${has('Term') ? ' ●' : ''}</td><td class="c">${G(faceLord(b.lon))}${has('Face') ? ' ●' : ''}</td><td class="c">${has('Detriment') ? '<span class="neg">Detriment</span>' : has('Fall') ? '<span class="neg">Fall</span>' : es.peregrine ? '<span class="neg">Peregrine</span>' : ''}</td><td class="r ${es.score >= 0 ? 'pos' : 'neg'}">${es.score > 0 ? '+' : ''}${es.score}</td></tr>`; }).join('')}
+          return `<tr><td class="c">${G(id)}</td><td>${N(id)}</td><td>${fmtLon(b.lon)}</td><td class="c">${G(RULER[sg])}${has('Domicile') ? ' ●' : ''}</td><td class="c">${EXALT_BY_SIGN[sg] ? G(EXALT_BY_SIGN[sg]) : '—'}${has('Exaltation') ? ' ●' : ''}</td><td class="c">${[...new Set(tr)].map(G).join('')}${has('Triplicity') ? ' ●' : ''}</td><td class="c">${G(termLord(b.lon, A.day))}${has('Term') ? ' ●' : ''}</td><td class="c">${G(faceLord(b.lon))}${has('Face') ? ' ●' : ''}</td><td class="c">${has('Detriment') ? '<span class="neg">Detriment</span>' : has('Fall') ? '<span class="neg">Fall</span>' : es.peregrine ? '<span class="neg">Peregrine</span>' : ''}</td><td class="r ${es.score >= 0 ? 'pos' : 'neg'}">${es.score > 0 ? '+' : ''}${es.score}</td></tr>`; }).join('')}
       </tbody></table>
       <h4>Accidental dignity</h4><table><thead><tr><th></th><th>Planet</th><th>House</th><th>Motion</th><th>Speed</th><th>The Sun</th><th>Phase</th><th class="r">Score</th></tr></thead><tbody>
         ${T7.map((id) => { const { ac } = A.P[id]; const f = (keys) => { const x = ac.list.find(([n]) => keys.some((k) => n.includes(k))); return x ? `${x[0].replace(/^\d+\w+ house$/, (m) => m)} <span class="${x[1] >= 0 ? 'pos' : 'neg'}">${x[1] > 0 ? '+' : ''}${x[1]}</span>` : '—'; };
@@ -901,6 +917,26 @@ input, select, textarea { font: inherit; }
         ${A.ranked.map((id, i) => `<tr class="${i === 0 ? 'hi' : ''}"><td>${i + 1}</td><td class="c">${G(id)}</td><td>${N(id)}</td><td class="r">${A.P[id].es.score}</td><td class="r">${A.P[id].ac.score}</td><td class="r"><b>${A.P[id].total > 0 ? '+' : ''}${A.P[id].total}</b></td><td>${cap(grade(A.P[id].total))}</td></tr>`).join('')}
       </tbody></table>
       ${cite('Point values: Lilly, Christian Astrology, Book I, the table of essential and accidental fortitudes and debilities. Terms and faces: Ptolemy, Tetrabiblos I. Triplicities: Dorotheus, Carmen I (Dorothean); Ptolemy I (Ptolemaic). Aspects to Jupiter, Venus and the fixed stars, which Lilly also scores, are judged in the text instead.')}`);
+
+    if (S.sec.bounds) page('bounds', 'Bounds and faces', () => {
+      const bound = (lon, sys) => { const d = E.norm(lon) % 30; const t = termsOf(signName(lon), A.day, sys); const i = t.findIndex(([, end]) => d < end); return { lord: t[i][0], from: i ? t[i - 1][1] : 0, to: t[i][1] }; };
+      const cell = (b) => `${G(b.lord)} <span class="src" style="font-style:normal">${b.from}–${b.to}°</span>`;
+      const face = (lon) => { const k = Math.floor((E.norm(lon) % 30) / 10); return `${G(faceLord(lon))} <span class="src" style="font-style:normal">${k * 10}–${k * 10 + 10}°</span>`; };
+      const pts = T7.map((id) => [`${G(id)} ${N(id)}`, A.B[id].lon]).concat([['As Ascendant', ch.angles.asc], ['Mc Midheaven', ch.angles.mc], ['⊗ Lot of Fortune', A.fortune]]);
+      const run = (t) => t.map(([p, end]) => `${G(p)}${end}`).join(' ');
+      return `${head('Bounds and faces')}
+      <p>Each sign is divided into five unequal <b>bounds</b> (terms), each ruled by one of the five planets, and into three <b>faces</b> of ten degrees, ruled in the Chaldean order of the planets. The lord of the bound a planet or angle falls in has a say in it, and the bound lord of the Ascendant was taken by many authors as a ruler of the life. Ptolemy gives two systems of bounds: the <b>Egyptian</b>, which he trusts most, and the <b>Chaldean</b>, simpler in pattern, whose airy lords change with the sect. Both are shown; the dignity scores use the ${TERM_NAME()}.</p>
+      <h4>The bounds and faces of this chart</h4>
+      <table><thead><tr><th>Point</th><th class="r">Position</th><th>Egyptian bound</th><th>Chaldean bound (${A.day ? 'day' : 'night'})</th><th>Face</th></tr></thead><tbody>
+        ${pts.map(([n, lon], i) => `<tr class="${i === 7 ? 'hi' : ''}"><td>${n}</td><td class="r">${fmtLon(lon)}</td><td>${cell(bound(lon, 'egyptian'))}</td><td>${cell(bound(lon, 'chaldean'))}</td><td>${face(lon)}</td></tr>`).join('')}
+      </tbody></table>
+      <h4>The bounds of every sign</h4>
+      <table><thead><tr><th>Sign</th><th>Egyptian bounds (lord, last degree)</th><th>Chaldean bounds, by ${A.day ? 'day' : 'night'}</th><th>Faces</th></tr></thead><tbody>
+        ${E.SIGNS.map((sg) => `<tr class="${sg.name === signName(ch.angles.asc) ? 'hi' : ''}"><td><i class="gs ${ELC[sg.element]}">${sg.glyph}</i> ${sg.name}</td><td>${run(TERMS[sg.name])}</td><td>${run(chaldeanTerms(sg.name, A.day))}</td><td>${[0, 10, 20].map((d) => G(faceLord(sg.start + d))).join(' ')}</td></tr>`).join('')}
+      </tbody></table>
+      <p class="src" style="margin-top:6px">Read ♃6 ♀12 as: Jupiter rules the bound to the 6th degree, Venus from there to the 12th. The highlighted sign is the rising one. By ${A.day ? 'night' : 'day'} the Chaldean bounds swap Saturn and Mercury in the airy places.</p>
+      ${cite('Ptolemy, Tetrabiblos I.20 ("Of the disposition of terms", the Egyptian table, checked against Robbins\'s text), I.21 ("According to the Chaldaeans") and I.23 (faces). The bound lord of the Ascendant as a ruler of the life: Valens, Anthology; Firmicus, Mathesis.')}`;
+    });
 
     if (S.sec.temperament) page('temperament', 'Temperament and the quality of the soul', () => { const T = temperament(A); const m = A.B.mercury, mo = A.B.moon;
       const mMode = MODE[signIdx(m.lon) % 3], moMode = MODE[signIdx(mo.lon) % 3];
@@ -935,7 +971,7 @@ input, select, textarea { font: inherit; }
 
     if (S.sec.houses) [[1, 6], [7, 12]].forEach(([a, z], k) => page(`houses${k}`, k ? 'The houses (2)' : 'The twelve houses', () => `${head(k ? 'The twelve houses, continued' : 'The twelve houses')}
       ${k ? '' : '<p>Each house is judged by the sign on its cusp, the condition and place of its lord, and any planet in it. Benefics in a house, or a strong lord, promise good in its matters; malefics, or a weak and badly placed lord, promise difficulty.</p>'}
-      ${[...Array(z - a + 1).keys()].map((i) => { const h = a + i; return `<div class="house"><h5>${h}. ${HOUSE_NAME[h]} <span class="src" style="font-style:normal">${fmtLon(A.cusps[h - 1])} · lord ${G(A.lordOf(h))}</span></h5>${houseReading(A, h).map((t) => `<p>${t}</p>`).join('')}</div>`; }).join('')}
+      ${[...Array(z - a + 1).keys()].map((i) => { const h = a + i; return `<div class="house"><h5>${h}. ${HOUSE_NAME[h]} <span class="src" style="font-style:normal">${S.houses === 'whole' ? `<i class="gs ${ELC[E.SIGNS[signIdx(A.cusps[h - 1])].element]}">${E.SIGNS[signIdx(A.cusps[h - 1])].glyph}</i> ${signName(A.cusps[h - 1])}` : fmtLon(A.cusps[h - 1])}${h === 1 ? ` · Ascendant ${fmtLon(ch.angles.asc)}` : h === A.houseOf(ch.angles.mc) ? ` · Midheaven ${fmtLon(ch.angles.mc)}` : ''} · lord ${G(A.lordOf(h))}</span></h5>${houseReading(A, h).map((t) => `<p>${t}</p>`).join('')}</div>`; }).join('')}
       ${cite('Lilly, Christian Astrology III, the judgment of each house in a nativity; Ptolemy, Tetrabiblos IV (material fortune, profession, marriage, children, friends, travel); Firmicus Maternus, Mathesis III.')}`));
 
     if (S.sec.lots) page('lots', 'Lots and fixed stars', () => { const yrs = (p.ms / 864e5 / 365.2425) + 1970 - 2000; const hits = [];
@@ -1022,7 +1058,7 @@ input, select, textarea { font: inherit; }
         <li><i>Picatrix</i> <span class="tag ref">consulted, not quoted</span>: all English translations are in copyright.</li>
       </ol>
       <h4>Data</h4><ol class="refs"><li>Planetary positions: JPL Keplerian elements (E. M. Standish) and Meeus, <i>Astronomical Algorithms</i> for the Moon, as in FEMT.</li><li>Fixed stars: Yale Bright Star Catalogue, 5th ed. <span class="tag pd">PD</span></li></ol>
-      <h4>Settings used</h4><table><tbody><tr><td>Zodiac</td><td>Tropical</td></tr><tr><td>Houses</td><td>${S.houses === 'whole' ? 'Whole sign' : cap(S.houses)}</td></tr><tr><td>Triplicities</td><td>${S.trip === 'dorothean' ? 'Dorothean' : 'Ptolemaic (Lilly)'}</td></tr><tr><td>Terms</td><td>Egyptian</td></tr><tr><td>Faces</td><td>Chaldean</td></tr><tr><td>Modern planets</td><td>${S.modern === 'off' ? 'Left out' : 'Listed, not judged'}</td></tr><tr><td>Length of life and death</td><td>${S.omitDeath ? 'Left out' : 'Included'}</td></tr></tbody></table>`);
+      <h4>Settings used</h4><table><tbody><tr><td>Zodiac</td><td>Tropical</td></tr><tr><td>Houses</td><td>${S.houses === 'whole' ? 'Whole sign' : cap(S.houses)}</td></tr><tr><td>Triplicities</td><td>${S.trip === 'dorothean' ? 'Dorothean' : 'Ptolemaic (Lilly)'}</td></tr><tr><td>Terms (bounds)</td><td>${TERM_NAME()}; both shown on the bounds page</td></tr><tr><td>Faces</td><td>Chaldean</td></tr><tr><td>Modern planets</td><td>${S.modern === 'off' ? 'Left out' : 'Listed, not judged'}</td></tr><tr><td>Length of life and death</td><td>${S.omitDeath ? 'Left out' : 'Included'}</td></tr></tbody></table>`);
     return out;
   }
 

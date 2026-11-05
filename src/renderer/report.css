@@ -81,6 +81,8 @@
 .paper .wheel .sign { font-size: 24px; }
 .paper .wheel .house-num { font-size: 15px; fill: #8a7d62; font-style: italic; font-family: var(--f-text); }
 .paper .wheel .angle-label { font-size: 15px; fill: #3b3020; font-family: var(--f-ui); }
+.paper .wheel .angle-deg { font-size: 19px; fill: #1d1a14; font-family: var(--f-ui); font-weight: 600; }
+.paper .wheel .angle-deg tspan { font-family: var(--f-sym); font-weight: 400; }
 .paper .wheel .glyph { font-size: 25px; }
 .paper .wheel .deg { font-size: 12px; fill: #8a7d62; font-family: var(--f-ui); }
 .paper .wheel .tick-body { stroke: #6b5f48; stroke-width: 1.4; }

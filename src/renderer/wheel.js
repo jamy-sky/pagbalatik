@@ -50,10 +50,18 @@
       const [nx, ny] = pos(c + E.norm(cs[(i + 1) % 12] - c) / 2, (R.h0 + R.asp) / 2);
       s += `<text x="${nx.toFixed(1)}" y="${ny.toFixed(1)}" class="house-num">${i + 1}</text>`;
     });
+    // The angles, with the degree of the Ascendant and Midheaven written beside them.
     [['asc', 'As'], ['dsc', 'Ds'], ['mc', 'Mc'], ['ic', 'Ic']].forEach(([k, l]) => {
-      s += line(pos(main.angles[k], R.z1), pos(main.angles[k], R.z1 + 12), 'cusp angle');
-      const [lx, ly] = pos(main.angles[k], R.z1 + 26);
+      const lon = main.angles[k];
+      s += line(pos(lon, R.z1), pos(lon, R.z1 + 12), 'cusp angle');
+      const [lx, ly] = pos(lon, R.z1 + 26);
       s += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="angle-label">${l}</text>`;
+      if (k === 'asc' || k === 'mc') {
+        const sg = E.signOf(lon);
+        // Under the "As" label, over the "Mc" label: kept inside the drawing whatever the angle.
+        const dx = lx, dy = ly + (k === 'asc' ? 22 : -22);
+        s += `<text x="${dx.toFixed(1)}" y="${dy.toFixed(1)}" class="angle-deg">${sg.deg}°${pad(sg.min)}′<tspan class="${ELC[sg.sign.element]}" dx="2">${sg.sign.glyph}</tspan><title>${k === 'asc' ? 'Ascendant' : 'Midheaven'} ${sg.deg}°${pad(sg.min)}′ ${sg.sign.name}</title></text>`;
+      }
     });
     const shown = new Set(show(main).map((b) => b.id));
     for (const a of main.aspects) {
@@ -68,7 +76,7 @@
     }).join('');
     s += ring(main, R.glyph, R.h0 + (bi ? 76 : 106), R.label, 'inner');
     if (bi) s += ring(outer, R.oG, R.z1, R.oL, 'outer');
-    return `<svg class="wheel" xmlns="http://www.w3.org/2000/svg" viewBox="-34 -34 ${SIZE + 68} ${SIZE + 68}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Chart wheel">${s}</svg>`;
+    return `<svg class="wheel" xmlns="http://www.w3.org/2000/svg" viewBox="-72 -72 ${SIZE + 144} ${SIZE + 144}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Chart wheel">${s}</svg>`;
   }
 
   const api = { svg };

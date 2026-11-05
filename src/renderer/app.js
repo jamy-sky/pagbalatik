@@ -19,7 +19,7 @@
   const HOUSE_SYSTEMS = [['whole', 'Whole sign'], ['porphyry', 'Porphyry'], ['placidus', 'Placidus'], ['equal', 'Equal']];
 
   // ---------- data ----------
-  const REPORT_KEYS = ['logoSize', 'logoWhere', 'practice', 'contact', 'style', 'paper', 'houses', 'trip', 'modern', 'omitDeath', 'cite', 'herbs'];
+  const REPORT_KEYS = ['logoSize', 'logoWhere', 'practice', 'contact', 'style', 'paper', 'houses', 'trip', 'terms', 'modern', 'omitDeath', 'cite', 'herbs'];
   const defaults = () => ({
     version: 1,
     charts: [],
@@ -180,12 +180,13 @@
       <h3>Pages</h3><div class="toc" id="toc"></div>
       <h3>Sections</h3><div class="checks">
         ${chk('cover', 'Cover', 'Logo, practice details, wheel')}${chk('glance', 'The nativity at a glance')}
-        ${chk('dignities', 'Essential and accidental dignity')}${chk('temperament', 'Temperament and the quality of the soul')}
+        ${chk('dignities', 'Essential and accidental dignity')}${chk('bounds', 'Bounds and faces', 'Egyptian and Chaldean bounds, Chaldean faces')}${chk('temperament', 'Temperament and the quality of the soul')}
         ${chk('planets', 'The seven planets')}${chk('houses', 'The twelve houses')}${chk('lots', 'Lots and fixed stars')}
         ${chk('timing', 'Timing: profections and firdaria')}${chk('remedies', 'Working with the chart', 'Magnify, strengthen, neutralize, restrain, settle')}${chk('sources', 'Method and sources')}</div>
       <h3>Method</h3>
       <label class="field"><span>Houses</span><select data-opt="houses">${HOUSE_SYSTEMS.map(([v, l]) => opt(v, l, o.houses)).join('')}<option disabled>Regiomontanus (Lilly): planned</option></select></label>
       <label class="field"><span>Triplicity rulers</span><select data-opt="trip">${opt('dorothean', 'Dorothean (day, night, partner)', o.trip)}${opt('ptolemaic', 'Ptolemaic (as Lilly)', o.trip)}</select></label>
+      <label class="field"><span>Terms (bounds) for the dignity scores</span><select data-opt="terms">${opt('egyptian', 'Egyptian (Ptolemy I.20)', o.terms)}${opt('chaldean', 'Chaldean (Ptolemy I.21)', o.terms)}</select></label>
       <label class="field"><span>Uranus, Neptune, Pluto</span><select data-opt="modern">${opt('listed', 'List them, don\'t judge them', o.modern)}${opt('off', 'Leave them out', o.modern)}</select></label>
       <div class="checks">
         <label><input type="checkbox" data-optb="omitDeath"${o.omitDeath ? ' checked' : ''}><span>Leave out length of life and death<small>The 8th-house judgments of death</small></span></label>
@@ -203,7 +204,8 @@
   // Built after the view is on screen: the remedy pages are packed by measuring them.
   function fillPreview(c) {
     const token = (state.building = {});
-    requestAnimationFrame(() => {
+    // A timer, not an animation frame: frames don't come while the window is minimised or hidden.
+    setTimeout(() => {
       if (state.building !== token || !$('viewer')) return;
       try {
         const { pages } = R.build(c, reportOpts());
@@ -213,7 +215,7 @@
         console.error(e);
         $('viewer').innerHTML = `<div class="busy">Could not build the reading: ${esc(e.message)}</div>`;
       }
-    });
+    }, 0);
   }
 
   async function exportReport(kind) {

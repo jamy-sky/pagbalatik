@@ -232,3 +232,5 @@ body:not([data-theme="night"]) .viewer { background: #8b8578; }
 
 /* The report pages use Windows' own fonts, the same ones the DOCX names, so the two files match. */
 .paper { --f-ui: "Segoe UI", system-ui, sans-serif; }
+.wheel .angle-deg tspan { font-family: var(--f-sym); font-weight: 400; }
+.wheel .angle-deg { font-size: 19px; fill: var(--text); font-family: var(--f-ui); font-weight: 600; }

@@ -19,6 +19,30 @@ const tests = {
     for (const terms of Object.values(R.TERMS)) terms.reduce((from, [p, to]) => { total[p] = (total[p] || 0) + to - from; return to; }, 0);
     assert.deepStrictEqual(total, { jupiter: 79, venus: 82, mercury: 76, mars: 66, saturn: 57 });
   },
+  chaldeanTermsFollowPtolemy() {
+    // Tetrabiblos I.21: "in the first triplicity ... Jupiter is the first to receive terms, then ... Venus, next ...
+    // Saturn, and Mercury, and finally ... Mars"; in the earthy, "Venus is first, then Saturn, and again Mercury,
+    // after these Mars, and finally Jupiter"; 8, 7, 6, 5 and 4 degrees; Saturn before Mercury by day, after by night.
+    const lords = (sign, day) => R.chaldeanTerms(sign, day).map(([p]) => p);
+    assert.deepStrictEqual(lords('Aries', true), ['jupiter', 'venus', 'saturn', 'mercury', 'mars']);
+    assert.deepStrictEqual(lords('Aries', false), ['jupiter', 'venus', 'mercury', 'saturn', 'mars']);
+    assert.deepStrictEqual(lords('Taurus', true), ['venus', 'saturn', 'mercury', 'mars', 'jupiter']);
+    assert.deepStrictEqual(R.chaldeanTerms('Gemini', true).map(([, e]) => e), [8, 15, 21, 26, 30]);
+    // "The sum of the number of degrees thus assigned to Saturn is 78 by day and 66 by night, to Jupiter 72, to Mars
+    // 69, to Venus 75, to Mercury 66 by day and 78 by night."
+    for (const [day, want] of [[true, { saturn: 78, jupiter: 72, mars: 69, venus: 75, mercury: 66 }], [false, { saturn: 66, jupiter: 72, mars: 69, venus: 75, mercury: 78 }]]) {
+      const total = {};
+      for (const s of E.SIGNS) R.chaldeanTerms(s.name, day).reduce((from, [p, to]) => { total[p] = (total[p] || 0) + to - from; return to; }, 0);
+      assert.deepStrictEqual(total, want, day ? 'by day' : 'by night');
+    }
+  },
+  termsOptionChangesTheScore() {
+    // 3° Taurus: Egyptian bound of Venus, Chaldean bound of Venus too; 10° Taurus: Egyptian Mercury, Chaldean Saturn (day).
+    assert.strictEqual(R.termLord(lonOf('Taurus', 10), true, 'egyptian'), 'mercury');
+    assert.strictEqual(R.termLord(lonOf('Taurus', 10), true, 'chaldean'), 'saturn');
+    const term = (opts) => R.essential('saturn', lonOf('Taurus', 10), true, opts).list.some(([n]) => n === 'Term');
+    assert.ok(!term({ terms: 'egyptian' }) && term({ terms: 'chaldean' }));
+  },
   termAndFaceLords() {
     assert.strictEqual(R.termLord(lonOf('Aries', 3)), 'jupiter');
     assert.strictEqual(R.termLord(lonOf('Leo', 15)), 'saturn');

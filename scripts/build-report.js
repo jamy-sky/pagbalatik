@@ -40,8 +40,8 @@ ${helpers}
 ${body}
   const DEFAULTS = {
     logo: null, logoSize: 34, logoWhere: 'all', practice: '', contact: '', style: 'vellum', paper: 'a4',
-    houses: 'whole', trip: 'dorothean', modern: 'listed', omitDeath: true, cite: true, herbs: true,
-    sec: { cover: true, glance: true, dignities: true, temperament: true, planets: true, houses: true, lots: true, timing: true, remedies: true, sources: true },
+    houses: 'whole', trip: 'dorothean', terms: 'egyptian', modern: 'listed', omitDeath: true, cite: true, herbs: true,
+    sec: { cover: true, glance: true, dignities: true, bounds: true, temperament: true, planets: true, houses: true, lots: true, timing: true, remedies: true, sources: true },
   };
   const withBirth = (person) => { const z = E.utcToZoned(person.ms, person.tz); return { ...person, birth: [z.y, z.m, z.d, z.h, z.mi] }; };
   const setOpts = (opts) => { S = { ...DEFAULTS, ...opts, sec: { ...DEFAULTS.sec, ...(opts && opts.sec) } }; };
@@ -53,7 +53,7 @@ ${body}
     return { A, pages: pages(A) };
   }
   const api = {
-    build, DEFAULTS, T7, RULER, EXALT, TERMS, FACES, TRIP, AGRIPPA, CULPEPER, ANTIPATHY, FICINO, termLord, faceLord,
+    build, DEFAULTS, T7, RULER, EXALT, TERMS, FACES, TRIP, chaldeanTerms, AGRIPPA, CULPEPER, ANTIPATHY, FICINO, termLord, faceLord,
     analyse: (person, opts) => { setOpts(opts); return analyse(withBirth(person)); },
     essential: (id, lon, day, opts) => { setOpts(opts); return essential(id, lon, day); },
     remedies: (A, opts) => { setOpts(opts); return remedies(A); },
