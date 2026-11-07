@@ -1,6 +1,6 @@
 {
   "name": "pagbalatik",
-  "version": "0.9.0-beta",
+  "version": "0.9.1-beta",
   "description": "Pagbalatik: natal charts and traditional-astrology reports for Windows, as PDF or DOCX",
   "private": true,
   "scripts": {

@@ -1,6 +1,6 @@
 [package]
 name = "pagbalatik"
-version = "0.9.0-beta"
+version = "0.9.1-beta"
 description = "Pagbalatik: natal charts and traditional-astrology reports for Windows"
 authors = ["jamy-sky"]
 license = "MIT"
