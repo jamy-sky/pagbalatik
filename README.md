@@ -3,8 +3,18 @@
 Natal charts and traditional-astrology reports for Windows, saved on demand as PDF or DOCX. It began as the
 Chart panel of [FEMT PC](https://github.com/jamy-sky/femt-pc) and uses FEMT's chart engine, city list and themes.
 
-**0.9 beta.** Four reports: the natal reading, a transit forecast, a comparison of two charts, and fortune, Spirit
+**0.9.1 beta.** Four reports: the natal reading, a transit forecast, a comparison of two charts, and fortune, Spirit
 and options. The chart sheet is planned, and so are the prayer and psalm for each remedy (from FEMT).
+
+## Install
+
+Download `Pagbalatik-Setup-<version>.exe` from the [latest release](https://github.com/jamy-sky/pagbalatik/releases)
+and run it. It installs for your Windows account only, so you don't need administrator rights. To update, run the
+newer installer: it replaces the old version and keeps your charts and settings. The installer isn't code-signed
+yet, so Windows may warn the first time you run it; choose "More info", then "Run anyway".
+
+That's all you need to use Pagbalatik. The "Building it yourself" section further down is only for people who want
+to change the app or build it from its code.
 
 ## What it does
 
@@ -44,9 +54,13 @@ Astrology*, 1647), Ramesey (*Astrologia Restaurata*, 1653), Gadbury; for the rem
 Agrippa (*Three Books of Occult Philosophy*, 1651) and Culpeper (*The Complete Herbal*, 1653). The Agrippa, Culpeper
 and Ficino entries were checked against the texts; `scripts/test-traditional.js` holds the tables to them.
 
-## Run from source
+## Building it yourself
 
-Requires [Node.js](https://nodejs.org/) 20 or later, [Rust](https://rustup.rs/) and the Visual Studio C++ Build Tools.
+*You don't need this to use Pagbalatik: see [Install](#install).* This section is for anyone who wants to change the
+app, check exactly what it does, or build the installer from the code instead of downloading it.
+
+You'll need three free developer tools: [Node.js](https://nodejs.org/) 20 or later, [Rust](https://rustup.rs/), and
+Microsoft's Visual Studio C++ Build Tools. Then, in the project folder:
 
 ```bash
 npm install
@@ -54,8 +68,9 @@ npm test
 npm run dist
 ```
 
-`npm test` checks the chart engine and the traditional tables and rules. `npm run dist` builds the Windows installer
-into `dist/` as `Pagbalatik-Setup-<version>.exe`. To run it unpackaged, `npx tauri build --debug --no-bundle` and
+`npm install` fetches the build tool the project uses. `npm test` runs the automatic checks: the chart engine, the
+traditional tables and rules, and the reports' techniques. `npm run dist` builds the same Windows installer that's on
+the Releases page, into `dist/` as `Pagbalatik-Setup-<version>.exe`. To run it unpackaged, `npx tauri build --debug --no-bundle` and
 start `src-tauri/target/debug/pagbalatik.exe` (set `PAGBALATIK_USER_DATA` to a folder to use a throwaway profile).
 
 The page is in `src/renderer`; `src-tauri/src` holds the files, the PDF (`pdf.rs`) and the DOCX (`docx.rs`).
@@ -67,5 +82,6 @@ the running app (see its header for how to start the app for it).
 
 ## Mockups
 
-`mockups/` holds the design mockups, each one HTML file you can open in a browser: `astro-app-mockup.html` (the app)
-and `natal-report-mockup.html` (the natal reading, its options and the logo setting).
+`mockups/` holds the design mockups, each one HTML file you can open in a browser: `astro-app-mockup.html` (the app),
+`natal-report-mockup.html` (the natal reading, its options and the logo setting) and `more-reports.html` (the
+forecast, comparison and fortune reports, running the app's own code from `src/renderer`).
