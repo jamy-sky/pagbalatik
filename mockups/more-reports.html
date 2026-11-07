@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>More reports mockup</title>
+<!-- Runs the real report modules from src/renderer. Serve the repository root (not file://) to open it. -->
+<link rel="stylesheet" href="../src/renderer/fonts.css">
+<link rel="stylesheet" href="../src/renderer/styles.css">
+<link rel="stylesheet" href="../src/renderer/report.css">
+<style>
+  .mock-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 16px; background: #0d0e11; color: #c8ccd6; border-bottom: 1px solid #2a2d35; font-size: 13px; }
+  .mock-bar b { color: #fff; }
+  .mock-bar .grp { display: flex; gap: 4px; flex-wrap: wrap; }
+  .mock-bar button { padding: 4px 11px; border: 1px solid #343843; border-radius: 999px; color: #aab0bd; }
+  .mock-bar button.on { border-color: #E8B84A; color: #F2D27A; background: rgba(232,184,74,.1); }
+  .mock-bar select, .mock-bar input { width: auto; background: #16181d; color: #c8ccd6; border: 1px solid #343843; border-radius: 6px; padding: 3px 8px; font-size: 12.5px; }
+  .mock-bar label { display: flex; gap: 6px; align-items: center; }
+  .mock-note { margin-left: auto; color: #7d8492; font-size: 12px; }
+  #main { flex: 1; min-height: 0; display: grid; grid-template-columns: 260px minmax(0,1fr); }
+  .toc-side { overflow: auto; border-right: 1px solid var(--border); background: var(--panel-2); padding: 16px; }
+  .toc-side h2 { margin: 0 0 10px; font: 600 17px var(--f-text); }
+  .toc-side p { color: var(--text-muted); font-size: 12.5px; }
+</style>
+</head>
+<body data-theme="night">
+<div class="mock-bar">
+  <b>More reports · mockup</b>
+  <div class="grp" id="kinds">
+    <button data-k="forecast" class="on">Transit forecast</button>
+    <button data-k="synastry">Comparison</button>
+    <button data-k="fortune">Fortune, Spirit and options</button>
+  </div>
+  <label>Chart <select id="who"></select></label>
+  <label id="who2-l" hidden>With <select id="who2"></select></label>
+  <label id="per-l">From <input type="date" id="from"> for <select id="months"><option value="1">1 month</option><option value="3" selected>3 months</option><option value="6">6 months</option><option value="12">1 year</option></select></label>
+  <span class="mock-note">Real computed charts, sample people. Wording is a draft for review.</span>
+</div>
+<div id="main"><aside class="toc-side"><h2 id="title"></h2><p id="desc"></p><div class="toc" id="toc"></div></aside><div class="viewer" id="viewer"></div></div>
+<div id="print-root"></div>
+
+<script src="../src/renderer/chart-engine.js"></script>
+<script src="../src/renderer/wheel.js"></script>
+<script src="../src/renderer/report.js"></script>
+<script src="../src/renderer/report-kit.js"></script>
+<script src="../src/renderer/forecast.js"></script>
+<script src="../src/renderer/synastry.js"></script>
+<script src="../src/renderer/fortune.js"></script>
+<script>
+(function () {
+  const E = window.ChartEngine;
+  const mk = (name, y, mo, d, h, mi, tz, place, lat, lon) => ({ name, ms: E.zonedToUtc(y, mo, d, h, mi, tz), tz, place: { name: place, lat, lon } });
+  const PEOPLE = [
+    mk('Maria Santos', 1990, 6, 15, 8, 30, 'Asia/Manila', 'Manila', 14.5995, 120.9842),
+    mk('Diego Reyes', 1987, 11, 3, 21, 10, 'Asia/Manila', 'Cebu City', 10.3157, 123.8854),
+    mk('Ana Lim', 2001, 2, 22, 5, 45, 'Asia/Manila', 'Davao City', 7.1907, 125.4553),
+    mk('Grace Okafor', 1995, 4, 1, 23, 20, 'Europe/London', 'London', 51.5074, -0.1278),
+  ];
+  const LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="none" stroke="#8E2A1C" stroke-width="3"/><circle cx="32" cy="32" r="17" fill="none" stroke="#8E2A1C" stroke-width="2"/><path d="M32 3v12M32 49v12M3 32h12M49 32h12" stroke="#8E2A1C" stroke-width="2.5"/><path d="M32 22l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7L32 36.4 26.1 40l1.7-6.7-5.3-4.4 6.9-.5z" fill="#C9973A"/></svg>');
+  const OPTS = { logo: LOGO, practice: 'Sample Practice', contact: 'readings@example.com' };
+  const DESC = {
+    forecast: ['Transit forecast', 'The planets\' transits to the birth chart over a period, read against the year\'s Lord of the Year, with stations and the slow planets\' passage through the houses.'],
+    synastry: ['Comparison', 'Two charts: side by side, Ptolemy\'s test of the lights, receptions, the aspects between them and each one\'s planets in the other\'s houses.'],
+    fortune: ['Fortune, Spirit and options', 'Chance and choice: the Lots of Fortune and Spirit, material fortune after Ptolemy, the seven Hermetic lots, and the life\'s periods by zodiacal releasing.'],
+  };
+  const S = { kind: 'forecast', who: 0, who2: 1 };
+  const $ = (id) => document.getElementById(id);
+  $('who').innerHTML = $('who2').innerHTML = PEOPLE.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
+  $('who2').value = 1;
+  $('from').value = new Date().toISOString().slice(0, 10);
+  function render() {
+    document.querySelectorAll('#kinds button').forEach((b) => b.classList.toggle('on', b.dataset.k === S.kind));
+    $('who2-l').hidden = S.kind !== 'synastry';
+    $('per-l').hidden = S.kind !== 'forecast';
+    $('title').textContent = DESC[S.kind][0]; $('desc').textContent = DESC[S.kind][1];
+    const p = PEOPLE[S.who];
+    let r;
+    try {
+      if (S.kind === 'forecast') r = Forecast.build(p, { ...OPTS, from: $('from').value, months: +$('months').value });
+      else if (S.kind === 'synastry') r = Synastry.build(p, PEOPLE[S.who2 === S.who ? (S.who + 1) % PEOPLE.length : S.who2], OPTS);
+      else r = Fortune.build(p, OPTS);
+    } catch (e) { console.error(e); $('viewer').innerHTML = `<div class="busy">${e.message}</div>`; return; }
+    $('viewer').innerHTML = r.pages.map((pg, i) => pg.html(i + 1, r.pages.length)).join('');
+    $('toc').innerHTML = r.pages.map((pg, i) => `<button data-j="${i}"><span>${i + 1}</span>${pg.title}</button>`).join('');
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.k) { S.kind = b.dataset.k; render(); }
+    if (b.dataset.j) document.querySelectorAll('#viewer .paper')[+b.dataset.j].scrollIntoView({ behavior: 'smooth' });
+  });
+  document.addEventListener('change', (e) => { if (e.target.id === 'who') S.who = +e.target.value; if (e.target.id === 'who2') S.who2 = +e.target.value; render(); });
+  render();
+})();
+</script>
+</body>
+</html>

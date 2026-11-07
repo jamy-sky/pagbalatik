@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "tauri dev",
-    "test": "node scripts/test-chart.js && node scripts/test-traditional.js",
+    "test": "node scripts/test-chart.js && node scripts/test-traditional.js && node scripts/test-reports.js",
     "tauri": "tauri",
     "dist": "tauri build && node scripts/dist.js"
   },

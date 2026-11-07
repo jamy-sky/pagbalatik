@@ -2,7 +2,7 @@
    One chart, or two: a birth chart inside with transits or a second person in an outer ring. */
 (function (root) {
   'use strict';
-  const E = root.ChartEngine;
+  const E = root.ChartEngine || require('./chart-engine.js');
   const DEG = Math.PI / 180;
   const pad = (n) => String(n).padStart(2, '0');
   const ELC = { fire: 'el-fire', earth: 'el-earth', air: 'el-air', water: 'el-water' };
