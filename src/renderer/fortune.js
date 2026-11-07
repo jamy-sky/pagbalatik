@@ -154,7 +154,7 @@
       const subs = cur.subs.filter((p) => p.to > now - YEAR * 2 && p.from < now + YEAR * 6);
       return `<h4>${label}: the current ${E.SIGNS[cur.sign].name} period, by months</h4><table><thead><tr><th>Sub-period</th><th>From</th><th>To</th><th></th></tr></thead><tbody>${subs.map((p) => {
         const ang = angle(p.sign, fSign); const isNow = now >= p.from && now < p.to;
-        return `<tr class="${isNow ? 'hi' : ''}"><td>${sg(p.sign * 30)} ${E.SIGNS[p.sign].name}${isNow ? ' (now)' : ''}</td><td>${D(p.from)}</td><td>${D(p.to)}</td><td>${ang === 10 ? '<b>Peak</b>' : ang ? `angle (${ord(ang)})` : ''}${p.loosed ? ' · <b>loosing of the bond</b>' : ''}</td></tr>`; }).join('')}</tbody></table>`;
+        return `<tr class="${isNow ? 'hi' : ''}"><td>${sg(p.sign * 30)} ${E.SIGNS[p.sign].name}${isNow ? ' (now)' : ''}</td><td>${D(p.from)}</td><td>${D(p.to)}</td><td>${[ang === 10 ? '<b>Peak</b>' : ang ? `angle (${ord(ang)})` : '', p.loosed ? '<b>loosing of the bond</b>' : ''].filter(Boolean).join(' · ')}</td></tr>`; }).join('')}</tbody></table>`;
     };
     page('subperiods', 'The next few years', () => `${head('The next few years')}
       ${sublist(curS, 'Spirit')}

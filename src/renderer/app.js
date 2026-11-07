@@ -95,7 +95,7 @@
         ${natal.houses.fallback ? `<p class="muted small" style="text-align:center">${esc(natal.houses.fallback)}</p>` : ''}
       </div>
       <aside class="side">
-        <div class="cta"><button class="btn primary" data-go="report">Natal reading…</button><button class="btn" data-act="new">New chart</button></div>
+        <div class="cta"><button class="btn primary" data-go="report">Reports…</button><button class="btn" data-act="new">New chart</button></div>
         <label class="field"><span>Name</span><input type="text" id="c-name" value="${esc(c.name)}" spellcheck="false"></label>
         <div class="seg"><button class="${tr ? '' : 'on'}" data-mode="chart">Chart</button><button class="${tr ? 'on' : ''}" data-mode="transits">Transits</button></div>
         ${tr ? `<section class="moment"><span class="label">Transits for</span><div class="row"><input type="datetime-local" id="t-dt" value="${tval}"><button class="chip${state.live ? ' on' : ''}" data-act="now" style="flex:none">Now</button></div></section>` : ''}
@@ -161,44 +161,71 @@
         return `<tr class="${c.id === D.settings.current ? 'sel' : ''}"><td class="nm">${esc(c.name)}</td><td>${fmtBirth(c)}</td><td>${esc(c.place.name || '—')} <span class="muted small">${offsetText(zoned(c).offset)}</span></td>
         <td class="big3"><span class="${ELC[sun.sign.element]}" title="Sun in ${sun.sign.name}">${sun.sign.glyph}</span><span class="${ELC[moon.sign.element]}" title="Moon in ${moon.sign.name}">${moon.sign.glyph}</span><span class="${ELC[as.sign.element]}" title="${as.sign.name} rising">${as.sign.glyph}</span></td>
         <td><input type="text" class="tags-in" data-tags="${c.id}" value="${esc((c.tags || []).join(', '))}" placeholder="add tags" style="width:150px;padding:3px 7px;font-size:12px"></td>
-        <td class="acts"><button class="btn" data-open="${c.id}">Open</button> <button class="btn" data-report="${c.id}">Reading…</button> <button class="btn" data-dup="${c.id}">Copy</button> <button class="btn danger" data-del="${c.id}">Delete</button></td></tr>`; }).join('')}
+        <td class="acts"><button class="btn" data-open="${c.id}">Open</button> <button class="btn" data-report="${c.id}">Reports…</button> <button class="btn" data-dup="${c.id}">Copy</button> <button class="btn danger" data-del="${c.id}">Delete</button></td></tr>`; }).join('')}
       </tbody></table>${!list.length ? '<p class="muted">No chart matches.</p>' : ''}` : '<p class="muted">No charts yet.</p>'}
       <div class="lib-foot"><button class="btn" data-act="import">Import…</button><button class="btn" data-act="export"${D.charts.length ? '' : ' disabled'}>Export all…</button>${state.femt ? '<button class="btn" data-act="femt">Add FEMT\'s birth chart</button>' : ''}<span class="muted small">Saved on this PC only.</span></div>
     </div>`;
   }
 
-  // ---------- the natal reading ----------
+  // ---------- the reports ----------
   const reportOpts = () => ({ ...RS(), logo: state.logo, sec: { ...RS().sec } });
+  const TYPES = [['natal', 'Natal reading'], ['forecast', 'Transit forecast'], ['synastry', 'Comparison'], ['fortune', 'Fortune, Spirit and options']];
+  const typeOf = () => (TYPES.some(([t]) => t === D.settings.reportType) ? D.settings.reportType : 'natal');
+  const todayIso = () => { const z = E.utcToZoned(Date.now(), sysTz); return `${z.y}-${pad(z.m)}-${pad(z.d)}`; };
+  const partnerOf = (c) => D.charts.find((x) => x.id === D.settings.partner && x.id !== c.id) || D.charts.find((x) => x.id !== c.id) || null;
+  /** The report of the chosen type for chart c: { pages, title, file (name to save as), header (DOCX header text) }. */
+  function buildReport(c) {
+    const o = reportOpts(), t = typeOf();
+    if (t === 'forecast') {
+      const r = window.Forecast.build(c, { ...o, from: state.forecastFrom || todayIso(), months: +D.settings.forecastMonths || 3 });
+      return { ...r, title: 'Transit forecast', file: `Transit forecast - ${c.name}`, header: `${c.name} · Transit forecast` };
+    }
+    if (t === 'synastry') {
+      const p = partnerOf(c);
+      if (!p) throw new Error('A comparison needs a second saved chart. Add one in Saved charts.');
+      return { ...window.Synastry.build(c, p, o), title: 'Comparison', file: `Comparison - ${c.name} & ${p.name}`, header: `${c.name} & ${p.name} · Comparison` };
+    }
+    if (t === 'fortune') return { ...window.Fortune.build(c, o), title: 'Fortune, Spirit and options', file: `Fortune, Spirit and options - ${c.name}`, header: `${c.name} · Fortune, Spirit and options` };
+    return { ...R.build(c, o), title: 'Natal reading', file: `Natal reading - ${c.name}`, header: `${c.name} · Natal reading` };
+  }
+
   function reportView(c) {
-    const o = RS();
+    const o = RS(), t = typeOf();
     const chk = (k, l, d) => `<label><input type="checkbox" data-sec="${k}"${o.sec[k] ? ' checked' : ''}><span>${l}${d ? `<small>${d}</small>` : ''}</span></label>`;
     const opt = (v, l, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${l}</option>`;
-    return `<div class="rep"><div class="rep-side">
-      <h2>Natal reading</h2>
-      <label class="field"><span>Chart</span><select id="r-chart">${D.charts.slice().sort((a, b) => a.name.localeCompare(b.name)).map((x) => opt(x.id, esc(x.name), c.id)).join('')}</select></label>
-      <div class="gen"><button class="btn primary" data-export="pdf">Save PDF…</button><button class="btn" data-export="docx">Save DOCX…</button></div>
-      <h3>Pages</h3><div class="toc" id="toc"></div>
-      <h3>Sections</h3><div class="checks">
+    const charts = D.charts.slice().sort((a, b) => a.name.localeCompare(b.name));
+    const partner = partnerOf(c);
+    const natal = `<h3>Sections</h3><div class="checks">
         ${chk('cover', 'Cover', 'Logo, practice details, wheel')}${chk('glance', 'The nativity at a glance')}
         ${chk('dignities', 'Essential and accidental dignity')}${chk('bounds', 'Bounds and faces', 'Egyptian and Chaldean bounds, Chaldean faces')}${chk('temperament', 'Temperament and the quality of the soul')}
         ${chk('planets', 'The seven planets')}${chk('houses', 'The twelve houses')}${chk('lots', 'Lots and fixed stars')}
-        ${chk('timing', 'Timing: profections and firdaria')}${chk('remedies', 'Working with the chart', 'Magnify, strengthen, neutralize, restrain, settle')}${chk('sources', 'Method and sources')}</div>
-      <h3>Method</h3>
+        ${chk('timing', 'Timing: profections and firdaria')}${chk('remedies', 'Working with the chart', 'Magnify, strengthen, neutralize, restrain, settle')}${chk('sources', 'Method and sources')}</div>`;
+    const method = `<h3>Method</h3>
       <label class="field"><span>Houses</span><select data-opt="houses">${HOUSE_SYSTEMS.map(([v, l]) => opt(v, l, o.houses)).join('')}<option disabled>Regiomontanus (Lilly): planned</option></select></label>
       <label class="field"><span>Triplicity rulers</span><select data-opt="trip">${opt('dorothean', 'Dorothean (day, night, partner)', o.trip)}${opt('ptolemaic', 'Ptolemaic (as Lilly)', o.trip)}</select></label>
       <label class="field"><span>Terms (bounds) for the dignity scores</span><select data-opt="terms">${opt('egyptian', 'Egyptian (Ptolemy I.20)', o.terms)}${opt('chaldean', 'Chaldean (Ptolemy I.21)', o.terms)}</select></label>
-      <label class="field"><span>Uranus, Neptune, Pluto</span><select data-opt="modern">${opt('listed', 'List them, don\'t judge them', o.modern)}${opt('off', 'Leave them out', o.modern)}</select></label>
+      <label class="field"><span>Uranus, Neptune, Pluto</span><select data-opt="modern">${opt('listed', t === 'natal' ? 'List them, don\'t judge them' : 'Include them, marked as modern', o.modern)}${opt('off', 'Leave them out', o.modern)}</select></label>
       <div class="checks">
-        <label><input type="checkbox" data-optb="omitDeath"${o.omitDeath ? ' checked' : ''}><span>Leave out length of life and death<small>The 8th-house judgments of death</small></span></label>
+        ${t === 'natal' ? `<label><input type="checkbox" data-optb="omitDeath"${o.omitDeath ? ' checked' : ''}><span>Leave out length of life and death<small>The 8th-house judgments of death</small></span></label>` : ''}
         <label><input type="checkbox" data-optb="cite"${o.cite ? ' checked' : ''}><span>Cite sources under each section</span></label>
-        <label><input type="checkbox" data-optb="herbs"${o.herbs ? ' checked' : ''}><span>Include plants (Culpeper)<small>With a not-medical-advice note</small></span></label></div>
+        ${t === 'natal' ? `<label><input type="checkbox" data-optb="herbs"${o.herbs ? ' checked' : ''}><span>Include plants (Culpeper)<small>With a not-medical-advice note</small></span></label>` : ''}</div>`;
+    return `<div class="rep"><div class="rep-side">
+      <label class="field"><span>Report</span><select id="r-type">${TYPES.map(([v, l]) => opt(v, l, t)).join('')}</select></label>
+      <label class="field"><span>${t === 'synastry' ? 'First chart (inner wheel)' : 'Chart'}</span><select id="r-chart">${charts.map((x) => opt(x.id, esc(x.name), c.id)).join('')}</select></label>
+      ${t === 'synastry' ? `<label class="field"><span>Compared with (outer ring)</span>${partner ? `<select id="r-partner">${charts.filter((x) => x.id !== c.id).map((x) => opt(x.id, esc(x.name), partner.id)).join('')}</select>` : '<span class="muted small">Add a second chart in <a href="#" data-go="library">Saved charts</a> to compare.</span>'}</label>` : ''}
+      ${t === 'forecast' ? `<div class="row"><label class="field"><span>From</span><input type="date" id="r-from" value="${state.forecastFrom || todayIso()}"></label>
+        <label class="field"><span>For</span><select id="r-months">${[[1, '1 month'], [3, '3 months'], [6, '6 months'], [12, '1 year']].map(([v, l]) => opt(String(v), l, String(D.settings.forecastMonths || 3))).join('')}</select></label></div>` : ''}
+      <div class="gen"><button class="btn primary" data-export="pdf">Save PDF…</button><button class="btn" data-export="docx">Save DOCX…</button></div>
+      <h3>Pages</h3><div class="toc" id="toc"></div>
+      ${t === 'natal' ? natal : ''}
+      ${method}
       <h3>Look</h3>
       <div class="row"><label class="field"><span>Style</span><select data-opt="style">${opt('vellum', 'Vellum', o.style)}${opt('clean', 'Clean', o.style)}</select></label>
         <label class="field"><span>Paper</span><select data-opt="paper">${opt('a4', 'A4', o.paper)}${opt('letter', 'US Letter', o.paper)}</select></label></div>
-      <p class="muted small" style="margin:0">Logo, practice name and contact lines are in <a href="#" data-go="settings">Settings</a>.</p>
-      <div class="later"><b>Planned report types:</b> Chart sheet, Transit forecast, Comparison. <b>Planned in this report:</b> the prayer and psalm for each remedy, from FEMT.</div>
+      <p class="muted small" style="margin:0">Logo, practice name and contact lines are in <a href="#" data-go="settings">Settings</a>. These choices apply to every report.</p>
+      <div class="later"><b>Planned:</b> the chart sheet; in the natal reading, the prayer and psalm for each remedy, from FEMT.</div>
     </div>
-    <div class="viewer" id="viewer"><div class="busy">Working out the reading…</div></div></div>`;
+    <div class="viewer" id="viewer"><div class="busy">Working out the report…</div></div></div>`;
   }
 
   // Built after the view is on screen: the remedy pages are packed by measuring them.
@@ -208,12 +235,12 @@
     setTimeout(() => {
       if (state.building !== token || !$('viewer')) return;
       try {
-        const { pages } = R.build(c, reportOpts());
+        const { pages } = buildReport(c);
         $('viewer').innerHTML = pages.map((pg, i) => pg.html(i + 1, pages.length)).join('');
         $('toc').innerHTML = pages.map((pg, i) => `<button data-jump="${i}"><span>${i + 1}</span>${esc(pg.title)}</button>`).join('');
       } catch (e) {
         console.error(e);
-        $('viewer').innerHTML = `<div class="busy">Could not build the reading: ${esc(e.message)}</div>`;
+        $('viewer').innerHTML = `<div class="busy">Could not build the report: ${esc(e.message)}</div>`;
       }
     }, 0);
   }
@@ -222,7 +249,9 @@
     const c = current();
     if (!c) return;
     if (!app.desktop) { toast('Reports are saved from the desktop app.', true); return; }
-    const path = await app.reportPath(kind, `Natal reading - ${c.name}`);
+    let rep;
+    try { rep = buildReport(c); } catch (e) { toast(esc(e.message), true); return; }
+    const path = await app.reportPath(kind, rep.file);
     if (!path) return;
     const buttons = document.querySelectorAll('[data-export]');
     buttons.forEach((b) => (b.disabled = true));
@@ -230,7 +259,7 @@
     const root = $('print-root');
     try {
       const o = reportOpts();
-      const { pages } = R.build(c, o);
+      const { pages } = buildReport(c);
       root.innerHTML = pages.map((pg, i) => pg.html(i + 1, pages.length)).join('');
       await Promise.all([...root.querySelectorAll('img')].map((i) => (i.decode ? i.decode().catch(() => {}) : null)));
       if (kind === 'pdf') {
@@ -239,7 +268,7 @@
       } else {
         const model = window.DocxModel.build([...root.querySelectorAll('.paper')], {
           paper: o.paper, logo: state.logo, logoSize: o.logoSize, logoWhere: o.logoWhere,
-          headerText: `${c.name} · Natal reading`, footer: `${o.practice || 'Pagbalatik'} · Natal reading · tropical zodiac, ${o.houses === 'whole' ? 'whole-sign' : o.houses} houses`,
+          headerText: rep.header, footer: `${o.practice || 'Pagbalatik'} · ${rep.title} · tropical zodiac, ${o.houses === 'whole' ? 'whole-sign' : o.houses} houses`,
           accent: o.style === 'clean' ? '23407F' : '8E2A1C',
         });
         await app.exportDocx(path, model);
@@ -392,6 +421,10 @@
     if (el.id === 'c-tz' && c) { const tz = canonZone(el.value.trim()); if (!tz) { el.value = c.tz; toast('That isn\'t a time zone this PC knows.', true); return; } updateChart(c, { ms: setZone(c, tz), tz }); return; }
     if (el.id === 'c-houses') { RS().houses = el.value; persist(); render(); return; }
     if (el.id === 'r-chart') { D.settings.current = el.value; persist(); render(); return; }
+    if (el.id === 'r-type') { D.settings.reportType = el.value; persist(); render(); return; }
+    if (el.id === 'r-partner') { D.settings.partner = el.value; persist(); render(); return; }
+    if (el.id === 'r-from') { state.forecastFrom = el.value || null; render(); return; }
+    if (el.id === 'r-months') { D.settings.forecastMonths = +el.value; persist(); render(); return; }
     if (d.tags) { const x = D.charts.find((y) => y.id === d.tags); if (x) { x.tags = el.value.split(',').map((t) => t.trim()).filter(Boolean); persist(); } return; }
     if (d.sec) { RS().sec[d.sec] = el.checked; persist(); render(); return; }
     if (d.opt) { RS()[d.opt] = el.value; persist(); render(); return; }

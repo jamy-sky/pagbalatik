@@ -234,3 +234,9 @@ body:not([data-theme="night"]) .viewer { background: #8b8578; }
 .paper { --f-ui: "Segoe UI", system-ui, sans-serif; }
 .wheel .angle-deg tspan { font-family: var(--f-sym); font-weight: 400; }
 .wheel .angle-deg { font-size: 19px; fill: var(--text); font-family: var(--f-ui); font-weight: 600; }
+
+/* The transit forecast's period bars: the window in orb across the period, with a tick at each exact pass. */
+.paper .bar { height: 7px; border-radius: 3px; background: #eee5d2; position: relative; overflow: hidden; margin-top: 3px; }
+.paper.clean .bar { background: #e6ebf2; }
+.paper .bar i { position: absolute; top: 0; bottom: 0; background: var(--pa); opacity: .5; border-radius: 3px; }
+.paper .bar b { position: absolute; top: -1px; bottom: -1px; width: 2px; background: var(--ink); }

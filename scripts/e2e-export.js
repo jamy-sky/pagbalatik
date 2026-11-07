@@ -4,14 +4,16 @@
 //   set PAGBALATIK_USER_DATA=%TEMP%\pagbalatik-test
 //   set WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9229
 //   npm start
-//   node scripts/e2e-export.js <output folder>
+//   node scripts/e2e-export.js <output folder> [natal|forecast|synastry|fortune]
 //
-// It adds a sample chart if the profile has none, builds the natal reading, and saves it as PDF and DOCX through
-// the same calls the Save buttons use (without the save dialog), then reports the files' sizes.
+// It adds two sample charts if the profile has fewer, builds the chosen report (the natal reading by default), and
+// saves it as PDF and DOCX through the same calls the Save buttons use (without the save dialog), then reports the
+// files' sizes.
 const fs = require('fs');
 const path = require('path');
 
 const out = path.resolve(process.argv[2] || '.');
+const type = process.argv[3] || 'natal';
 const PORT = process.env.CDP_PORT || 9229;
 
 async function main() {
@@ -30,8 +32,8 @@ async function main() {
     return r.result?.result?.value;
   };
 
-  const pdf = path.join(out, 'e2e-natal-reading.pdf');
-  const docx = path.join(out, 'e2e-natal-reading.docx');
+  const pdf = path.join(out, `e2e-${type}.pdf`);
+  const docx = path.join(out, `e2e-${type}.docx`);
   for (const f of [pdf, docx]) if (fs.existsSync(f)) fs.rmSync(f);
 
   const result = await evaluate(`(async () => {
@@ -43,16 +45,23 @@ async function main() {
       const dt = document.getElementById('c-dt'); dt.value = '1990-06-15T08:30'; dt.dispatchEvent(new Event('change', { bubbles: true })); await wait(800);
       data = await app.load();
     }
+    if (data.charts.length < 2) {
+      document.querySelector('[data-act=new]').click(); await wait(300);
+      const n = document.getElementById('c-name'); n.value = 'Diego Reyes'; n.dispatchEvent(new Event('change', { bubbles: true })); await wait(100);
+      const dt = document.getElementById('c-dt'); dt.value = '1987-11-03T21:10'; dt.dispatchEvent(new Event('change', { bubbles: true })); await wait(800);
+      data = await app.load();
+    }
     const c = data.charts[0];
     const logo = await app.logo.get();
     const o = { ...data.settings.report, practice: data.settings.report.practice || 'Sample Practice', contact: 'readings@example.com', logo };
-    const { pages } = Report.build(c, o);
+    const type = ${JSON.stringify(type)};
+    const { pages } = type === 'forecast' ? Forecast.build(c, { ...o, months: 3 }) : type === 'synastry' ? Synastry.build(c, data.charts[1], o) : type === 'fortune' ? Fortune.build(c, o) : Report.build(c, o);
     const root = document.getElementById('print-root');
     root.innerHTML = pages.map((pg, i) => pg.html(i + 1, pages.length)).join('');
     await Promise.all([...root.querySelectorAll('img')].map((i) => i.decode().catch(() => {})));
     await app.exportPdf(${JSON.stringify(pdf)}, 8.2677, 11.6929);
     const model = DocxModel.build([...root.querySelectorAll('.paper')], { paper: 'a4', logo, logoSize: o.logoSize, logoWhere: o.logoWhere,
-      headerText: c.name + ' · Natal reading', footer: 'Sample Practice · Natal reading', accent: '8E2A1C' });
+      headerText: c.name + ' · ' + type, footer: 'Sample Practice · Natal reading', accent: '8E2A1C' });
     await app.exportDocx(${JSON.stringify(docx)}, model);
     root.innerHTML = '';
     return { pages: pages.length, blocks: model.blocks.length, logo: !!logo, headerLogo: !!(model.header && model.header.logo) };

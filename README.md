@@ -3,8 +3,8 @@
 Natal charts and traditional-astrology reports for Windows, saved on demand as PDF or DOCX. It began as the
 Chart panel of [FEMT PC](https://github.com/jamy-sky/femt-pc) and uses FEMT's chart engine, city list and themes.
 
-**0.9 beta.** The first report is the natal reading. The chart sheet, transit forecast and comparison are planned,
-and so are the prayer and psalm for each remedy (from FEMT).
+**0.9 beta.** Four reports: the natal reading, a transit forecast, a comparison of two charts, and fortune, Spirit
+and options. The chart sheet is planned, and so are the prayer and psalm for each remedy (from FEMT).
 
 ## What it does
 
@@ -21,6 +21,13 @@ and so are the prayer and psalm for each remedy (from FEMT).
   restrain and settle, with elections, Ficino's way of life, Agrippa's correspondences and Culpeper's plants); and
   its method and sources. Sections, house system, triplicities and style (Vellum or Clean, A4 or Letter) are chosen
   per reading. Judgments of death are left out unless you turn them on.
+- **Transit forecast:** the planets' transits to the birth chart over 1 to 12 months, each with its window and exact
+  passes, read against the year's Lord of the Year, with stations and the slow planets' changes of house.
+- **Comparison:** two charts side by side; Ptolemy's test of the lights (Tetrabiblos IV, "Of marriage"); receptions,
+  aspects between the charts, and each one's planets in the other's houses.
+- **Fortune, Spirit and options:** chance and choice from the Lots of Fortune and Spirit; material fortune after
+  Ptolemy IV; the seven Hermetic lots (Paulus); and zodiacal releasing from both lots (Valens IV), with the peaks
+  ahead.
 - **Save PDF / Save DOCX:** the PDF is the preview, printed by WebView2. The DOCX is built natively, with real headings
   and tables you can edit in Word, and the wheel as a picture.
 - **Settings:** your logo (PNG, JPG or SVG) in the upper left of every report, on the cover and in each page's
