@@ -38,6 +38,17 @@ to change the app or build it from its code.
 - **Fortune, Spirit and options:** chance and choice from the Lots of Fortune and Spirit; material fortune after
   Ptolemy IV; the seven Hermetic lots (Paulus); and zodiacal releasing from both lots (Valens IV), with the peaks
   ahead.
+- **Specialized charts**, in their own section of the Report menu:
+  - *Business:* **Owner and business** (the business's founding chart against the owner's: its significators, each in
+    the other's houses, aspects, receptions and the years when both are strong) and **Founding election** (searches a
+    window of days, hour by hour, for the best moment to found a business, by the traditional rules for beginnings
+    and the owner's chart). A business chart is a saved chart set to "A business or venture"; without an exact time
+    it is cast for noon with whole-sign houses.
+  - *Themed forecasts:* **Money**, **Travel** and **Military service** forecasts: the transits to each area's
+    significators, grouped by area and marked favourable or testing, with the natal promise and the timing layers.
+    Travel notes the mode (water, land; air as a modern extension) after Ptolemy's signs of travel. The military
+    forecast includes periods to take extra care (the traditional judgments of danger), framed as cautions, not
+    predictions; they can be turned off.
 - **Save PDF / Save DOCX:** the PDF is the preview, printed by WebView2. The DOCX is built natively, with real headings
   and tables you can edit in Word, and the wheel as a picture.
 - **Settings:** your logo (PNG, JPG or SVG) in the upper left of every report, on the cover and in each page's

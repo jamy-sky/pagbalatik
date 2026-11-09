@@ -4,7 +4,7 @@
 //   set PAGBALATIK_USER_DATA=%TEMP%\pagbalatik-test
 //   set WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9229
 //   npm start
-//   node scripts/e2e-export.js <output folder> [natal|forecast|synastry|fortune]
+//   node scripts/e2e-export.js <output folder> [natal|forecast|synastry|fortune|money|travel|military|business|election]
 //
 // It adds two sample charts if the profile has fewer, builds the chosen report (the natal reading by default), and
 // saves it as PDF and DOCX through the same calls the Save buttons use (without the save dialog), then reports the
@@ -55,7 +55,10 @@ async function main() {
     const logo = await app.logo.get();
     const o = { ...data.settings.report, practice: data.settings.report.practice || 'Sample Practice', contact: 'readings@example.com', logo };
     const type = ${JSON.stringify(type)};
-    const { pages } = type === 'forecast' ? Forecast.build(c, { ...o, months: 3 }) : type === 'synastry' ? Synastry.build(c, data.charts[1], o) : type === 'fortune' ? Fortune.build(c, o) : Report.build(c, o);
+    const { pages } = type === 'forecast' ? Forecast.build(c, { ...o, months: 3 }) : type === 'synastry' ? Synastry.build(c, data.charts[1], o) : type === 'fortune' ? Fortune.build(c, o)
+      : ['money', 'travel', 'military'].includes(type) ? Themes.build(c, { ...o, theme: type, months: 6 })
+      : type === 'business' ? Business.build(c, { ...data.charts[1], kind: 'business', timeKnown: false }, o)
+      : type === 'election' ? Election.build(c, { ...o, days: 30 }) : Report.build(c, o);
     const root = document.getElementById('print-root');
     root.innerHTML = pages.map((pg, i) => pg.html(i + 1, pages.length)).join('');
     await Promise.all([...root.querySelectorAll('img')].map((i) => i.decode().catch(() => {})));

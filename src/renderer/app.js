@@ -97,10 +97,12 @@
       <aside class="side">
         <div class="cta"><button class="btn primary" data-go="report">Reports…</button><button class="btn" data-act="new">New chart</button></div>
         <label class="field"><span>Name</span><input type="text" id="c-name" value="${esc(c.name)}" spellcheck="false"></label>
+        <div class="row"><label class="field"><span>This chart is for</span><select id="c-kind"><option value="person"${c.kind !== 'business' ? ' selected' : ''}>A person</option><option value="business"${c.kind === 'business' ? ' selected' : ''}>A business or venture</option></select></label></div>
+        <div class="checks"><label><input type="checkbox" id="c-timeknown"${c.timeKnown !== false ? ' checked' : ''}><span>Exact time known<small>${c.kind === 'business' ? 'Registration, opening or first sale. Without it the chart is cast for noon, with whole-sign houses.' : 'Without it the chart is cast for noon, with whole-sign houses.'}</small></span></label></div>
         <div class="seg"><button class="${tr ? '' : 'on'}" data-mode="chart">Chart</button><button class="${tr ? 'on' : ''}" data-mode="transits">Transits</button></div>
         ${tr ? `<section class="moment"><span class="label">Transits for</span><div class="row"><input type="datetime-local" id="t-dt" value="${tval}"><button class="chip${state.live ? ' on' : ''}" data-act="now" style="flex:none">Now</button></div></section>` : ''}
         <section class="moment">
-          <span class="label">Birth data</span>
+          <span class="label">${c.kind === 'business' ? 'Founding data' : 'Birth data'}</span>
           <input type="datetime-local" id="c-dt" value="${val}" aria-label="Date and time of birth">
           <div class="steps">${steps.map(([u, n, l]) => `<button class="chip" data-step="${u}" data-n="${n}">${l}</button>`).join('')}</div>
           <input type="search" id="c-city" placeholder="${esc(c.place.name || 'Search a city')}" autocomplete="off" spellcheck="false" aria-label="Place of birth">
@@ -158,7 +160,7 @@
         <input type="search" class="search" id="lib-q" placeholder="Search by name, place or tag" value="${esc(state.query)}"><button class="btn primary" data-act="new">+ New chart</button></div>
       ${D.charts.length ? `<table class="lib-table"><thead><tr><th>Name</th><th>Born</th><th>Place</th><th>☉ ☽ As</th><th>Tags</th><th></th></tr></thead><tbody>
       ${list.map((c) => { const ch = chartOf(c), sun = ch.bodies[0], moon = ch.bodies[1], as = E.signOf(ch.angles.asc);
-        return `<tr class="${c.id === D.settings.current ? 'sel' : ''}"><td class="nm">${esc(c.name)}</td><td>${fmtBirth(c)}</td><td>${esc(c.place.name || '—')} <span class="muted small">${offsetText(zoned(c).offset)}</span></td>
+        return `<tr class="${c.id === D.settings.current ? 'sel' : ''}"><td class="nm">${esc(c.name)}${c.kind === 'business' ? ' <span class="tag">business</span>' : ''}</td><td>${c.timeKnown === false ? `${fmtBirth(c).split(',')[0]} <span class="muted small">(time unknown)</span>` : fmtBirth(c)}</td><td>${esc(c.place.name || '—')} <span class="muted small">${offsetText(zoned(c).offset)}</span></td>
         <td class="big3"><span class="${ELC[sun.sign.element]}" title="Sun in ${sun.sign.name}">${sun.sign.glyph}</span><span class="${ELC[moon.sign.element]}" title="Moon in ${moon.sign.name}">${moon.sign.glyph}</span><span class="${ELC[as.sign.element]}" title="${as.sign.name} rising">${as.sign.glyph}</span></td>
         <td><input type="text" class="tags-in" data-tags="${c.id}" value="${esc((c.tags || []).join(', '))}" placeholder="add tags" style="width:150px;padding:3px 7px;font-size:12px"></td>
         <td class="acts"><button class="btn" data-open="${c.id}">Open</button> <button class="btn" data-report="${c.id}">Reports…</button> <button class="btn" data-dup="${c.id}">Copy</button> <button class="btn danger" data-del="${c.id}">Delete</button></td></tr>`; }).join('')}
@@ -169,13 +171,35 @@
 
   // ---------- the reports ----------
   const reportOpts = () => ({ ...RS(), logo: state.logo, sec: { ...RS().sec } });
-  const TYPES = [['natal', 'Natal reading'], ['forecast', 'Transit forecast'], ['synastry', 'Comparison'], ['fortune', 'Fortune, Spirit and options']];
+  // The report types, in the Report menu's groups: the core reports, then the specialized charts by subclassification.
+  const TYPE_GROUPS = [
+    ['Core reports', [['natal', 'Natal reading'], ['forecast', 'Transit forecast'], ['synastry', 'Comparison'], ['fortune', 'Fortune, Spirit and options']]],
+    ['Specialized: business', [['business', 'Owner and business'], ['election', 'Founding election']]],
+    ['Specialized: themed forecasts', [['money', 'Money forecast'], ['travel', 'Travel forecast'], ['military', 'Military service forecast']]],
+  ];
+  const TYPES = TYPE_GROUPS.flatMap(([, list]) => list);
+  const THEMED = ['money', 'travel', 'military'];
   const typeOf = () => (TYPES.some(([t]) => t === D.settings.reportType) ? D.settings.reportType : 'natal');
   const todayIso = () => { const z = E.utcToZoned(Date.now(), sysTz); return `${z.y}-${pad(z.m)}-${pad(z.d)}`; };
   const partnerOf = (c) => D.charts.find((x) => x.id === D.settings.partner && x.id !== c.id) || D.charts.find((x) => x.id !== c.id) || null;
+  const businessOf = (c) => D.charts.find((x) => x.id === D.settings.bizChart && x.id !== c.id) || D.charts.find((x) => x.kind === 'business' && x.id !== c.id) || null;
   /** The report of the chosen type for chart c: { pages, title, file (name to save as), header (DOCX header text) }. */
   function buildReport(c) {
     const o = reportOpts(), t = typeOf();
+    const from = state.forecastFrom || todayIso();
+    if (THEMED.includes(t)) {
+      const title = TYPES.find(([x]) => x === t)[1];
+      const r = window.Themes.build(c, { ...o, theme: t, from, months: +D.settings.forecastMonths || 6, care: t === 'military' ? D.settings.militaryCare !== false : false });
+      return { ...r, title, file: `${title} - ${c.name}`, header: `${c.name} · ${title}` };
+    }
+    if (t === 'business') {
+      const b = businessOf(c);
+      if (!b) throw new Error('This report needs a business chart. In Saved charts, make a new chart for the business\'s founding moment and set "This chart is for" to a business.');
+      return { ...window.Business.build(c, b, o), title: 'Owner and business', file: `Owner and business - ${c.name} & ${b.name}`, header: `${c.name} & ${b.name} · Owner and business` };
+    }
+    if (t === 'election') {
+      return { ...window.Election.build(c, { ...o, from, days: +D.settings.electionDays || 60 }), title: 'Founding election', file: `Founding election - ${c.name}`, header: `${c.name} · Founding election` };
+    }
     if (t === 'forecast') {
       const r = window.Forecast.build(c, { ...o, from: state.forecastFrom || todayIso(), months: +D.settings.forecastMonths || 3 });
       return { ...r, title: 'Transit forecast', file: `Transit forecast - ${c.name}`, header: `${c.name} · Transit forecast` };
@@ -210,11 +234,16 @@
         <label><input type="checkbox" data-optb="cite"${o.cite ? ' checked' : ''}><span>Cite sources under each section</span></label>
         ${t === 'natal' ? `<label><input type="checkbox" data-optb="herbs"${o.herbs ? ' checked' : ''}><span>Include plants (Culpeper)<small>With a not-medical-advice note</small></span></label>` : ''}</div>`;
     return `<div class="rep"><div class="rep-side">
-      <label class="field"><span>Report</span><select id="r-type">${TYPES.map(([v, l]) => opt(v, l, t)).join('')}</select></label>
-      <label class="field"><span>${t === 'synastry' ? 'First chart (inner wheel)' : 'Chart'}</span><select id="r-chart">${charts.map((x) => opt(x.id, esc(x.name), c.id)).join('')}</select></label>
+      <label class="field"><span>Report</span><select id="r-type">${TYPE_GROUPS.map(([g, list]) => `<optgroup label="${g}">${list.map(([v, l]) => opt(v, l, t)).join('')}</optgroup>`).join('')}</select></label>
+      <label class="field"><span>${t === 'synastry' ? 'First chart (inner wheel)' : t === 'business' || t === 'election' ? 'Owner' : 'Chart'}</span><select id="r-chart">${charts.map((x) => opt(x.id, esc(x.name), c.id)).join('')}</select></label>
       ${t === 'synastry' ? `<label class="field"><span>Compared with (outer ring)</span>${partner ? `<select id="r-partner">${charts.filter((x) => x.id !== c.id).map((x) => opt(x.id, esc(x.name), partner.id)).join('')}</select>` : '<span class="muted small">Add a second chart in <a href="#" data-go="library">Saved charts</a> to compare.</span>'}</label>` : ''}
-      ${t === 'forecast' ? `<div class="row"><label class="field"><span>From</span><input type="date" id="r-from" value="${state.forecastFrom || todayIso()}"></label>
-        <label class="field"><span>For</span><select id="r-months">${[[1, '1 month'], [3, '3 months'], [6, '6 months'], [12, '1 year']].map(([v, l]) => opt(String(v), l, String(D.settings.forecastMonths || 3))).join('')}</select></label></div>` : ''}
+      ${t === 'business' ? (() => { const b = businessOf(c); return `<label class="field"><span>Business (its founding chart)</span>${b ? `<select id="r-biz">${charts.filter((x) => x.id !== c.id).map((x) => opt(x.id, `${esc(x.name)}${x.kind === 'business' ? '' : ' (person)'}`, b.id)).join('')}</select>` : '<span class="muted small">Make a chart for the business in <a href="#" data-go="library">Saved charts</a>: its founding date and place, set to "A business or venture".</span>'}</label>`; })() : ''}
+      ${['forecast', ...THEMED].includes(t) ? `<div class="row"><label class="field"><span>From</span><input type="date" id="r-from" value="${state.forecastFrom || todayIso()}"></label>
+        <label class="field"><span>For</span><select id="r-months">${[[1, '1 month'], [3, '3 months'], [6, '6 months'], [12, '1 year']].map(([v, l]) => opt(String(v), l, String(D.settings.forecastMonths || (t === 'forecast' ? 3 : 6)))).join('')}</select></label></div>` : ''}
+      ${t === 'election' ? `<div class="row"><label class="field"><span>Search from</span><input type="date" id="r-from" value="${state.forecastFrom || todayIso()}"></label>
+        <label class="field"><span>Over</span><select id="r-days">${[[30, '30 days'], [60, '60 days'], [90, '90 days']].map(([v, l]) => opt(String(v), l, String(D.settings.electionDays || 60))).join('')}</select></label></div>
+        <p class="muted small" style="margin:0">Searched for the owner's place, ${esc(c.place.name || 'as set in their chart')}, every hour from 7:00 to 20:00.</p>` : ''}
+      ${t === 'military' ? `<div class="checks"><label><input type="checkbox" id="r-care"${D.settings.militaryCare !== false ? ' checked' : ''}><span>Include periods to take extra care<small>The traditional judgments of danger and death, framed as cautions, not predictions</small></span></label></div>` : ''}
       <div class="gen"><button class="btn primary" data-export="pdf">Save PDF…</button><button class="btn" data-export="docx">Save DOCX…</button></div>
       <h3>Pages</h3><div class="toc" id="toc"></div>
       ${t === 'natal' ? natal : ''}
@@ -395,7 +424,7 @@
           for (const x of list) {
             if (!Number.isFinite(x?.ms) || !x.place || !Number.isFinite(+x.place.lat) || !Number.isFinite(+x.place.lon)) continue;
             if (D.charts.some((y) => y.id === x.id)) continue;
-            D.charts.push({ id: x.id || uid(), name: String(x.name || 'Imported chart'), ms: x.ms, tz: canonZone(x.tz) || sysTz, place: { name: String(x.place.name || ''), lat: +x.place.lat, lon: +x.place.lon }, tags: Array.isArray(x.tags) ? x.tags.map(String) : [], notes: String(x.notes || ''), created: x.created || Date.now(), updated: Date.now() });
+            D.charts.push({ id: x.id || uid(), name: String(x.name || 'Imported chart'), ms: x.ms, tz: canonZone(x.tz) || sysTz, place: { name: String(x.place.name || ''), lat: +x.place.lat, lon: +x.place.lon }, tags: Array.isArray(x.tags) ? x.tags.map(String) : [], notes: String(x.notes || ''), kind: x.kind === 'business' ? 'business' : 'person', timeKnown: x.timeKnown !== false, created: x.created || Date.now(), updated: Date.now() });
             added++;
           }
           if (!D.settings.current && D.charts[0]) D.settings.current = D.charts[0].id;
@@ -412,6 +441,13 @@
     const el = e.target, d = el.dataset, c = current();
     if (el.id === 'c-name' && c) { updateChart(c, { name: el.value.trim() || 'Untitled chart' }); return; }
     if (el.id === 'c-dt' && c) { const ms = parseLocal(el.value, c.tz); if (ms != null) updateChart(c, { ms }); return; }
+    if (el.id === 'c-kind' && c) { updateChart(c, { kind: el.value }); return; }
+    if (el.id === 'c-timeknown' && c) {
+      // Without a known time, cast for local noon on the day.
+      if (el.checked) updateChart(c, { timeKnown: true });
+      else { const z = zoned(c); updateChart(c, { timeKnown: false, ms: E.zonedToUtc(z.y, z.m, z.d, 12, 0, c.tz) }); }
+      return;
+    }
     if (el.id === 't-dt') { const ms = parseLocal(el.value, sysTz); if (ms != null) { state.transitMs = ms; state.live = false; render(); } return; }
     if ((el.id === 'c-lat' || el.id === 'c-lon') && c) {
       const lat = parseFloat($('c-lat').value), lon = parseFloat($('c-lon').value);
@@ -425,6 +461,9 @@
     if (el.id === 'r-partner') { D.settings.partner = el.value; persist(); render(); return; }
     if (el.id === 'r-from') { state.forecastFrom = el.value || null; render(); return; }
     if (el.id === 'r-months') { D.settings.forecastMonths = +el.value; persist(); render(); return; }
+    if (el.id === 'r-biz') { D.settings.bizChart = el.value; persist(); render(); return; }
+    if (el.id === 'r-days') { D.settings.electionDays = +el.value; persist(); render(); return; }
+    if (el.id === 'r-care') { D.settings.militaryCare = el.checked; persist(); render(); return; }
     if (d.tags) { const x = D.charts.find((y) => y.id === d.tags); if (x) { x.tags = el.value.split(',').map((t) => t.trim()).filter(Boolean); persist(); } return; }
     if (d.sec) { RS().sec[d.sec] = el.checked; persist(); render(); return; }
     if (d.opt) { RS()[d.opt] = el.value; persist(); render(); return; }
