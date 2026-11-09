@@ -3,8 +3,9 @@
 Natal charts and traditional-astrology reports for Windows, saved on demand as PDF or DOCX. It began as the
 Chart panel of [FEMT PC](https://github.com/jamy-sky/femt-pc) and uses FEMT's chart engine, city list and themes.
 
-**0.9.1 beta.** Four reports: the natal reading, a transit forecast, a comparison of two charts, and fortune, Spirit
-and options. The chart sheet is planned, and so are the prayer and psalm for each remedy (from FEMT).
+**0.9.2 beta.** Four core reports (the natal reading, a transit forecast, a comparison of two charts, and fortune,
+Spirit and options) and five specialized charts (owner and business, founding election, and money, travel and
+military service forecasts). The chart sheet is planned, and so are the prayer and psalm for each remedy (from FEMT).
 
 ## Install
 
